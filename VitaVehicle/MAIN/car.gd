@@ -754,10 +754,10 @@ func drivetrain():
 	
 #	torquereadout = multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,rpm,DeclineRPM,DeclineRate,FloatRate,turbopsi,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold)
 	if gear<0:
-		rpm -= ((rpmcs*1.0)/clock_mult)*(RevSpeed/1.475)
+		rpm -= ((rpmcs*1.0)/clock_mult)*(RevSpeed/Constants.REVSPEED_TUNE)
 	else:
-		rpm += ((rpmcs*1.0)/clock_mult)*(RevSpeed/1.475)
-		
+		rpm += ((rpmcs*1.0)/clock_mult)*(RevSpeed/Constants.REVSPEED_TUNE)
+	
 	if "":
 		rpm = 7000.0
 		Locking = 0.0
@@ -767,7 +767,7 @@ func drivetrain():
 		Preload = 1.0
 		Centre_Preload = 1.0
 		ClutchFloatReduction = 0.0
-		
+	
 	gearstress = (abs(resistance)*StressFactor)*clutchpedal
 	var stabled = ratio*0.9 +0.1
 	ds_weight = DSWeight/stabled
@@ -805,7 +805,7 @@ func drivetrain():
 	stabling = max(stabling, 0.0)
 	
 	currentstable = ClutchStable + stabling
-	currentstable *= (RevSpeed/1.475)
+	currentstable *= (RevSpeed/Constants.REVSPEED_TUNE)
 	
 	if dsweightrun>0.0:
 		what = (rpm-(((rpmforce*floatreduction)*pow(currentstable,1.0))/(ds_weight/dsweightrun)))

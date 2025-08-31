@@ -3,10 +3,11 @@
 # Horsepower (hp(I)) = Power (W) / 745.70 W
 #
 # For some reason the guy chose to make it all super difficult by doing this:
-# Distance (Godot unit) * 0.30592 = Distance (meter)
-# Distance (Godot unit) / 3.26882845188 = Distance (meter)
+# Distance (Scaled unit) * 0.30592 = Distance (meter)
+# Distance (Scaled unit) / 3.26882845188 = Distance (meter)
 # NOTE:
 # For code it will be more readable to have functions that convert, rather than constants.
+# Scaled unit refers to the custom scale of the game.
 
 class_name Constants
 extends Node
@@ -15,11 +16,11 @@ extends Node
 ## Gravity (Earth) = 9.80665 (m/s^2)
 const EARTH_GRAVITY := 9.80665
 
-## Distance (Godot unit) * 0.30592 = Distance (meter)
-## Distance (Godot unit) / 3.26882845188 = Distance (meter)
+## Distance (Scaled unit) * 0.30592 = Distance (meter)
+## Distance (Scaled unit) / 3.26882845188 = Distance (meter)
 const UNIT_TO_METER := 0.30592
 
-## Speed (Godot unit) * 1.10130592 = Speed (KMH)
+## Speed (Scaled unit) * 1.10130592 = Speed (KMH)
 const UNIT_TO_KMH := 1.10130592
 
 ## Speed (KMH) * 0.62137119 = Speed (MPH)
@@ -32,5 +33,8 @@ const TQFTRPM_TO_HP := 5252.0
 ## Torque (lbf*ft) * 1.3558179483 = Torque (N.m)
 const LBFFT_TO_NM := 1.3558179483
 
-## Arbitrary thingy
+## Magic number
 const RISE_FACTOR = 1e-7 # 1.0 / 10000000.0
+
+## Magic number
+const REVSPEED_TUNE = 1.475
