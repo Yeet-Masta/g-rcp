@@ -1,20 +1,27 @@
 # Why?
 
+No bad feelings, but i'm just noting what i found to ensure that i can learn from it.
+
 There are so many places in which Jreo decided to use if: elif: instead of clamp(). Let's clean that up.
 
-Sometimes he uses 10000000000000000000000000000000000.0 instead of INF. However that seems intentional, otherwise it doesn't work because in comparisons, INF is not considered a number. I wish it was like Math.HUGE.
+Sometimes he uses 10000000000000000000000000000000000.0 instead of INF. However that seems intentional in certain places. In comparisons, INF is not considered a number, causing an error. I wish it was like Math.HUGE.
 
 There are so many ambiguous and short variable names that just make the code unreadable.
+- steer2 - The physical steer of the wheels.
 
 He also toggles things with if else instead of just doing toggle = !toggle.
 
-Doesn't know how to use remap().
+Doesn't know how to use remap(), uses -x + 2x instead.
 
 Multiplies by 60 to convert to time per second, instead of dividing by delta.
 
-Does (a/b)*(a/b) instead of pow(a/b, 2)
+Does `(a/b)*(a/b)` instead of `pow(a/b, 2)`. That one is more like personal preference.
 
-Uses some weird a*float(is_b_more_than_zero) -a*float(is_b_less_than_zero) which simplifies to a*sign(b)
+Uses some weird `a*float(b>0.0) -a*float(b<0.0)` which simplifies to `a*sign(b)`.
+
+So my questions:
+- Why aren't we simplifying code to make it more readable? - It works for him, but not for me.
+- Why are we using magic numbers everywhere?
 
 # Bugs
 
