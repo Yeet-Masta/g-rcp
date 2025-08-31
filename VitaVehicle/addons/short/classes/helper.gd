@@ -18,7 +18,8 @@
 ## @experimental: This class is immature.
 ## Public helper methods to shorten your code.
 ##
-## Available in all scripts.
+## Available in all scripts without any setup.
+##[br][br]An abstract script full of methods and constants to reduce the amount of code you need to write, and to improve readability.
 
 class_name Helper
 extends Node
@@ -34,34 +35,93 @@ class DirChildrenResult:
 #endregion classes
 
 
+#region constants
+## Represents the acceleration of the Earth on its surface. For true realism, according to Wikipedia, gravity varies by 0.7% depending on your location.
+## Gravity (Earth) = 9.80665 (m/s^2)
+const EARTH_GRAVITY = 9.80665
+#endregion constants
+
+
 #region methods
-#region conversions
-## Converts a time expressed in seconds to milliseconds.
+	#region conversions
+		#region time
+## Converts a time from seconds to milliseconds.
+##[br][br][b]Time (seconds) * 1000 = Time (milliseconds)[/b]
 static func sec_to_msec(sec: float) -> float:
 	return sec * 1_000.0
 
-## Converts a time expressed in seconds to microseconds.
-static func sec_to_usec(sec: float) -> float:
-	return sec * 1_000_000.0
-
-## Converts a time expressed in milliseconds to seconds.
+## Converts a time from milliseconds to seconds.
+##[br][br][b]Time (milliseconds) / 1000 = Time (seconds)[/b]
 static func msec_to_sec(msec: float) -> float:
 	return msec / 1_000.0
 
-## Converts a time expressed in microseconds to seconds.
+## Converts a time from seconds to microseconds.
+##[br][br][b]Time (seconds) * 1000 000 = Time (microseconds)[/b]
+static func sec_to_usec(sec: float) -> float:
+	return sec * 1_000_000.0
+
+## Converts a time from microseconds to seconds.
+##[br][br][b]Time (microseconds) / 1000 000 = Time (seconds)[/b]
 static func usec_to_sec(usec: float) -> float:
 	return usec / 1_000_000.0
+		#endregion time
 
-## Converts a number expressed in units to percentages. Units are from [code]0[/code] to [code]1[/code]. Percentages are from [code]0[/code] to [code]100[/code]. See [method percent_to_unit].
+		#region proportion
+## Converts a proportion from units to percentages. Units are from [code]0[/code] to [code]1[/code]. Percentages are from [code]0[/code] to [code]100[/code]. See [method percent_to_unit].
+##[br][br][b]Proportion (units) * 100 = Proportion (percentages)[/b]
 static func unit_to_percent(unit: float) -> float:
 	return unit * 100.0
 
-## Converts a number expressed in percentages to units. Percentages are from [code]0[/code] to [code]100[/code]. Units are from [code]0[/code] to [code]1[/code]. See [method unit_to_percent].
+## Converts a proportion from percentages to units. Percentages are from [code]0[/code] to [code]100[/code]. Units are from [code]0[/code] to [code]1[/code]. See [method unit_to_percent].
+##[br][br][b]Proportion (percentages) / 100 = Proportion (units)[/b]
 static func percent_to_unit(percent: float) -> float:
 	return percent / 100.0
-#endregion conversions
+		#endregion proportion
 
-#region find_
+		#region distance
+## @experimental: Untested.
+## Converts a distance from meters to millimeters.
+##[br][br][b]Distance (meters) * 1000 = Distance (millimeters)[/b]
+static func meter_to_mm(meter: float) -> float:
+	return meter * 1000.0
+
+## @experimental: Untested.
+## Converts a distance from millimeters to meters.
+##[br][br][b]Distance (millimeters) / 1000 = Distance (meters)[/b]
+static func mm_to_meter(mm: float) -> float:
+	return mm / 1000.0
+		#endregion distance
+
+		#region speed
+## @experimental: Untested.
+## Converts a speed from [code]meters/second[/code] to [code]km/h[/code]. See also [url=https://www.youtube.com/watch?v=wFV3ycTIfn0]Converting m/s to km/h[/url].
+##[br][br][b]Speed (meters/second) * 3.6 = Speed (km/h)[/b]
+static func ms_to_kmh(ms: float) -> float:
+	return ms * 3.6
+
+## @experimental: Untested.
+## Converts a speed from [code]km/h[/code] to [code]meters/second[/code]. See also [url=https://www.youtube.com/watch?v=ahDfIu1kxCU]Converting km/h to m/s[/url].
+##[br][br][b]Speed (km/h) / 3.6 = Speed (meters/second)[/b]
+static func kmh_to_ms(kmh: float) -> float:
+	return kmh / 3.6
+
+## @experimental: Untested.
+## Converts a speed from [code]km/h[/code] to [code]miles/h[/code].
+##[br][br][b]Speed (km/h) * 0.6213712 = Speed (miles/h)[/b]
+##[br][br][b]Speed (km/h) / 1.609344 = Speed (miles/h)[/b]
+static func kmh_to_mph(kmh: float) -> float:
+	return kmh * 0.6213712
+
+## @experimental: Untested.
+## Converts a speed from [code]miles/h[/code] to [code]km/h[/code].
+##[br][br][b]Speed (miles/h) * 1.609344 = Speed (km/h)[/b]
+##[br][br][b]Speed (miles/h) / 0.6213712 = Speed (km/h)[/b]
+static func mph_to_kmh(mph: float) -> float:
+	return mph * 1.609344
+		#endregion speed
+	#endregion conversions
+
+	#region find_
 ## Finds the first descendant of a [param node] that has [param method]. Works similarly to [method Node.find_child]. See [method Object.has_method].
 ##[br][br][b]Note:[/b] This method can be slow.
 static func find_child_with_method(node: Node, method: StringName, recursive := true, owned := true) -> Node:
@@ -111,9 +171,9 @@ static func find_children_with_signal(node: Node, signal_name: StringName, recur
 		if recursive:
 			children_cache.append_array(child.get_children())
 	return array
-#endregion find_
+	#endregion find_
 
-## @experimental: Bad code practice. More useful than "[code]get_grandparent()[/code]" (that method does not exist).
+## @experimental: Bad code practice. Nodes should be unaware of their parents. More useful than "[code]get_grandparent()[/code]" (that method does not exist).
 ## Returns [param node]'s nth ancestor node [code]n[/code] [param levels] up, or [code]null[/code] if the node doesn't have such ancestor. Calls [method Node.get_parent] [code]n[/code] times.
 static func get_ancestor(node: Node, levels: int) -> Node:
 	var ancestor := node
@@ -142,6 +202,7 @@ static func get_dir_children(path: String, recursive: bool = false) -> DirChildr
 	
 	return result
 
+## Returns the amount of lines in a file.
 static func get_lines_in_file(path: String) -> int:
 	var lines := 0
 	var file := FileAccess.open(path, FileAccess.READ)

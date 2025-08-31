@@ -1,25 +1,26 @@
 extends Node3D
 
-var last_pos = transform
-var g = Vector3(0,0,0)
+@export var width_scale := 0.35
 
-var vertices = []
+var last_pos := transform
+var g := Vector3(0,0,0)
 
-var del = 0
+var vertices := []
 
-var wid = 0.125
+var del := 0
 
-var inserting = false
-var inserting2 = false
+var wid := 0.125
 
-var current_trail_node :MeshInstance3D = null
-var current_trail :ImmediateMesh = null
-var drawers = []
+var inserting := false
+var inserting2 := false
+
+var current_trail_node: MeshInstance3D = null
+var current_trail: ImmediateMesh = null
+var drawers := []
 
 
 # i spent 5 days trying to figure out why the skids were not working properly
-	# the immediate mesh resource was shared between all the skids :/
-	# ok i just do this on line 82
+# the immediate mesh resource was shared between all the skids :/
 
 
 func add_segment():
@@ -36,9 +37,12 @@ func add_segment():
 	last_pos = ppos
 
 
+#region internal
+func _ready() -> void:
+	wid = Helper.mm_to_meter(get_parent().get_parent().TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
+
 func _physics_process(_delta):
-	
-#	get_parent().get_node("Camera").rotation_degrees.y += 20
+	#get_parent().get_node("Camera").rotation_degrees.y += 20
 	
 	del -= 1
 	
@@ -54,15 +58,13 @@ func _physics_process(_delta):
 		del = 5
 		add_segment()
 
-
 func _process(_delta):
 	
-	inserting = get_parent().get_parent().slip_perc.length()>get_parent().get_parent().stress +20.0 and get_parent().get_parent().is_colliding()
+	inserting = get_parent().get_parent().slip_perc.length() > get_parent().get_parent().stress +20.0 and get_parent().get_parent().is_colliding()
 	
-	position.y = -get_parent().get_parent().w_size +0.025
-	wid = get_parent().get_parent().TyreSettings["Width (mm)"]/750.0
+	position.y = -get_parent().get_parent().w_size + Constants.SKIDMARK_HEIGHT
 	
-	if not inserting2 == inserting:
+	if inserting2 != inserting:
 		inserting2 = inserting
 		if inserting2:
 			
@@ -111,3 +113,4 @@ func _process(_delta):
 					current_trail.surface_add_vertex(i[1] -global_transform.origin)
 			
 			current_trail.surface_end()
+#endregion internal

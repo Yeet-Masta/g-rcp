@@ -11,6 +11,8 @@ There are so many ambiguous and short variable names that just make the code unr
 
 He also toggles things with if else instead of just doing toggle = !toggle.
 
+Does `if a != b: a = b` instead of just `a = b`.
+
 Doesn't use remap(), uses `-x + 2x` instead.
 - These are equivalent: `(front_load/total)*0.5 +0.5` and `remap(front_load/total, -1.0, 1.0, 0.0, 1.0)`
 
@@ -19,6 +21,8 @@ Multiplies by 60 to convert to time per second, instead of dividing by delta.
 Does `(a/b)*(a/b)` instead of `pow(a/b, 2)`. That one is more like personal preference.
 
 Uses some weird `a*float(b>0.0) -a*float(b<0.0)` which simplifies to `a*sign(b)`.
+
+Uses _process and _physics_process for one-time things that can be done in _ready.
 
 So my questions:
 - Why aren't we simplifying code to make it more readable? - It works for him, but not for me.
