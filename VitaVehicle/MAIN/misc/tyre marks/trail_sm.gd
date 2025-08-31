@@ -9,8 +9,6 @@ var del = 0
 
 var wid = 0.125
 
-var ran = false
-
 var inserting = false
 var inserting2 = false
 
@@ -85,7 +83,6 @@ func _process(_delta):
 			add_child(current_trail_node)
 			drawers.append(current_trail_node)
 	
-	ran = true
 	if (global_transform.origin - g).length_squared()>0.01:
 		look_at(g,Vector3(0,1,0)) # WARNING BUG: Colinear vectors. BAD: When falling down, node and target are in the same position because of Y being up. This causes a failure error.
 	
