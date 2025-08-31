@@ -984,8 +984,8 @@ func _physics_process(delta):
 			limdel = LimiterDelay
 	elif rpm<IdleRPM:
 		if throttle<ThrottleIdle:
-			throttle = ThrottleIdle
-			# NOTE: Is this where i get the idle brap brap?
+			throttle = clamp(ThrottleIdle + ((IdleRPM-rpm)/IdleRPM), 0.0, 1.0)
+			# The farther from idle, the higher the throttle.
 	
 	var stab = 300.0
 	var thr = 0.0
