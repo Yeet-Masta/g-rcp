@@ -302,7 +302,6 @@ func _ready():
 	for i in Powered_Wheels:
 		var wh = get_node(str(i))
 		c_pws.append(wh)
-		
 
 func controls():
 	var mouseposx = 0.0
@@ -449,7 +448,6 @@ func limits(): # TODO: clamp in set and not in some random limits function, like
 	steer = clamp(steer, -1.0, 1.0)
 
 func transmission():
-	
 	su = Input.is_action_just_pressed("shiftup") and not UseMouseSteering or Input.is_action_just_pressed("shiftup_mouse") and UseMouseSteering
 	sd = Input.is_action_just_pressed("shiftdown") and not UseMouseSteering or Input.is_action_just_pressed("shiftdown_mouse") and UseMouseSteering
 	
@@ -647,9 +645,8 @@ func transmission():
 			gear = actualgear
 	elif TransmissionType == 2:
 		
-		clutchpedal = (rpm- float(AutoSettings[3])*(gaspedal*float(AutoSettings[2]) +(1.0-float(AutoSettings[2]))) )/float(AutoSettings[4])
-		
-#            clutchpedal = 1
+		clutchpedal = (rpm -float(AutoSettings[3]) * (gaspedal*float(AutoSettings[2])+(1.0-float(AutoSettings[2]))) ) / float(AutoSettings[4])
+		#clutchpedal = 1
 		
 		if not GearAssistant[1] == 2:
 			if su:
@@ -864,7 +861,49 @@ func aero():
 		apply_impulse(forc, global_transform.basis.orthonormalized() * ($DRAG_CENTRE.position))
 	else:
 		apply_central_impulse(forc)
+
+var front_wheels = []
+var rear_wheels = []
+var front_load = 0.0
+var total = 0.0
+
+var weight_dist = [0.0,0.0]
+
+func draw_debug():
+	# BUG: Why do this each frame? Initialize with events no?
+		front_wheels = []
+		rear_wheels = []
+		for i in get_children(): # IMPORTANT: Why find the car's tires by checking for every single child and if it is for some reason "TyreSettings"?
+			if "TyreSettings" in i:
+				if i.position.z>0: # IMPORTANT: So weird to check by distance. What if an origin is shifted?
+					front_wheels.append(i)
+				else:
+					rear_wheels.append(i)
+		
+		front_load = 0.0
+		total = 0.0
+		
+		for f in front_wheels:
+			front_load += f.directional_force.y
+			total += f.directional_force.y
+		for r in rear_wheels:
+			front_load -= r.directional_force.y
+			total += r.directional_force.y
+		
+		if total>0:
+			weight_dist[0] = remap(front_load/total, -1.0, 1.0, 0.0, 1.0)
+			weight_dist[1] = 1.0-weight_dist[0]
+
+
+#region internal
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_debug_mode"):
+		Debug_Mode = !Debug_Mode
+
+func _process(_delta):
+	if Debug_Mode: draw_debug()
 	
+	readout_torque = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,rpm,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
 
 func _physics_process(delta):
 	if len(steering_angles)>0:
@@ -889,10 +928,6 @@ func _physics_process(delta):
 		
 		GearAssistant[1] = VitaVehicleSimulation.GearAssistant
 	
-	
-	if Input.is_action_just_pressed("toggle_debug_mode"):
-		Debug_Mode = !Debug_Mode
-	
 	velocity = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	rvelocity = global_transform.basis.orthonormalized().transposed() * (angular_velocity)
 	
@@ -911,7 +946,6 @@ func _physics_process(delta):
 	sassistdel -= 1
 	
 	transmission()
-	
 	limits()
 	
 	var steeroutput = steer
@@ -953,10 +987,7 @@ func _physics_process(delta):
 			throttle = ThrottleIdle
 			# NOTE: Is this where i get the idle brap brap?
 	
-	
 	var stab = 300.0
-	
-	
 	var thr = 0.0
 	
 	if TurboEnabled:
@@ -982,7 +1013,6 @@ func _physics_process(delta):
 	
 	var torque = 0.0
 	
-		
 	if vvt:
 		var f = rpm-VVT_RiseRPM
 		f = max(f, 0.0)
@@ -1014,38 +1044,4 @@ func _physics_process(delta):
 	rpm -= rpmforce*RevSpeed
 	
 	drivetrain()
-
-var front_wheels = []
-var rear_wheels = []
-var front_load = 0.0
-var total = 0.0
-
-var weight_dist = [0.0,0.0]
-
-func _process(_delta):
-	if Debug_Mode:
-		# BUG: Why do this each frame? Initialize with events no?
-		front_wheels = []
-		rear_wheels = []
-		for i in get_children():
-			if "TyreSettings" in i:
-				if i.position.z>0:
-					front_wheels.append(i)
-				else:
-					rear_wheels.append(i)
-		
-		front_load = 0.0
-		total = 0.0
-		
-		for f in front_wheels:
-			front_load += f.directional_force.y
-			total += f.directional_force.y
-		for r in rear_wheels:
-			front_load -= r.directional_force.y
-			total += r.directional_force.y
-			
-		if total>0:
-			weight_dist[0] = (front_load/total)*0.5 +0.5
-			weight_dist[1] = 1.0-weight_dist[0]
-	
-	readout_torque = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,rpm,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
+#endregion internal

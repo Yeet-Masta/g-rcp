@@ -11,7 +11,8 @@ There are so many ambiguous and short variable names that just make the code unr
 
 He also toggles things with if else instead of just doing toggle = !toggle.
 
-Doesn't know how to use remap(), uses -x + 2x instead.
+Doesn't use remap(), uses `-x + 2x` instead.
+- These are equivalent: `(front_load/total)*0.5 +0.5` and `remap(front_load/total, -1.0, 1.0, 0.0, 1.0)`
 
 Multiplies by 60 to convert to time per second, instead of dividing by delta.
 
