@@ -479,30 +479,28 @@ func transmission():
 						actualgear += 1
 			if sd:
 				sd = false
-				if gear>-1:
-					if gearstress<GearGap:
-						actualgear -= 1
+				if gear > -1 and gearstress < GearGap:
+					actualgear -= 1
 		elif GearAssistant[1] == 1:
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 				clutchpedalreal = irga_ca*irga_ca
 				if clutchpedalreal>1.0:
 					clutchpedalreal = 1.0
-			else:
-				if not gasrestricted and not revmatch:
-					clutchin = false
+			elif not gasrestricted and not revmatch:
+				clutchin = false
 			if su:
 				su = false
 				if gear<len(GearRatios):
 					if rpm<GearAssistant[5]:
 						actualgear += 1
 					else:
-						if actualgear<1:
+						if actualgear < 1:
 							actualgear += 1
-							if rpm>GearAssistant[5]:
+							if rpm > GearAssistant[5]:
 								clutchin = false
 						else:
-							if sassistdel>0:
+							if sassistdel > 0:
 								actualgear += 1
 							sassistdel = GearAssistant[0]/2.0
 							sassiststep = -4
