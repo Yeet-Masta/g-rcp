@@ -17,17 +17,17 @@ var maxfades := 0.0
 
 var pitch_influence := 1.0
 
+var childcount := 0
+
+
+#region methods
 func play():
 	for i in get_children():
 		i.play()
-#	stop()
-		
-func stop():
-	for i in get_children():
-		i.stop()
+#endregion methods
 
-var childcount = 0
 
+#region internal
 func _ready():
 	play()
 	childcount = get_child_count()
@@ -42,28 +42,21 @@ func _physics_process(_delta):
 	fade = clamp(fade, 0.0, childcount-1.0)
 	
 	vacuum = (get_parent().gaspedal-get_parent().throttle)*4.0
-	
 	vacuum = clamp(vacuum, 0.0, 1.0)
 	
 	var sfk = 1.0-(vacuum*get_parent().throttle)
-	
-	if sfk<vacuum_crossfade:
-		sfk = vacuum_crossfade
+	sfk = max(sfk, vacuum_crossfade)
 	
 	fade *= sfk
 	
 	volume += (1.0-sfk)*vacuum_loudness
-	
-	
 	
 	for i in get_children():
 		var maxvol = float(str(i.get_child(0).name))/100.0
 		var maxpitch = float(str(i.name))/100000.0
 		
 		var index = float(i.get_index())
-		var dist = abs(index-fade)
-		
-		dist *= abs(dist)
+		var dist = pow(abs(index - fade), 2)
 		
 		var vol = 1.0-dist
 		vol = clamp(vol, 0.0, 1.0)
@@ -75,3 +68,4 @@ func _physics_process(_delta):
 		var pit = abs(pitch*maxpitch)
 		pit = clamp(pit, 0.01, 5.0)
 		i.pitch_scale = pit
+#endregion internal
