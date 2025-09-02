@@ -1,7 +1,7 @@
 extends MeshInstance3D
 
-
 @export var Scale = 0.5
+
 
 func _physics_process(_delta):
 	visible = Helper.get_ancestor(self, 2).Debug_Mode

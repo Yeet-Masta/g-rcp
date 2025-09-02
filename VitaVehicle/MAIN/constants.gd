@@ -24,10 +24,6 @@ const METER_TO_UNIT := 3.26882845188
 ## Speed (Scaled unit) * 1.10130592 = Speed (KMH)
 const UNIT_TO_KMH := 1.10130592
 
-## Speed (KMH) * 0.62137119 = Speed (MPH)
-## Speed (KMH) / 1.60934400579 = Speed (MPH)
-const KMH_TO_MPH := 0.62137119
-
 ## Torque (lbf*ft) * Speed (rpm) / 5252.0 = Horsepower (hp(I))
 const TQFTRPM_TO_HP := 5252.0
 
