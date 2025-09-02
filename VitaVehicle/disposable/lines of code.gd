@@ -9,7 +9,7 @@ func get_all_script_lines():
 		if path.get_extension() != "gd": continue
 		lines += Helper.get_lines_in_file(path)
 		scripts += 1
-		print(path)
+		print(path + " has " + str(Helper.get_lines_in_file(path)) + " lines")
 	print(scripts, " scripts")
 	return lines
 

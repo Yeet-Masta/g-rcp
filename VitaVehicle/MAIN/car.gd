@@ -58,12 +58,6 @@ extends RigidBody3D
 @export var Downforce := 0.0
 
 
-
-
-
-
-
-
 #steering
 @export var AckermannPoint := -3.8
 @export var Steer_Radius := 13.0
@@ -273,7 +267,6 @@ var dist := 0.0
 var stress := 0.0
 
 
-
 var su := false
 var sd := false
 var gas := false
@@ -287,19 +280,13 @@ var rvelocity := Vector3(0,0,0)
 
 var stalled := 0.0
 
+
 func bullet_fix():
 	var offset = $DRAG_CENTRE.position
 	AckermannPoint -= offset.z
 	
 	for i in get_children():
 		i.position -= offset
-
-func _ready():
-#	bullet_fix()
-	rpm = IdleRPM
-	for i in Powered_Wheels:
-		var wh = get_node(str(i))
-		c_pws.append(wh)
 
 func controls():
 	var mouseposx = 0.0
@@ -879,6 +866,13 @@ func draw_debug():
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_debug_mode"):
 		Debug_Mode = !Debug_Mode
+
+func _ready():
+	#bullet_fix()
+	rpm = IdleRPM
+	for i in Powered_Wheels:
+		var wh = get_node(str(i))
+		c_pws.append(wh)
 
 func _process(_delta):
 	if Debug_Mode: draw_debug()
