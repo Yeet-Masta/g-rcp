@@ -343,7 +343,7 @@ func controls():
 			else:
 				steer_velocity -= i.directional_force.z*0.0001
 			
-			steer_velocity /= i.stress/(i.slip_percpre*(i.slip_percpre*100.0) +1.0) +1.0
+			steer_velocity /= i.stress/(pow(i.slip_percpre, 2)*100.0 +1.0) +1.0
 	
 	
 	if Controlled:
@@ -477,7 +477,7 @@ func transmission():
 		elif GearAssistant[1] == 1:
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
-				clutchpedalreal = irga_ca*irga_ca
+				clutchpedalreal = pow(irga_ca, 2)
 				clutchpedalreal = min(clutchpedalreal, 1.0)
 			elif not gasrestricted and not revmatch:
 				clutchin = false
@@ -1001,7 +1001,7 @@ func _physics_process(delta):
 		var j = rpm-VVT_DeclineRPM
 		j = max(j, 0.0)
 		torque /= (j*(j*VVT_DeclineSharpness +(1.0-VVT_DeclineSharpness)))*(VVT_DeclineRate*Constants.RISE_FACTOR) +1.0
-		torque /= abs(rpm*abs(rpm))*(VVT_FloatRate*Constants.RISE_FACTOR) +1.0
+		torque /= pow(abs(rpm), 2)*(VVT_FloatRate*Constants.RISE_FACTOR) +1.0
 	else:
 		var f = rpm-RiseRPM
 		f = max(f, 0.0)
@@ -1010,9 +1010,9 @@ func _physics_process(delta):
 		var j = rpm-DeclineRPM
 		j = max(j, 0.0)
 		torque /= (j*(j*DeclineSharpness +(1.0-DeclineSharpness)))*(DeclineRate*Constants.RISE_FACTOR) +1.0
-		torque /= abs(rpm*abs(rpm))*(FloatRate*Constants.RISE_FACTOR) +1.0
+		torque /= pow(abs(rpm), 2)*(FloatRate*Constants.RISE_FACTOR) +1.0
 	
-	rpmforce = (rpm/(abs(rpm*abs(rpm))/(EngineFriction/clock_mult) +1.0))*1.0
+	rpmforce = (rpm/(pow(abs(rpm), 2)/(EngineFriction/clock_mult) +1.0))*1.0
 	if rpm<DeadRPM:
 		torque = 0.0
 		rpmforce /= 5.0
