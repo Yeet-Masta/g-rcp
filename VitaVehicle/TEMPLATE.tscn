@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=4 uid="uid://dhvaj85plbjfv"]
 
-[ext_resource type="PackedScene" uid="uid://crtwme8ggggra" path="res://base car.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://crtwme8ggggra" path="res://MISC/car swapper/cars/Base/scene.tscn" id="1"]
 [ext_resource type="Script" uid="uid://c6wt0orv73xy1" path="res://MAIN/misc/camera.gd" id="2"]
 [ext_resource type="Script" uid="uid://ddlr528rnt21u" path="res://MAIN/ground_surface_variables.gd" id="3"]
 [ext_resource type="Texture2D" uid="uid://cv0iolhv1qxsn" path="res://MISC/scene swapper/scenes/Test Scene/assets/Grid.png" id="4_qcl7s"]

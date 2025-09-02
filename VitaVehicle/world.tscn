@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://cl5riv3giscom"]
 
-[ext_resource type="PackedScene" uid="uid://crtwme8ggggra" path="res://base car.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://crtwme8ggggra" path="res://MISC/car swapper/cars/Base/scene.tscn" id="1"]
 [ext_resource type="Script" uid="uid://c6wt0orv73xy1" path="res://MAIN/misc/camera.gd" id="2"]
 [ext_resource type="PackedScene" uid="uid://b77dj0608nvq0" path="res://MISC/debugger.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://diafjore21wn" path="res://MISC/scene swapper/scenes/Test Scene/scene.tscn" id="6"]

@@ -7,23 +7,19 @@ var canclick = true
 var literal_cache = {}
 
 func list_files_in_directory(path):
-	
 	var files = []
-#	var dir = Directory.new()
 	var dir = DirAccess.open(path)
 	dir.list_dir_begin()
 
 	while true:
 		var file = dir.get_next()
-		if file == "":
-			break
+		if file == "": break
 		elif not file.begins_with("."):
 			files.append(file)
-
-	dir.list_dir_end()
-
-	return files
 	
+	dir.list_dir_end()
+	
+	return files
 
 func load_and_cache(path):
 	var loaded = null
@@ -55,18 +51,13 @@ func swapcar(naem):
 		
 		var d
 		
-		if naem == "_DEFAULT_CAR_":
-			d = load_and_cache("res://base car.tscn").instantiate()
-		else:
-			d = load_and_cache(pathh+str("cars/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
+		d = load_and_cache(pathh+str("cars/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
 		
 		get_parent().get_parent().add_child(d)
 		
 		d.global_position = default_position + Vector3(0,5,0)
 		
-		
 		get_parent().car = NodePath("../"+str(d.name))
-		
 		get_parent()._ready()
 		get_parent().get_node("controls manipulator").setcar()
 		
@@ -78,7 +69,6 @@ func swapcar(naem):
 		var peak = max(get_parent().get_node("power_graph").peaktq[0],get_parent().get_node("power_graph").peakhp[0])
 		
 		get_parent().get_node("power_graph").draw_scale = 1.0/peak
-		
 		get_parent().get_node("power_graph")._ready()
 		
 		get_parent().get_node("tacho").Redline = int(float(get_parent().get_node(get_parent().car).RPMLimit/1000.0))*1000
@@ -87,7 +77,6 @@ func swapcar(naem):
 		get_parent().get_node("tacho").Max_PSI = get_parent().get_node(get_parent().car).MaxPSI*get_parent().get_node(get_parent().car).TurboAmount
 		
 		get_parent().get_node("tacho")._ready()
-		
 		
 		canclick = true
 	get_parent().get_node("swap car").visible = true
@@ -99,14 +88,10 @@ func _ready():
 	for i in d:
 		var but = button.duplicate()
 		$scroll/container.add_child(but)
+		but.visible = true
 		but.get_node("carname").text = i
 		but.get_node("icon").texture = load(pathh+str("cars/")+str(i)+str("/thumbnail")+str(".png"))
-#		but.connect("pressed", self, "swapcar",[i])
 		but.pressed.connect(swapcar.bind(i))
-		
-#	$scroll/container/_DEFAULT.connect("pressed", self, "swapcar",["_DEFAULT_CAR_"])
-	$scroll/container/_DEFAULT.pressed.connect(swapcar.bind("_DEFAULT_CAR_"))
-	
 
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):

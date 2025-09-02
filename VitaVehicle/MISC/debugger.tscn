@@ -1028,6 +1028,7 @@ layout_mode = 2
 columns = 3
 
 [node name="_DEFAULT" type="Button" parent="car swapper/scroll/container"]
+visible = false
 custom_minimum_size = Vector2(213, 128)
 layout_mode = 2
 expand_icon = true

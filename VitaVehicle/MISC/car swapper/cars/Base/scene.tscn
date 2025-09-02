@@ -226,7 +226,7 @@ _surfaces = [{
 _data = [Vector2(0, 1), 0.0, -0.984877, 0, 0, Vector2(1, 0), -1.00597, 0.0, 0, 0]
 point_count = 2
 
-[node name="car" type="RigidBody3D"]
+[node name="car" type="RigidBody3D" groups=["car"]]
 mass = 90.0
 can_sleep = false
 script = ExtResource("2")

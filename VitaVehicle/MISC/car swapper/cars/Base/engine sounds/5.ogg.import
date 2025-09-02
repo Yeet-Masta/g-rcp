@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bdig1v76vwarp"
+path="res://.godot/imported/5.ogg-f3f42f843bd28e706ef1a58ea1a5cca1.oggvorbisstr"
+
+[deps]
+
+source_file="res://MISC/car swapper/cars/Base/engine sounds/5.ogg"
+dest_files=["res://.godot/imported/5.ogg-f3f42f843bd28e706ef1a58ea1a5cca1.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
