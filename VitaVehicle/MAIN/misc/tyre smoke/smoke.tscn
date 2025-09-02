@@ -84,7 +84,6 @@ _data = [Vector2(0, 0), 0.0, 27.4182, 0, 0, Vector2(1, 10), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="Gradient" id="12"]
-offsets = PackedFloat32Array(0, 0.1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.0509804)
 
 [sub_resource type="Curve" id="13"]
@@ -112,8 +111,8 @@ script = ExtResource("1")
 
 [node name="lvl1" type="CPUParticles3D" parent="static"]
 emitting = false
-amount = 255
-lifetime = 15.0
+amount = 4
+lifetime = 4.0
 mesh = SubResource("10")
 direction = Vector3(0, 0, -1)
 spread = 0.0
@@ -132,8 +131,8 @@ color_ramp = SubResource("12")
 
 [node name="lvl2" type="CPUParticles3D" parent="static"]
 emitting = false
-amount = 255
-lifetime = 15.0
+amount = 4
+lifetime = 4.0
 mesh = SubResource("10")
 direction = Vector3(0, 0, -1)
 spread = 0.0
@@ -152,8 +151,8 @@ color_ramp = SubResource("12")
 
 [node name="lvl3" type="CPUParticles3D" parent="static"]
 emitting = false
-amount = 255
-lifetime = 15.0
+amount = 4
+lifetime = 4.0
 mesh = SubResource("10")
 direction = Vector3(0, 0, -1)
 spread = 0.0
@@ -174,7 +173,7 @@ color_ramp = SubResource("12")
 [node name="lvl1" type="CPUParticles3D" parent="revolvel"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 16
+amount = 2
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
@@ -200,7 +199,7 @@ color_ramp = SubResource("15")
 [node name="lvl2" type="CPUParticles3D" parent="revolvel"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 32
+amount = 4
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
@@ -225,7 +224,6 @@ color_ramp = SubResource("15")
 [node name="lvl3" type="CPUParticles3D" parent="revolvel"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 64
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
@@ -252,7 +250,7 @@ color_ramp = SubResource("15")
 [node name="lvl1" type="CPUParticles3D" parent="revolver"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 16
+amount = 2
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
@@ -277,7 +275,7 @@ color_ramp = SubResource("15")
 [node name="lvl2" type="CPUParticles3D" parent="revolver"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 32
+amount = 4
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
@@ -301,7 +299,6 @@ color_ramp = SubResource("15")
 [node name="lvl3" type="CPUParticles3D" parent="revolver"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 emitting = false
-amount = 64
 local_coords = true
 mesh = SubResource("10")
 emission_shape = 4
