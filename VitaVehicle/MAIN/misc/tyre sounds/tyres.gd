@@ -1,3 +1,6 @@
+# NOTE:
+# Lives in a car scene, gets the parent (car) and gets all tires that are its children.
+
 extends Node3D
 
 var length = 0.0
@@ -7,33 +10,34 @@ var dirt = 0.0
 
 var wheels = []
 
+
+#region methods
 func play():
 	for i in get_children():
 		i.volume_db = linear_to_db(0.0)
 		i.play()
-		
+
 func stop():
 	for i in get_children():
 		i.stop()
 
-func _ready():
-	for i in get_parent().get_children():
-		if "TyreSettings" in i:
-			wheels.append(i)
-	
-	play()
-	
 func most_skidding(array):
 	var val = -10000000000000000000000000000000000.0
 	var obj
-	
 	for i in array:
 		val = max(val, abs(i.skvol))
-		
 		if val == abs(i.skvol):
 			obj = i
-	
 	return obj
+#endregion methods
+
+
+#region internal
+func _ready():
+	for i in get_parent().get_children(): # IMPORTANT: Bad pattern.
+		if "TyreSettings" in i:
+			wheels.append(i)
+	play()
 
 func _physics_process(_delta):
 	dirt = 0.0
@@ -49,7 +53,6 @@ func _physics_process(_delta):
 	length = min(length, 2.0)
 	
 	width -= (width - (1.0 -(roll/10.0 -1.0)))*0.05
-	
 	width = clamp(width, 0.0, 1.0)
 	
 	var total = 0.0
@@ -57,10 +60,9 @@ func _physics_process(_delta):
 	for i in wheels:
 		total += i.skvol
 	
-	total /= 10.0
-	total = min(total, 1.0)
+	total = min(total / 10.0, 1.0)
 	
-#	$roll0.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/500.0 +1.0)
+	#$roll0.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/500.0 +1.0)
 	$roll1.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
 	$roll2.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
 	$peel0.pitch_scale = 0.95 +length/8.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
@@ -83,7 +85,6 @@ func _physics_process(_delta):
 			i.pitch_scale = 1.0 +length*0.05 +abs(roll/100.0)
 		else:
 			var dist = abs(i.length -length)
-			
 			var dist2 = abs(i.width -width)
 			
 			dist *= abs(dist)
@@ -93,3 +94,4 @@ func _physics_process(_delta):
 			vol = clamp(vol, 0.0, 1.0)
 			i.volume_db = linear_to_db(((vol*(1.0-dirt))*i.volume)*0.35)
 			i.max_db = i.volume_db
+#endregion internal

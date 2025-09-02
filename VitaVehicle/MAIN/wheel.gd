@@ -85,7 +85,7 @@ var cambered := 0.0
 
 var rollvol := 0.0
 var sl := 0.0
-var skvol := 0.0
+var skvol := 0.0 # Amount of skidding
 var skvol_d := 0.0
 var velocity := Vector3(0,0,0)
 var velocity2 := Vector3(0,0,0)
@@ -423,7 +423,6 @@ func _physics_process(_delta):
 			sl = slip_sk-tyre_stiffness
 			sl = max(sl, 0.0)
 			skvol = sl/4.0
-			#skvol *= skvol
 			
 			skvol_d = slip*25.0
 	else:
