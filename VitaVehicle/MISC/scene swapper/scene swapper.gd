@@ -44,7 +44,7 @@ func swapmap(naem):
 	
 	var d = load_and_cache(pathh+str("scenes/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
 	
-	get_parent().get_parent().add_child(d)
+	Helper.get_ancestor(self, 2).add_child(d)
 	
 	current_map = "../../"+str(d.name)
 	

@@ -28,8 +28,8 @@ func _ready():
 					$power_graph.set(i["name"], get_node(car).get(i["name"]))
 
 func _physics_process(_delta):
-	if not str(car) == "":
-		$vgs.gforce -= ($vgs.gforce - Vector2(get_node(car).gforce.x,get_node(car).gforce.z))*0.5
+	if str(car) != "":
+		$vgs.gforce -= ($vgs.gforce - Vector2(get_node(car).gforce.x, get_node(car).gforce.z))*0.5
 		
 		$tacho/abs.visible = get_node(car).abspump>0 and get_node(car).brakepedal>0.1
 		$tacho/tcs.visible = get_node(car).tcsflash
@@ -60,10 +60,9 @@ func _process(delta):
 	$handbrake.bar_scale = get_node(car).handbrakepull
 	$clutch.bar_scale = get_node(car).clutchpedalreal
 	
-	$tacho/speedk.text = "KM/PH: " + str(int(get_node(car).linear_velocity.length()*Constants.UNIT_TO_KMH))
-	$tacho/speedm.text = "MPH: " + str(int(
-		Helper.kmh_to_mph(get_node(car).linear_velocity.length()*Constants.UNIT_TO_KMH)
-	))
+	var car_speed = get_node(car).linear_velocity.length()
+	$tacho/speedk.text = "KMH: " + str(int(car_speed*Constants.UNIT_TO_KMH))
+	$tacho/speedm.text = "MPH: " + str(int(Helper.kmh_to_mph(car_speed*Constants.UNIT_TO_KMH)))
 	
 	var hpunit = "hp"
 	if $power_graph.Power_Unit == 1:
@@ -72,28 +71,25 @@ func _process(delta):
 		hpunit = "ps"
 	elif $power_graph.Power_Unit == 3:
 		hpunit = "kW"
-	$hp.text = "Power: %s%s @ %s RPM" % [str( int($power_graph.peakhp[0]*10.0)/10.0 ), hpunit ,str( int($power_graph.peakhp[1]*10.0)/10.0 )]
+	$hp.text = "Power: %s %s @ %s RPM" % [String.num($power_graph.peakhp[0], 1), hpunit ,String.num($power_graph.peakhp[1], 1)]
 	
 	var tqunit = "ft⋅lb"
 	if $power_graph.Torque_Unit == 1:
 		tqunit = "nm"
 	elif $power_graph.Torque_Unit == 2:
 		tqunit = "kg/m"
-	$tq.text = "Torque: %s%s @ %s RPM" % [str( int($power_graph.peaktq[0]*10.0)/10.0 ), tqunit ,str(int($power_graph.peaktq[1]*10.0)/10.0)]
+	$tq.text = "Torque: %s %s @ %s RPM" % [String.num($power_graph.peaktq[0], 1), tqunit ,String.num($power_graph.peaktq[1], 1)]
 	
 	$power_graph/rpm.position.x = (get_node(car).rpm/$power_graph.Generation_Range)*$power_graph.size.x -1.0
 	$power_graph/redline.position.x = (get_node(car).RPMLimit/$power_graph.Generation_Range)*$power_graph.size.x -1.0
 	
-	$g.text = "Gs:\nx%s,\ny%s,\nz%s" % [str(int(get_node(car).gforce.x*100.0)/100.0),str(int(get_node(car).gforce.y*100.0)/100.0),str(int(get_node(car).gforce.z*100.0)/100.0)]
+	$g.text = "Gs:\nx %s\ny %s\nz %s" % [String.num(get_node(car).gforce.x, 2), String.num(get_node(car).gforce.y, 2), String.num(get_node(car).gforce.z, 2)]
 	
 	$tacho.currentpsi = get_node(car).turbopsi*(get_node(car).TurboAmount)
 	$tacho.currentrpm = get_node(car).rpm
 	$tacho/rpm.text = str(int(get_node(car).rpm))
 	
-	if get_node(car).rpm<0:
-		$tacho/rpm.self_modulate = Color(1,0,0)
-	else:
-		$tacho/rpm.self_modulate = Color(1,1,1)
+	$tacho/rpm.self_modulate = Color.RED if get_node(car).rpm < 0 else Color.WHITE
 	
 	if get_node(car).gear == 0:
 		$tacho/gear.text = "N"

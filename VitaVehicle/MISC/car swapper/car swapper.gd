@@ -32,7 +32,7 @@ func load_and_cache(path):
 	loaded = literal_cache[path]
 	return loaded
 
-@onready var default_position = get_parent().get_parent().get_node("car").global_position
+@onready var default_position = Helper.get_ancestor(self, 2).get_node("car").global_position
 
 func swapcar(naem):
 	visible = false
@@ -49,11 +49,9 @@ func swapcar(naem):
 		
 		await get_tree().create_timer(1.0).timeout
 		
-		var d
+		var d = load_and_cache(pathh+str("cars/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
 		
-		d = load_and_cache(pathh+str("cars/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
-		
-		get_parent().get_parent().add_child(d)
+		Helper.get_ancestor(self, 2).add_child(d)
 		
 		d.global_position = default_position + Vector3(0,5,0)
 		

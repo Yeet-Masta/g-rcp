@@ -39,7 +39,7 @@ func add_segment():
 
 #region internal
 func _ready() -> void:
-	wid = Helper.mm_to_meter(get_parent().get_parent().TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
+	wid = Helper.mm_to_meter(Helper.get_ancestor(self, 2).TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
 
 func _physics_process(_delta):
 	#get_parent().get_node("Camera").rotation_degrees.y += 20
@@ -60,9 +60,9 @@ func _physics_process(_delta):
 
 func _process(_delta):
 	
-	inserting = get_parent().get_parent().slip_perc.length() > get_parent().get_parent().stress +20.0 and get_parent().get_parent().is_colliding()
+	inserting = Helper.get_ancestor(self, 2).slip_perc.length() > Helper.get_ancestor(self, 2).stress +20.0 and Helper.get_ancestor(self, 2).is_colliding()
 	
-	position.y = -get_parent().get_parent().w_size + Constants.SKIDMARK_HEIGHT
+	position.y = -Helper.get_ancestor(self, 2).w_size + Constants.SKIDMARK_HEIGHT
 	
 	if inserting2 != inserting:
 		inserting2 = inserting

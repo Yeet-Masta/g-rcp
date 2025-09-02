@@ -71,15 +71,15 @@ func press(state):
 	$Engine_Tuner/alert.dialog_text = ""
 	$Engine_Tuner/alert.position.y = size.y/2.0 +$Engine_Tuner/alert.size.y/2.0
 	$Engine_Tuner/alert.size = Vector2(83,58)
-
+	
 	$Engine_Tuner/confirm.dialog_text = ""
 	$Engine_Tuner/confirm.position.y = size.y/2.0 +$Engine_Tuner/confirm.size.y/2.0
 	$Engine_Tuner/confirm.size = Vector2(83,58)
-
+	
 	$Engine_Tuner/confirm_append.dialog_text = ""
 	$Engine_Tuner/confirm_append.position.y = size.y/2.0 +$Engine_Tuner/confirm_append.size.y/2.0
 	$Engine_Tuner/confirm_append.size = Vector2(83,58)
-
+	
 	if state == "unit_tq":
 		$Engine_Tuner/power_graph.Torque_Unit += 1
 		if $Engine_Tuner/power_graph.Torque_Unit>2:
@@ -92,7 +92,6 @@ func press(state):
 			$Engine_Tuner/power_graph.Power_Unit = 0
 		$Engine_Tuner/power_graph.draw_()
 		refresh()
-	
 	elif state == "engine":
 		$menu.visible = false
 		$Engine_Tuner.visible = true

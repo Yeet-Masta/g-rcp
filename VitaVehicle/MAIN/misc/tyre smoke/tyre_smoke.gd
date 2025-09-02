@@ -11,7 +11,7 @@ extends Node3D
 @export var dirt_type = false
 
 func _physics_process(_delta):
-	var velo1_v = get_parent().get_parent().get_parent().velocity
+	var velo1_v = Helper.get_ancestor(self, 3).velocity
 	
 	visible = VitaVehicleSimulation.misc_smoke
 	

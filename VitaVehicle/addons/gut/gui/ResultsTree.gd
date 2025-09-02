@@ -78,7 +78,7 @@ func _on_tree_item_selected():
 		line = -1
 		test_name = item.get_text(0)
 	elif(item_type == 'assert'):
-		var s_item = item.get_parent().get_parent()
+		var s_item = Helper.get_ancestor(item, 2)
 		script_path = s_item.get_metadata(0)['path']
 		inner_class = s_item.get_metadata(0)['inner_class']
 		line = _get_line_number_from_assert_msg(item.get_text(0))
