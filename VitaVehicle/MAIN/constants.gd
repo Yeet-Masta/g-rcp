@@ -42,3 +42,6 @@ const REVSPEED_TUNE = 1.475
 
 ## The height of the skid marks
 const SKIDMARK_HEIGHT = 0.025
+
+## The speed at which camera drag gets unlocked
+const CAM_DRAG_UNLOCK_VELOCITY = 5.0
