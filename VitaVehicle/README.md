@@ -9,7 +9,7 @@ Sometimes he uses 10000000000000000000000000000000000.0 instead of INF. However 
 There are so many ambiguous and short variable names that just make the code unreadable.
 - steer2 - The physical steer of the wheels.
 
-He also toggles things with if else instead of just doing toggle = !toggle.
+He also toggles things with if else instead of just doing `toggle = !toggle`.
 
 Does `if a != b: a = b` instead of just `a = b`.
 
@@ -23,6 +23,8 @@ Does `(a/b)*(a/b)` instead of `pow(a/b, 2)`. That one is more like personal pref
 Uses some weird `a*float(b>0.0) -a*float(b<0.0)` which simplifies to `a*sign(b)`.
 
 Uses _process and _physics_process for one-time things that can be done in _ready.
+
+Doesn't use guard clauses.
 
 So my questions:
 - Why aren't we simplifying code to make it more readable? - It works for him, but not for me.

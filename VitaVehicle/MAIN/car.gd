@@ -279,8 +279,6 @@ var sd := false
 var gas := false
 var brake := false
 var handbrake := false
-var right := false
-var left := false
 var clutch := false
 var c_pws := []
 
@@ -309,6 +307,7 @@ func controls():
 	if get_viewport().size.x>0.0:
 		mouseposx = get_viewport().get_mouse_position().x/get_viewport().size.x
 	
+	# IMPORTANT: Why if else in controls and in transmission?
 	if UseMouseSteering:
 		gas = Input.is_action_pressed("gas_mouse")
 		brake = Input.is_action_pressed("brake_mouse")
@@ -322,13 +321,11 @@ func controls():
 		sd = Input.is_action_just_pressed("shiftdown")
 		handbrake = Input.is_action_pressed("handbrake")
 	
-	left = Input.is_action_pressed("left")
-	right = Input.is_action_pressed("right")
-	# TODO: definitely can use some Input.get_axis("left", "right") and move_toward() method.
-	if left:
-		steer_velocity -= 0.01
-	elif right:
-		steer_velocity += 0.01
+	var left = Input.is_action_pressed("left")
+	var right = Input.is_action_pressed("right")
+	
+	steer_velocity += 0.01 * Input.get_axis("left", "right")
+	
 	if LooseSteering:
 		steer += steer_velocity
 		
@@ -434,8 +431,7 @@ func controls():
 				var maxsteer = 1.0/(going*(SteerAmountDecay/assistance_factor) +1.0)
 				
 				var assist_commence = linear_velocity.length()/10.0
-				if assist_commence>1.0:
-					assist_commence = 1.0
+				assist_commence = min(assist_commence, 1.0)
 				
 				steer = (steer2*maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
 			else:
@@ -448,9 +444,6 @@ func limits(): # TODO: clamp in set and not in some random limits function, like
 	steer = clamp(steer, -1.0, 1.0)
 
 func transmission():
-	su = Input.is_action_just_pressed("shiftup") and not UseMouseSteering or Input.is_action_just_pressed("shiftup_mouse") and UseMouseSteering
-	sd = Input.is_action_just_pressed("shiftdown") and not UseMouseSteering or Input.is_action_just_pressed("shiftdown_mouse") and UseMouseSteering
-	
 	clutch = Input.is_action_pressed("clutch") and not UseMouseSteering or Input.is_action_pressed("clutch_mouse") and UseMouseSteering
 	if not GearAssistant[1] == 0:
 		clutch = Input.is_action_pressed("handbrake") and not UseMouseSteering or Input.is_action_pressed("handbrake_mouse") and UseMouseSteering
@@ -485,8 +478,7 @@ func transmission():
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 				clutchpedalreal = irga_ca*irga_ca
-				if clutchpedalreal>1.0:
-					clutchpedalreal = 1.0
+				clutchpedalreal = min(clutchpedalreal, 1.0)
 			elif not gasrestricted and not revmatch:
 				clutchin = false
 			if su:
@@ -547,8 +539,7 @@ func transmission():
 				if rpm<GearAssistant[5]:
 					var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 					clutchpedalreal = irga_ca*irga_ca
-					if clutchpedalreal>1.0:
-						clutchpedalreal = 1.0
+					clutchpedalreal = min(clutchpedalreal, 1.0)
 				else:
 					clutchin = false
 				if not gear == -1:
@@ -589,10 +580,7 @@ func transmission():
 		gear = actualgear
 	
 	elif TransmissionType == 1:
-		
-		
 		clutchpedal = (rpm- float(AutoSettings[3])*(gaspedal*float(AutoSettings[2]) +(1.0-float(AutoSettings[2]))) )/float(AutoSettings[4])
-		
 		
 		if not GearAssistant[1] == 2:
 			if su:
@@ -736,18 +724,12 @@ func transmission():
 
 func drivetrain():
 	rpmcsm -= (rpmcs - resistance)
-	
 	rpmcs += rpmcsm*ClutchElasticity
-	
 	rpmcs -= rpmcs*(1.0-clutchpedal)
-	
 	wob = ClutchWobble*clutchpedal
-	
 	wob *= ratio*WobbleRate
-	
 	rpmcs -= (rpmcs - resistance)*(1.0/(wob +1.0))
 	
-#	torquereadout = multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,rpm,DeclineRPM,DeclineRate,FloatRate,turbopsi,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold)
 	if gear<0:
 		rpm -= ((rpmcs*1.0)/clock_mult)*(RevSpeed/Constants.REVSPEED_TUNE)
 	else:
@@ -812,23 +794,23 @@ func drivetrain():
 	else:
 		dist = maxd.wv - what/ratio
 	
-	dist *= (clutchpedal*clutchpedal)
+	dist *= pow(clutchpedal, 2)
 	
 	if gear == 0:
-		dist *= 0.0
+		dist = 0.0
 	
 	wv_difference = 0.0
 	drivewheels_size = 0.0
 	for i in c_pws:
 		drivewheels_size += i.w_size/len(c_pws)
 		i.c_p = i.W_PowerBias
-		wv_difference += ((i.wv - what/ratio)/(len(c_pws)))*(clutchpedal*clutchpedal)
+		wv_difference += ((i.wv - what/ratio)/(len(c_pws)))*pow(clutchpedal, 2)
 		if gear<0:
 			i.dist = dist*(1-c_locked) + (i.wv + what/ratio)*c_locked
 		else:
 			i.dist = dist*(1-c_locked) + (i.wv - what/ratio)*c_locked
 		if gear == 0:
-			i.dist *= 0.0
+			i.dist = 0.0
 	GearAssistant[2] = drivewheels_size
 	resistance = 0.0
 	dsweightrun = dsweight
@@ -932,7 +914,7 @@ func _physics_process(delta):
 	mass = Weight/10.0
 	aero()
 	
-	gforce = (linear_velocity - pastvelocity)*((Constants.UNIT_TO_METER/Constants.EARTH_GRAVITY)/delta)
+	gforce = (linear_velocity - pastvelocity)*((Constants.UNIT_TO_METER/Helper.EARTH_GRAVITY)/delta)
 	pastvelocity = linear_velocity
 	
 	gforce = global_transform.basis.orthonormalized().transposed() * gforce

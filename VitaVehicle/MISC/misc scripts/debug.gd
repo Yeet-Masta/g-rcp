@@ -45,7 +45,7 @@ func _process(delta):
 		
 		$tacho/speedk.text = "KM/PH: " + str(int(get_node(car).linear_velocity.length()*Constants.UNIT_TO_KMH))
 		$tacho/speedm.text = "MPH: " + str(int(
-			(get_node(car).linear_velocity.length()*Constants.UNIT_TO_KMH) * Constants.KMH_TO_MPH
+			Helper.kmh_to_mph(get_node(car).linear_velocity.length()*Constants.UNIT_TO_KMH)
 		))
 		
 		

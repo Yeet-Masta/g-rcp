@@ -13,9 +13,6 @@ class_name Constants
 extends Node
 
 
-## Gravity (Earth) = 9.80665 (m/s^2)
-const EARTH_GRAVITY := 9.80665
-
 ## Distance (Scaled unit) * 0.30592 = Distance (meter)
 ## Distance (Scaled unit) / 3.26882845188 = Distance (meter)
 const UNIT_TO_METER := 0.30592
