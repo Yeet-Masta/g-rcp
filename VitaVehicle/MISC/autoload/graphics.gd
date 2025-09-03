@@ -22,6 +22,8 @@ func _process(_delta):
 	if not fs2 == fs:
 		fs2 = fs
 		fs_toggle()
+	
+	get_tree().get_first_node_in_group("sun").shadow_enabled = shadows
 
 func fs_toggle():
 	if not fs:

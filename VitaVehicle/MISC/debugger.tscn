@@ -965,19 +965,38 @@ anchor_bottom = 1.0
 [node name="container" type="VBoxContainer" parent="graphics config/scroll"]
 layout_mode = 2
 
-[node name="CheckBox3" type="CheckBox" parent="graphics config/scroll/container"]
+[node name="Shadows" type="CheckBox" parent="graphics config/scroll/container"]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+script = ExtResource("9")
+var_name = "shadows"
+
+[node name="text" type="Label" parent="graphics config/scroll/container/Shadows"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Shadows"
+
+[node name="amount" type="Label" parent="graphics config/scroll/container/Shadows"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "false"
+vertical_alignment = 2
+
+[node name="Smoke" type="CheckBox" parent="graphics config/scroll/container"]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "smoke"
 
-[node name="text" type="Label" parent="graphics config/scroll/container/CheckBox3"]
+[node name="text" type="Label" parent="graphics config/scroll/container/Smoke"]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Tyre Smoke"
 
-[node name="amount" type="Label" parent="graphics config/scroll/container/CheckBox3"]
+[node name="amount" type="Label" parent="graphics config/scroll/container/Smoke"]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
