@@ -49,10 +49,11 @@ func swapmap(naem):
 	current_map = "../../"+str(d.name)
 	
 	await get_tree().create_timer(0.1).timeout
-	get_parent().get_node(get_parent().car).global_position *= 0
-	get_parent().get_node(get_parent().car).global_rotation *= 0
-	get_parent().get_node(get_parent().car).linear_velocity *= 0
-	get_parent().get_node(get_parent().car).angular_velocity *= 0
+	var car = get_tree().get_first_node_in_group("car")
+	car.global_position *= 0
+	car.global_rotation *= 0
+	car.linear_velocity *= 0
+	car.angular_velocity *= 0
 
 
 func _ready():

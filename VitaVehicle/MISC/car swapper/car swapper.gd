@@ -6,61 +6,43 @@ var pathh = "res://MISC/car swapper/"
 var canclick = true
 var literal_cache = {}
 
-func list_files_in_directory(path):
-	var files = []
-	var dir = DirAccess.open(path)
-	dir.list_dir_begin()
-
-	while true:
-		var file = dir.get_next()
-		if file == "": break
-		elif not file.begins_with("."):
-			files.append(file)
-	
-	dir.list_dir_end()
-	
-	return files
+@onready var default_position = get_tree().get_first_node_in_group("car").global_position
 
 func load_and_cache(path):
 	var loaded = null
 	
-	if path in literal_cache:
-		pass
-	else:
+	if !path in literal_cache:
 		literal_cache[path] = load(path)
-
+	
 	loaded = literal_cache[path]
 	return loaded
 
-@onready var default_position = Helper.get_ancestor(self, 2).get_node("car").global_position
-
-func swapcar(naem):
+func swapcar(path):
 	visible = false
 	get_parent().get_node("swap car").visible = false
 	if canclick:
 		canclick = false
 		get_parent().get_node("vgs").clear()
 		
-		default_position = get_parent().get_node(get_parent().car).global_position
+		default_position = get_tree().get_first_node_in_group("car").global_position
 		
-		get_parent().get_node(get_parent().car).queue_free()
-		
-		get_parent().car = ""
+		get_tree().get_first_node_in_group("car").queue_free()
 		
 		await get_tree().create_timer(1.0).timeout
 		
-		var d = load_and_cache(pathh+str("cars/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
+		var d = load_and_cache(str(path)+str("/scene")+str(".tscn")).instantiate()
 		
 		Helper.get_ancestor(self, 2).add_child(d)
 		
 		d.global_position = default_position + Vector3(0,5,0)
+		var car = get_tree().get_first_node_in_group("car")
 		
-		get_parent().car = NodePath("../"+str(d.name))
+		get_parent()
 		get_parent()._ready()
 		get_parent().get_node("controls manipulator").setcar()
 		
-		get_parent().get_node("power_graph").Generation_Range = float(int(float(get_parent().get_node(get_parent().car).RPMLimit/1000.0))*1000 +1000)
-		get_parent().get_node("power_graph").Draw_RPM = get_parent().get_node(get_parent().car).IdleRPM
+		get_parent().get_node("power_graph").Generation_Range = float(int(float(car.RPMLimit / 1000.0)) * 1000 + 1000)
+		get_parent().get_node("power_graph").Draw_RPM = car.IdleRPM
 		
 		get_parent().get_node("power_graph")._ready()
 		
@@ -69,10 +51,10 @@ func swapcar(naem):
 		get_parent().get_node("power_graph").draw_scale = 1.0/peak
 		get_parent().get_node("power_graph")._ready()
 		
-		get_parent().get_node("tacho").Redline = int(float(get_parent().get_node(get_parent().car).RPMLimit/1000.0))*1000
-		get_parent().get_node("tacho").RPM_Range = int(float(get_parent().get_node(get_parent().car).RPMLimit/1000.0))*1000 +2000
-		get_parent().get_node("tacho").Turbo_Visible = get_parent().get_node(get_parent().car).TurboEnabled
-		get_parent().get_node("tacho").Max_PSI = get_parent().get_node(get_parent().car).MaxPSI*get_parent().get_node(get_parent().car).TurboAmount
+		get_parent().get_node("tacho").Redline = int(float(car.RPMLimit / 1000.0)) * 1000
+		get_parent().get_node("tacho").RPM_Range = int(float(car.RPMLimit / 1000.0)) * 1000 + 2000
+		get_parent().get_node("tacho").Turbo_Visible = car.TurboEnabled
+		get_parent().get_node("tacho").Max_PSI = car.MaxPSI * car.TurboAmount
 		
 		get_parent().get_node("tacho")._ready()
 		
@@ -81,14 +63,14 @@ func swapcar(naem):
 
 
 func _ready():
-	var d = list_files_in_directory(pathh+str("cars"))
+	var d = Helper.get_dir_children(pathh + str("cars/")).folders
 	
-	for i in d:
+	for i: String in d:
 		var but = button.duplicate()
 		$scroll/container.add_child(but)
 		but.visible = true
-		but.get_node("carname").text = i
-		but.get_node("icon").texture = load(pathh+str("cars/")+str(i)+str("/thumbnail")+str(".png"))
+		but.get_node("carname").text = i.get_file()
+		but.get_node("icon").texture = load(str(i)+str("/thumbnail")+str(".png"))
 		but.pressed.connect(swapcar.bind(i))
 
 func _input(_event):

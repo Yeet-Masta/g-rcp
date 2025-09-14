@@ -20,11 +20,6 @@ func _input(_event):
 		visible = false
 	elif Input.is_action_just_pressed("toggle_fs"):
 		$scroll/container/_FULLSCREEN.button_pressed = !$scroll/container/_FULLSCREEN.button_pressed
-		
-#		if $scroll/container/_FULLSCREEN.button_pressed:
-#			$scroll/container/_FULLSCREEN.button_pressed = false
-#		else:
-#			$scroll/container/_FULLSCREEN.button_pressed = true
 
 
 func _on_Button_pressed():

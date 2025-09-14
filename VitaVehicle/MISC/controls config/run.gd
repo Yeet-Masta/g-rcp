@@ -1,10 +1,10 @@
 extends Control
 
-var car
+var car: RigidBody3D
 
 
 func setcar():
-	car = get_parent().get_node(get_parent().car)
+	car = get_tree().get_first_node_in_group("car")
 
 
 func _on_Button_pressed():
@@ -35,7 +35,7 @@ func _ready():
 				i.get_node("amount").text = str(i.button_pressed)
 
 func _process(_delta):
-	if str(get_parent().car) == "": return
+	if !car: return
 	
 	for i in $scroll/container.get_children():
 		if i.var_name == "GEAR_ASSIST":

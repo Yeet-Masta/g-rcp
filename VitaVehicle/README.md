@@ -21,6 +21,12 @@ So my questions:
 - Why aren't we simplifying code to make it more readable? - It works for him, but not for me.
 - Why are we using magic numbers everywhere?
 
+# Short
+
+I could replace `car swapper.gd`'s directory loading function with my `Helper.get_dir_children` function.
+
+Would be cool to find more replacements like these.
+
 # Bugs
 
 Test these cases to ensure stability:

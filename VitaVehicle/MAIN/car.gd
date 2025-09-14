@@ -465,7 +465,7 @@ func transmission():
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 				clutchpedalreal = pow(irga_ca, 2)
-				clutchpedalreal = min(clutchpedalreal, 1.0)
+				clutchpedalreal = clamp(clutchpedalreal, 0.0, MaxClutch)
 			elif not gasrestricted and not revmatch:
 				clutchin = false
 			if su:
@@ -526,7 +526,7 @@ func transmission():
 				if rpm<GearAssistant[5]:
 					var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 					clutchpedalreal = irga_ca*irga_ca
-					clutchpedalreal = min(clutchpedalreal, 1.0)
+					clutchpedalreal = clamp(clutchpedalreal, 0.0, MaxClutch)
 				else:
 					clutchin = false
 				if not gear == -1:

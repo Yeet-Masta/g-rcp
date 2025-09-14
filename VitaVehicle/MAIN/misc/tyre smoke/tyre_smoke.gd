@@ -15,8 +15,8 @@ func _physics_process(_delta):
 	
 	visible = VitaVehicleSimulation.misc_smoke
 	
-	$revolvel.position.x = Helper.mm_to_meter(float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2
-	$revolver.position.x = Helper.mm_to_meter(-float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2
+	$revolvel.position.x = Convert.mm_to_meter(float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2
+	$revolver.position.x = Convert.mm_to_meter(-float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2
 	
 	$static.global_rotation = velo1.global_rotation
 	var direction = velo1_v*0.75

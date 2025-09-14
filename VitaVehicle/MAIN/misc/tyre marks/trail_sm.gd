@@ -39,7 +39,7 @@ func add_segment():
 
 #region internal
 func _ready() -> void:
-	wid = Helper.mm_to_meter(Helper.get_ancestor(self, 2).TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
+	wid = Convert.mm_to_meter(Helper.get_ancestor(self, 2).TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
 
 func _physics_process(_delta):
 	#get_parent().get_node("Camera").rotation_degrees.y += 20

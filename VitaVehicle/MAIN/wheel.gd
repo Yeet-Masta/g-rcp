@@ -165,7 +165,7 @@ var velocity2_last = Vector3(0,0,0)
 func _ready():
 	c_tp = TyrePressure
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	var translation = position
 	var cast_to = target_position
 	var global_translation = global_position
@@ -226,8 +226,8 @@ func _physics_process(_delta):
 	velocity_last = $velocity.global_position
 	velocity2_last = $velocity2.global_position
 	
-	velocity = -$velocity/step.position*60.0
-	velocity2 = -$velocity2/step.position*60.0
+	velocity = -$velocity/step.position / delta
+	velocity2 = -$velocity2/step.position / delta
 	
 	$velocity.rotation = Vector3(0,0,0)
 	$velocity2.rotation = Vector3(0,0,0)
