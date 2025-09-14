@@ -214,12 +214,18 @@ var sassiststep := 0
 var clutchin := false
 var gasrestricted := false
 var revmatch := false
-var gaspedal := 0.0
-var brakepedal := 0.0
-var clutchpedal := 0.0
-var clutchpedalreal := 0.0
-var steer := 0.0
-var steer2 := 0.0
+var gaspedal := 0.0:
+	set(value): gaspedal = clamp(value, 0.0, MaxThrottle)
+var brakepedal := 0.0:
+	set(value): brakepedal = clamp(value, 0.0, MaxBrake)
+var clutchpedal := 0.0:
+	set(value): clutchpedal = clamp(value, 0.0, 1.0)
+var clutchpedalreal := 0.0:
+	set(value): clutchpedalreal = clamp(value, 0.0, MaxClutch)
+var steer := 0.0:
+	set(value): steer = clamp(value, -1.0, 1.0)
+var steer2 := 0.0:
+	set(value): steer2 = clamp(value, -1.0, 1.0)
 var abspump := 0.0
 var tcsweight := 0.0
 var tcsflash := false
@@ -230,7 +236,8 @@ var brake_allowed := 0.0
 var readout_torque := 0.0
 
 var brakeline := 0.0
-var handbrakepull := 0.0
+var handbrakepull := 0.0:
+	set(value): handbrakepull = clamp(value, 0.0, MaxHandbrake)
 var dsweight := 0.0
 var dsweightrun := 0.0
 var diffspeed := 0.0
@@ -291,7 +298,7 @@ func bullet_fix():
 func controls():
 	var mouseposx = 0.0
 	
-	if get_viewport().size.x>0.0:
+	if get_viewport().size.x > 0.0:
 		mouseposx = get_viewport().get_mouse_position().x/get_viewport().size.x
 	
 	# IMPORTANT: Why if else in controls and in transmission?
@@ -367,7 +374,7 @@ func controls():
 		
 		var siding = abs(velocity.x)
 		
-		if velocity.x>0 and steer2>0 or velocity.x<0 and steer2<0:
+		if velocity.x > 0 and steer2 > 0 or velocity.x < 0 and steer2 < 0:
 			siding = 0.0
 			
 		var going = velocity.z/(siding +1.0)
@@ -375,20 +382,16 @@ func controls():
 		
 		if not LooseSteering:
 			if UseMouseSteering:
-				steer2 = (mouseposx-0.5)*2.0
-				steer2 *= SteerSensitivity
-				steer2 = clamp(steer2, -1.0, 1.0)
+				steer2 = (mouseposx-0.5)*2.0 * SteerSensitivity
 				
-				var s = abs(steer2)*1.0 +0.5
+				var s = abs(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
 				
 				steer2 *= s
 			elif UseAccelerometreSteering:
-				steer2 = Input.get_accelerometer().x/10.0
-				steer2 *= SteerSensitivity
-				steer2 = clamp(steer2, -1.0, 1.0)
+				steer2 = (Input.get_accelerometer().x/10.0) * SteerSensitivity
 				
-				var s = abs(steer2)*1.0 +0.5
+				var s = abs(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
 				
 				steer2 *= s
@@ -411,24 +414,16 @@ func controls():
 						steer2 += KeyboardReturnSpeed
 					else:
 						steer2 = 0.0
-				
-				steer2 = clamp(steer2, -1.0, 1.0)
-				
+			
 			if assistance_factor>0.0:
 				var maxsteer = 1.0/(going*(SteerAmountDecay/assistance_factor) +1.0)
 				
 				var assist_commence = linear_velocity.length()/10.0
 				assist_commence = min(assist_commence, 1.0)
 				
-				steer = (steer2*maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
+				steer = (steer2 * maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
 			else:
 				steer = steer2
-
-func limits(): # TODO: clamp in set and not in some random limits function, like how i do it in Health
-	gaspedal = clamp(gaspedal, 0.0, MaxThrottle)
-	brakepedal = clamp(brakepedal, 0.0, MaxBrake)
-	handbrakepull = clamp(handbrakepull, 0.0, MaxHandbrake)
-	steer = clamp(steer, -1.0, 1.0)
 
 func transmission():
 	clutch = Input.is_action_pressed("clutch") and not UseMouseSteering or Input.is_action_pressed("clutch_mouse") and UseMouseSteering
@@ -441,8 +436,6 @@ func transmission():
 			clutchpedalreal -= OffClutchRate/clock_mult
 		else:
 			clutchpedalreal += OnClutchRate/clock_mult
-		
-		clutchpedalreal = clamp(clutchpedalreal, 0.0, MaxClutch)
 		
 		clutchpedal = 1.0-clutchpedalreal
 		
@@ -465,7 +458,6 @@ func transmission():
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 				clutchpedalreal = pow(irga_ca, 2)
-				clutchpedalreal = clamp(clutchpedalreal, 0.0, MaxClutch)
 			elif not gasrestricted and not revmatch:
 				clutchin = false
 			if su:
@@ -526,7 +518,6 @@ func transmission():
 				if rpm<GearAssistant[5]:
 					var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 					clutchpedalreal = irga_ca*irga_ca
-					clutchpedalreal = clamp(clutchpedalreal, 0.0, MaxClutch)
 				else:
 					clutchin = false
 				if not gear == -1:
@@ -619,7 +610,6 @@ func transmission():
 	elif TransmissionType == 2:
 		
 		clutchpedal = (rpm -float(AutoSettings[3]) * (gaspedal*float(AutoSettings[2])+(1.0-float(AutoSettings[2]))) ) / float(AutoSettings[4])
-		#clutchpedal = 1
 		
 		if not GearAssistant[1] == 2:
 			if su:
@@ -706,8 +696,6 @@ func transmission():
 						actualgear -= 1
 		
 		gear = actualgear
-	
-	clutchpedal = clamp(clutchpedal, 0.0, 1.0)
 
 func drivetrain():
 	rpmcsm -= (rpmcs - resistance)
@@ -920,7 +908,6 @@ func _physics_process(delta):
 	sassistdel -= 1
 	
 	transmission()
-	limits()
 	
 	var steeroutput = steer
 	
@@ -934,7 +921,7 @@ func _physics_process(delta):
 	
 	abspump -= 1
 	
-	if abspump<0:
+	if abspump < 0:
 		brake_allowed += ABS[4]
 	else:
 		brake_allowed -= ABS[4]
