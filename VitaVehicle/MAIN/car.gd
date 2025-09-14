@@ -354,7 +354,7 @@ func controls():
 				gaspedal += OnThrottleRate/clock_mult
 			else:
 				gaspedal -= OffThrottleRate/clock_mult
-
+			
 			if brake:
 				brakepedal += OnBrakeRate/clock_mult
 			else:

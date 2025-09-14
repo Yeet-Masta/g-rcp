@@ -2,10 +2,6 @@
 # Make it performant and useful in many places.
 # Type all variables, parameters and returns.
 # Keep complete documentation.
-# INFO:
-# This works without knowing about other components.
-# NOTE:
-# This assumes that the Helper class exists.
 # TODO:
 # - Fix initialization causing the doc link to HealthPlus to not be available.
 # IDEAS:
@@ -20,11 +16,11 @@
 ## Widely applicable for most health stuff. See also [HealthPlus].
 ##[br][br][b]Note:[/b] Can have a shield, and that shield can have its own shield!
 ##[br][br][b]Note:[/b] This overwrites [method Node._get_configuration_warnings]. Use [code]super()[/code] if you want to extend the same method.
+##[br][br][b]Note:[/b] This assumes that the [Convert] class exists.
 
 @tool
 @icon("health.svg")
-class_name Health
-extends Node
+class_name Health extends Node
 
 
 #region signals
@@ -70,7 +66,7 @@ class DamageResult:
 ## Can't be less than [code]0[/code] because of [member health]. If this reaches [code]0[/code], [member health] will also reach [code]0[/code].
 @export var max_health := 100.0: set = set_max_health
 
-#region resistances
+	#region resistances
 @export_group("Resistance", "resistance_")
 
 ## Reduces incoming damage by this number. Used when calling [method damage] and ignored when setting [member health] directly.
@@ -81,7 +77,7 @@ class DamageResult:
 
 ## Controls the order in which [member resistance_flat] and [member resistance_percent] are applied. See [enum ResistanceOrder].
 @export var resistance_order := ResistanceOrder.PERCENT_FLAT
-#endregion resistances
+	#endregion resistances
 
 @export_group("Other")
 
@@ -134,7 +130,7 @@ func set_shield(value: Health) -> void:
 #region getters
 ## Represents the fullness of [member health] in [member max_health] as a percent, or [method get_health_ratio] [code] * 100[/code].
 func get_health_percent() -> float:
-	return Helper.unit_to_percent(get_health_ratio())
+	return Convert.unit_to_percent(get_health_ratio())
 
 ## Represents the fullness of [member health] in [member max_health] as a normalized value, or [member health] [code]/[/code] [member max_health].
 func get_health_ratio() -> float:
