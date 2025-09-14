@@ -710,16 +710,6 @@ func drivetrain():
 	else:
 		rpm += ((rpmcs*1.0)/clock_mult)*(RevSpeed/Constants.REVSPEED_TUNE)
 	
-	if "":
-		rpm = 7000.0
-		Locking = 0.0
-		CoastLocking = 0.0
-		Centre_Locking = 0.0
-		Centre_CoastLocking = 0.0
-		Preload = 1.0
-		Centre_Preload = 1.0
-		ClutchFloatReduction = 0.0
-	
 	gearstress = (abs(resistance)*StressFactor)*clutchpedal
 	var stabled = ratio*0.9 +0.1
 	ds_weight = DSWeight/stabled

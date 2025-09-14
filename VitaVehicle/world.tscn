@@ -39,7 +39,7 @@ mobile_controls = NodePath("../mobile_ctrls")
 
 [node name="orbit" type="Marker3D" parent="cam_chase"]
 
-[node name="Camera" type="Camera3D" parent="cam_chase/orbit"]
+[node name="Camera" type="Camera3D" parent="cam_chase/orbit" groups=["camera"]]
 transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 4.5, 0)
 cull_mask = 524287
 doppler_tracking = 2

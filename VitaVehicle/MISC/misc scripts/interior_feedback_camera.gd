@@ -1,4 +1,4 @@
-# IMPORTANT: Dead code?
+# IMPORTANT: Dead code? This was used probably in the porsche video with the internal camera.
 
 extends Camera3D
 

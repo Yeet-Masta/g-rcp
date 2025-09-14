@@ -1,20 +1,20 @@
-[gd_scene load_steps=32 format=4 uid="uid://c1qlms1ih0s2l"]
+[gd_scene load_steps=32 format=4 uid="uid://fejt734fjfym"]
 
-[ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://MAIN/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://MAIN/car.gd" id="2"]
-[ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://MAIN/misc/engine sound/engine.tscn" id="3"]
-[ext_resource type="AudioStream" uid="uid://ckt75vv2etwoa" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/1.ogg" id="4_ppb00"]
-[ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://MAIN/misc/tyre sounds/tyres.tscn" id="5"]
-[ext_resource type="AudioStream" uid="uid://cqdajib2yo6rv" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/2.ogg" id="5_imbti"]
-[ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://MAIN/misc/mechanical sounds/other_sounds.tscn" id="6"]
-[ext_resource type="AudioStream" uid="uid://d6eb4cnoayb7" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/3.ogg" id="6_bubjy"]
-[ext_resource type="AudioStream" uid="uid://bgadta1w1wxsb" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/4.ogg" id="7_87coq"]
-[ext_resource type="AudioStream" uid="uid://css4spfpu75vb" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/5.ogg" id="8_b4h4g"]
-[ext_resource type="AudioStream" uid="uid://cxwcusr1xcuau" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/6.ogg" id="9_5avts"]
-[ext_resource type="AudioStream" uid="uid://ckhm05fdvk5rf" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/7.ogg" id="10_v0gof"]
-[ext_resource type="AudioStream" uid="uid://bvu4bihqkrgdt" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/8.ogg" id="11_1v2r1"]
-[ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://MISC/misc scripts/interior_feedback_camera.gd" id="14_o84in"]
-[ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://MISC/car swapper/cars/Base/change_cam.gd" id="15_xnd00"]
+[ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://MAIN/car.gd" id="1_p23ep"]
+[ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://MAIN/misc/tyre sounds/tyres.tscn" id="2_j41wq"]
+[ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://MAIN/misc/engine sound/engine.tscn" id="3_n8oe8"]
+[ext_resource type="AudioStream" uid="uid://b0lic8xc7py8g" path="res://MISC/car swapper/cars/Drift/engine sounds/1.ogg" id="4_m5ojj"]
+[ext_resource type="AudioStream" uid="uid://c85hb27ghhdxx" path="res://MISC/car swapper/cars/Drift/engine sounds/2.ogg" id="5_wxr45"]
+[ext_resource type="AudioStream" uid="uid://dqok5uhp5ltai" path="res://MISC/car swapper/cars/Drift/engine sounds/3.ogg" id="6_nmv1k"]
+[ext_resource type="AudioStream" uid="uid://bllvk0u0uaijj" path="res://MISC/car swapper/cars/Drift/engine sounds/4.ogg" id="7_drb3i"]
+[ext_resource type="AudioStream" uid="uid://cugwlj7ui2ck0" path="res://MISC/car swapper/cars/Drift/engine sounds/5.ogg" id="8_1ch3l"]
+[ext_resource type="AudioStream" uid="uid://c8q0csmg1o5vv" path="res://MISC/car swapper/cars/Drift/engine sounds/6.ogg" id="9_anwx5"]
+[ext_resource type="AudioStream" uid="uid://cybpsyuo15uhv" path="res://MISC/car swapper/cars/Drift/engine sounds/7.ogg" id="10_mkj42"]
+[ext_resource type="AudioStream" uid="uid://dftxke3dfn7qf" path="res://MISC/car swapper/cars/Drift/engine sounds/8.ogg" id="11_ao1bn"]
+[ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://MAIN/wheel.tscn" id="12_iftx3"]
+[ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://MAIN/misc/mechanical sounds/other_sounds.tscn" id="13_h2dmf"]
+[ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://MISC/misc scripts/interior_feedback_camera.gd" id="14_2tneh"]
+[ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://MISC/car swapper/cars/Base/change_cam.gd" id="15_3lo5n"]
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)
@@ -248,8 +248,29 @@ blend_shape_mode = 0
 [node name="car" type="RigidBody3D" groups=["car"]]
 mass = 90.0
 can_sleep = false
-script = ExtResource("2")
+script = ExtResource("1_p23ep")
+Weight = 1200.0
+Steer_Radius = 5.5
+Powered_Wheels = Array[String](["rl", "rr"])
 ABS = [2500.0, 1, 10, false, 0.5, 500.0, 2]
+Locking = 90.0
+CoastLocking = 90.0
+Preload = 0.1
+Centre_Locking = 80.0
+Centre_CoastLocking = 80.0
+Centre_Preload = 0.1
+RPMLimit = 8000.0
+LimiterDelay = 1
+IdleRPM = 850.0
+BuildUpTorque = 0.02
+DeclineRPM = 4000.0
+VVT_OffsetTorque = 150.0
+VVT_DeclineRate = 1.5
+VVT_DeclineRPM = 6000.0
+ClutchGrip = 500.0
+ClutchWobble = 20.0
+MaxPSI = 5.0
+TurboEnabled = true
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
@@ -258,43 +279,44 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.625, 0.725)
 shape = SubResource("12")
 
-[node name="tyre_sound" parent="." instance=ExtResource("5")]
+[node name="tyre_sound" parent="." instance=ExtResource("2_j41wq")]
 
-[node name="engine_sound" parent="." instance=ExtResource("3")]
-pitch_calibrate = 9900.0
+[node name="engine_sound" parent="." instance=ExtResource("3_n8oe8")]
+pitch_calibrate = 10100.0
 crossfade_vvt = 3.0
 crossfade_throttle = 2.0
 crossfade_influence = 7.0
 
 [node name="450000" parent="engine_sound" index="0"]
-stream = ExtResource("4_ppb00")
+stream = ExtResource("4_m5ojj")
 
 [node name="300000" parent="engine_sound" index="1"]
-stream = ExtResource("5_imbti")
+stream = ExtResource("5_wxr45")
 
 [node name="225000" parent="engine_sound" index="2"]
-stream = ExtResource("6_bubjy")
+stream = ExtResource("6_nmv1k")
 
 [node name="178750" parent="engine_sound" index="3"]
-stream = ExtResource("7_87coq")
+stream = ExtResource("7_drb3i")
 
 [node name="150500" parent="engine_sound" index="4"]
-stream = ExtResource("8_b4h4g")
+stream = ExtResource("8_1ch3l")
 
 [node name="126500" parent="engine_sound" index="5"]
-stream = ExtResource("9_5avts")
+stream = ExtResource("9_anwx5")
 
 [node name="112750" parent="engine_sound" index="6"]
-stream = ExtResource("10_v0gof")
+stream = ExtResource("10_mkj42")
 
 [node name="100500" parent="engine_sound" index="7"]
-stream = ExtResource("11_1v2r1")
+stream = ExtResource("11_ao1bn")
 
-[node name="fr" parent="." instance=ExtResource("1")]
+[node name="fr" parent="." instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
-Differed_Wheel = "fl"
 SwayBarConnection = "fl"
+Camber = -1.0
+Caster = 4.0
 S_Stiffness = 55.0
 S_Damping = 4.0
 S_ReboundDamping = 4.0
@@ -306,11 +328,12 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="fl" parent="." instance=ExtResource("1")]
+[node name="fl" parent="." instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
-Differed_Wheel = "fr"
 SwayBarConnection = "fr"
+Camber = -1.0
+Caster = 4.0
 S_Stiffness = 55.0
 S_Damping = 4.0
 S_ReboundDamping = 4.0
@@ -321,10 +344,12 @@ B_Bias = 0.8
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="rr" parent="." instance=ExtResource("1")]
+[node name="rr" parent="." instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
+Differed_Wheel = "rl"
 SwayBarConnection = "rl"
+Camber = -3.0
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
@@ -334,10 +359,12 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="rl" parent="." instance=ExtResource("1")]
+[node name="rl" parent="." instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
+Differed_Wheel = "rr"
 SwayBarConnection = "rr"
+Camber = -3.0
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
@@ -346,7 +373,7 @@ HB_Bias = 1.0
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="other_sounds" parent="." instance=ExtResource("6")]
+[node name="other_sounds" parent="." instance=ExtResource("13_h2dmf")]
 
 [node name="rcp4 cars" type="MeshInstance3D" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -1.481, 0)
@@ -356,10 +383,10 @@ skeleton = NodePath("")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 1, 2)
-script = ExtResource("14_o84in")
+script = ExtResource("14_2tneh")
 
 [node name="change_cam" type="Node" parent="Camera3D" node_paths=PackedStringArray("this_camera")]
-script = ExtResource("15_xnd00")
+script = ExtResource("15_3lo5n")
 this_camera = NodePath("..")
 
 [editable path="engine_sound"]
