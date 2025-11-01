@@ -1,13 +1,16 @@
 # INFO:
 # This works standalone and is publicly accessible.
 # TODO:
-# - Make more helper methods.
-# - Improve documentation.
-# - Ensure correct code formatting.
 # IDEAS:
 # - Improve performance of the find_child family of methods.
 # - Make tire size calculator function. Takes width (mm)/ratio (percent) R (inch). Spits out a TireSizeResult with width (m), diameter (m), rim diameter (m), sidewall height (m).
 # - Get air pressure at height (Earth).
+# - save_dict_as_json(data: Dictionary, path: String) -> Error, load_dict_from_json(path: String) -> Dictionary, vec3_to_str(vec: Vector3, precision: int = 2) -> String, radians_to_compass_direction(angle: float) -> String, change_scene, format_memory(bytes: int) -> String, create_timer(wait_time: float, callable: Callable, owner_node: Node)
+# - is_position_inside(position, volume)
+# - flatten_array(array: Array) - converts nested arrays to elements of the parent array
+# 	- a matrixify() counterpart to turn a flat array into a matrix or something complex
+# - remove_duplicates(array: Array) - removes duplicate array values
+# - wrap_text(text: String, line_length: int)
 # BAD IDEAS:
 # - https://github.com/godotengine/godot-proposals/discussions/13011
 # 	- As stated there: find_parent_with_method, find_parent_with_signal.
@@ -17,12 +20,13 @@
 # - calculate linear crossfade volume: First steps towards an engine sound system.
 # - toggle fullscreen: Maybe? Ensure it doesn't need me to remember state.
 # - mouse axis input with deadzones: Must first check how to do that without helper.
+# - get_usec_since_event(event_at) - usec, Time.get_ticks_usec() - event_at. Hard to test.
 
 ## @experimental: This class is immature.
-## Public helper methods to shorten your code.
+## Shorten your code.
 ##
 ## Available in all scripts without any setup.
-##[br][br]An abstract script full of methods and constants to reduce the amount of code you need to write, and to improve readability.
+##[br][br]An abstract script to help you achieve more behavior with less code.
 
 @abstract class_name Helper extends Node
 
@@ -35,13 +39,6 @@ class DirChildrenResult:
 	## The folders found at [param path].
 	var folders: Array = []
 #endregion classes
-
-
-#region constants
-## Represents the acceleration of the Earth on its surface. For true realism, according to Wikipedia, gravity varies by 0.7% depending on your location.
-## Gravity (Earth) = 9.80665 (m/s^2)
-const EARTH_GRAVITY = 9.80665
-#endregion constants
 
 
 #region methods
@@ -97,6 +94,7 @@ static func find_children_with_signal(node: Node, signal_name: StringName, recur
 	return array
 	#endregion find_
 
+	#region get_
 ## Returns [param node]'s nth ancestor node [code]n[/code] [param levels] up, or [code]null[/code] if the node doesn't have such ancestor. Calls [method Node.get_parent] [code]n[/code] times.
 ##[br][br][b]Note:[/b] Bad code practice. Nodes should be unaware of their parents.
 static func get_ancestor(node: Node, levels: int) -> Node:
@@ -134,4 +132,28 @@ static func get_lines_in_file(path: String) -> int:
 		lines += 1
 	file.close()
 	return lines
+	#endregion get_
+
+	#region is_
+## Returns [code]true[/code] if the given string is a number in binary.
+static func is_binary(binary: String) -> bool:
+	for character in binary:
+		if character == "0" or character == "1": continue
+		else: return false
+	return true
+
+## Returns [code]true[/code] if the given string is a single character.
+static func is_character(string: String) -> bool:
+	return string.length() == 1
+
+## Returns [code]true[/code] if the given character is a digit.
+static func is_digit(character: String) -> bool:
+	if !is_character(character): return false
+	return character >= "0" and character <= "9"
+
+## Returns [code]true[/code] if the given character is a letter.
+static func is_letter(character: String) -> bool:
+	if !is_character(character): return false
+	return (character >= "a" and character <= "z") or (character >= "A" and character <= "Z")
+	#endregion is_
 #endregion methods
