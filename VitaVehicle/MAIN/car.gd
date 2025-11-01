@@ -886,7 +886,7 @@ func _physics_process(delta):
 	mass = Weight/10.0
 	aero()
 	
-	gforce = (linear_velocity - pastvelocity)*((Constants.UNIT_TO_METER/Helper.EARTH_GRAVITY)/delta)
+	gforce = (linear_velocity - pastvelocity)*((Constants.UNIT_TO_METER/Physics.EARTH_GRAVITY)/delta)
 	pastvelocity = linear_velocity
 	
 	gforce = global_transform.basis.orthonormalized().transposed() * gforce

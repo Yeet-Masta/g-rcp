@@ -23,7 +23,7 @@ So my questions:
 
 # Short
 
-I could replace `car swapper.gd`'s directory loading function with my `Helper.get_dir_children` function.
+I replaced `car swapper.gd`'s directory loading function with `Helper.get_dir_children`.
 
 Would be cool to find more replacements like these.
 
