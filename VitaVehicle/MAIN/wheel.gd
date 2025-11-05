@@ -1,5 +1,7 @@
 extends RayCast3D
 
+@export var car: Car
+
 @export var RealismOptions = {
 }
 
@@ -53,8 +55,6 @@ extends RayCast3D
 @export var ContactBTCS := false
 @export var ContactTTCS := false
 
-
-@onready var car := get_parent()
 
 var dist := 0.0
 var w_size := 1.0
@@ -279,9 +279,8 @@ func _physics_process(delta):
 	braked = min(braked, 1.0)
 	var bp = (B_Torque*braked)/w_weight_read
 	
-	if not car.actualgear == 0:
-		if car.dsweightrun>0.0:
-			bp += ((car.stalled*(c_p/car.ds_weight))*car.clutchpedal)*(((500.0/(car.RevSpeed*100.0))/(car.dsweightrun/2.5))/w_weight_read)
+	if car.actualgear != 0 and car.dsweightrun > 0.0:
+		bp += ((car.stall_resistance*(c_p/car.ds_weight))*car.clutchpedal)*(((500.0/(car.RevSpeed*100.0))/(car.dsweightrun/2.5))/w_weight_read)
 	if bp>0.0:
 		if abs(absolute_wv)>0.0:
 			var distanced = abs(absolute_wv)/bp

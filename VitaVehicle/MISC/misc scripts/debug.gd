@@ -6,10 +6,10 @@ var changed_graph_size = Vector2(0,0)
 #region methods
 func engine_restart():
 	# TODO: This ignites the engine back up, make it more... natural.
-	var car = get_tree().get_first_node_in_group("car")
+	var car: Car = get_tree().get_first_node_in_group("car")
 	if !car: return
 	
-	car.rpm = car.IdleRPM
+	car.start_engine()
 
 func toggle_forces():
 	Input.action_press("toggle_debug_mode")
@@ -61,7 +61,7 @@ func _process(delta):
 	
 	if !car: return
 	
-	$"fix engine".visible = car.rpm < car.DeadRPM
+	$"fix engine".visible = !car.is_ignition_on
 	
 	$throttle.bar_scale = car.gaspedal
 	$brake.bar_scale = car.brakepedal

@@ -7,6 +7,8 @@ var fade := 0.0
 var vacuum := 0.0
 var maxfades := 0.0
 
+@export var car: Car
+
 @export var pitch_calibrate := 7500.0
 @export var vacuum_crossfade := 0.7
 @export var vacuum_loudness := 4.0
@@ -34,17 +36,22 @@ func _ready():
 	maxfades = float(childcount-1.0)
 
 func _physics_process(_delta):
-	pitch = abs(get_parent().rpm*pitch_influence)/pitch_calibrate
+	if !car.is_ignition_on:
+		for i in get_children():
+			i.volume_db = -60.0
+		return
 	
-	volume = 0.5 +get_parent().throttle*0.5
-	fade = (get_node("100500").pitch_scale  -0.22222)*(crossfade_influence +float(get_parent().throttle)*crossfade_throttle +float(get_parent().vvt)*crossfade_vvt)
+	pitch = abs(car.rpm*pitch_influence)/pitch_calibrate
+	
+	volume = 0.5 +car.throttle*0.5
+	fade = (get_node("100500").pitch_scale  -0.22222)*(crossfade_influence +float(car.throttle)*crossfade_throttle +float(car.vvt)*crossfade_vvt)
 	
 	fade = clamp(fade, 0.0, childcount-1.0)
 	
-	vacuum = (get_parent().gaspedal-get_parent().throttle)*4.0
+	vacuum = (car.gaspedal-car.throttle)*4.0
 	vacuum = clamp(vacuum, 0.0, 1.0)
 	
-	var sfk = 1.0-(vacuum*get_parent().throttle)
+	var sfk = 1.0-(vacuum*car.throttle)
 	sfk = max(sfk, vacuum_crossfade)
 	
 	fade *= sfk

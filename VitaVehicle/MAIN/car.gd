@@ -1,4 +1,4 @@
-extends RigidBody3D
+class_name Car extends RigidBody3D
 
 
 @export var Debug_Mode := false
@@ -207,7 +207,8 @@ var gear := 0
 var limdel := 0
 var actualgear := 0
 var gearstress := 0.0
-var throttle := 0.0
+var throttle := 0.0:
+	set(value): throttle = clamp(value, 0.0, 1.0)
 var cvtaccel := 0.0
 var sassistdel := 0
 var sassiststep := 0
@@ -233,7 +234,12 @@ var espflash := false
 var ratio := 0.0
 var vvt := false
 var brake_allowed := 0.0
-var readout_torque := 0.0
+## Real engine torque.
+var engine_torque := 0.0
+## Does the engine inject and ignite fuel?
+var is_ignition_on := true
+## The amount of vaccuum.
+var stall_resistance := 0.0
 
 var brakeline := 0.0
 var handbrakepull := 0.0:
@@ -284,8 +290,6 @@ var c_pws := []
 
 var velocity := Vector3(0,0,0)
 var rvelocity := Vector3(0,0,0)
-
-var stalled := 0.0
 
 
 func bullet_fix():
@@ -839,6 +843,13 @@ func draw_debug():
 			weight_dist[0] = remap(front_load/total, -1.0, 1.0, 0.0, 1.0)
 			weight_dist[1] = 1.0-weight_dist[0]
 
+func start_engine():
+	rpm = IdleRPM
+	is_ignition_on = true
+
+func stop_engine():
+	is_ignition_on = false
+
 
 #region internal
 func _input(event: InputEvent) -> void:
@@ -847,15 +858,13 @@ func _input(event: InputEvent) -> void:
 
 func _ready():
 	#bullet_fix()
-	rpm = IdleRPM
+	start_engine()
 	for i in Powered_Wheels:
 		var wh = get_node(str(i))
 		c_pws.append(wh)
 
 func _process(_delta):
 	if Debug_Mode: draw_debug()
-	
-	readout_torque = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,rpm,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
 
 func _physics_process(delta):
 	if len(steering_angles)>0:
@@ -935,7 +944,7 @@ func _physics_process(delta):
 			limdel = LimiterDelay
 	elif rpm<IdleRPM:
 		if throttle<ThrottleIdle:
-			throttle = clamp(ThrottleIdle + ((IdleRPM-rpm)/IdleRPM), 0.0, 1.0)
+			throttle = ThrottleIdle + ((IdleRPM-rpm)/IdleRPM)
 			# The farther from idle, the higher the throttle.
 	
 	var stab = 300.0
@@ -964,7 +973,10 @@ func _physics_process(delta):
 	
 	var torque = 0.0
 	
-	if vvt:
+	if !is_ignition_on:
+		throttle = 0.0
+		turbopsi = 0.0
+	elif vvt:
 		var f = rpm-VVT_RiseRPM
 		f = max(f, 0.0)
 		torque = (rpm*VVT_BuildUpTorque +VVT_OffsetTorque + pow(f, 2) * (VVT_TorqueRise*Constants.RISE_FACTOR))*throttle
@@ -985,14 +997,18 @@ func _physics_process(delta):
 	
 	rpmforce = (rpm/(pow(abs(rpm), 2)/(EngineFriction/clock_mult) +1.0))*1.0
 	if rpm<DeadRPM:
+		stop_engine()
 		torque = 0.0
 		rpmforce /= 5.0
-		stalled = 1.0 -rpm/DeadRPM
+		stall_resistance = 1.0 - rpm / DeadRPM
 	else:
-		stalled = 0.0
+		stall_resistance = 0.0
+	
 	rpmforce += (rpm*(EngineDrag/clock_mult))*1.0
 	rpmforce -= (torque/clock_mult)*1.0
 	rpm -= rpmforce*RevSpeed
+	
+	engine_torque = torque
 	
 	drivetrain()
 #endregion internal

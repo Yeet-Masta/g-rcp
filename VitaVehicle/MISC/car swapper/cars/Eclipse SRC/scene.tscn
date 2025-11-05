@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=4 uid="uid://c1qlms1ih0s2l"]
+[gd_scene load_steps=33 format=4 uid="uid://c1qlms1ih0s2l"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://MAIN/wheel.tscn" id="1"]
 [ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://MAIN/car.gd" id="2"]
@@ -15,6 +15,7 @@
 [ext_resource type="AudioStream" uid="uid://bvu4bihqkrgdt" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/8.ogg" id="11_1v2r1"]
 [ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://MISC/misc scripts/interior_feedback_camera.gd" id="14_o84in"]
 [ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://MISC/car swapper/cars/Base/change_cam.gd" id="15_xnd00"]
+[ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://MAIN/fuel_system.gd" id="16_elpyq"]
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)
@@ -260,7 +261,8 @@ shape = SubResource("12")
 
 [node name="tyre_sound" parent="." instance=ExtResource("5")]
 
-[node name="engine_sound" parent="." instance=ExtResource("3")]
+[node name="engine_sound" parent="." node_paths=PackedStringArray("car") instance=ExtResource("3")]
+car = NodePath("..")
 pitch_calibrate = 9900.0
 crossfade_vvt = 3.0
 crossfade_throttle = 2.0
@@ -290,7 +292,7 @@ stream = ExtResource("10_v0gof")
 [node name="100500" parent="engine_sound" index="7"]
 stream = ExtResource("11_1v2r1")
 
-[node name="fr" parent="." instance=ExtResource("1")]
+[node name="fr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
 Differed_Wheel = "fl"
@@ -300,13 +302,14 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
+car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0"]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="fl" parent="." instance=ExtResource("1")]
+[node name="fl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
 Differed_Wheel = "fr"
@@ -316,31 +319,34 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
+car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0"]
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="rr" parent="." instance=ExtResource("1")]
+[node name="rr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
 SwayBarConnection = "rl"
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
+car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0"]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("19")
 skeleton = NodePath("../../../../..")
 
-[node name="rl" parent="." instance=ExtResource("1")]
+[node name="rl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
 SwayBarConnection = "rr"
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
+car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0"]
 mesh = SubResource("19")
@@ -361,6 +367,10 @@ script = ExtResource("14_o84in")
 [node name="change_cam" type="Node" parent="Camera3D" node_paths=PackedStringArray("this_camera")]
 script = ExtResource("15_xnd00")
 this_camera = NodePath("..")
+
+[node name="fuel" type="Node" parent="." node_paths=PackedStringArray("car")]
+script = ExtResource("16_elpyq")
+car = NodePath("..")
 
 [editable path="engine_sound"]
 [editable path="fr"]

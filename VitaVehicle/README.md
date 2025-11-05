@@ -15,7 +15,8 @@ No bad feelings, but i'm just noting what i found to ensure that i can learn fro
 - Uses some weird `a*float(b>0.0) -a*float(b<0.0)` which simplifies to `a*sign(b)`.
 - Uses _process and _physics_process for one-time things that can be done in _ready.
 - Doesn't use guard clauses.
-- Limits the digits after a decimal with `int(a*10)/10` instead of ``
+- Limits the digits after a decimal with `int(a*10)/10` instead of using things like `snappedf(a, 0.1)`.
+- Uses hardcoded paths instead of `@export` nodes.
 
 So my questions:
 - Why aren't we simplifying code to make it more readable? - It works for him, but not for me.
