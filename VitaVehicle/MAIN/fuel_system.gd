@@ -32,7 +32,7 @@ func get_fuel_consumption() -> float:
 	
 	if !car.is_ignition_on:
 		fuel_consumption = 0.0
-	elif is_above_idle_rpm() and is_in_gear() and !is_throttle_open():
+	elif car.is_above_idle_rpm() and is_in_gear() and !is_throttle_open():
 		fuel_consumption = 0.0
 	
 	return max(fuel_consumption, 0.0)
@@ -40,10 +40,6 @@ func get_fuel_consumption() -> float:
 
 func is_in_gear():
 	return car.actualgear != 0
-
-
-func is_above_idle_rpm():
-	return car.rpm > car.IdleRPM
 
 
 func is_throttle_open():

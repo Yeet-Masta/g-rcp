@@ -316,6 +316,7 @@ stream = ExtResource("11_ao1bn")
 [node name="fr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
+car = NodePath("..")
 SwayBarConnection = "fl"
 Camber = -1.0
 Caster = 4.0
@@ -324,7 +325,6 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
-car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0"]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -334,6 +334,7 @@ skeleton = NodePath("../../../../..")
 [node name="fl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
+car = NodePath("..")
 SwayBarConnection = "fr"
 Camber = -1.0
 Caster = 4.0
@@ -342,7 +343,6 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
-car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0"]
 mesh = SubResource("19")
@@ -351,13 +351,13 @@ skeleton = NodePath("../../../../..")
 [node name="rr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
+car = NodePath("..")
 Differed_Wheel = "rl"
 SwayBarConnection = "rl"
 Camber = -3.0
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
-car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0"]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -367,13 +367,13 @@ skeleton = NodePath("../../../../..")
 [node name="rl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("12_iftx3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
+car = NodePath("..")
 Differed_Wheel = "rr"
 SwayBarConnection = "rr"
 Camber = -3.0
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
-car = NodePath("..")
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0"]
 mesh = SubResource("19")

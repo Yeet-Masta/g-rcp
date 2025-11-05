@@ -43,7 +43,7 @@ class_name Car extends RigidBody3D
 6000.0, # Downshift RPM Iteration
 6200.0, # Upshift RPM
 3000.0, # Clutch-Out RPM
-5, # throttle input allowed after shiting delay
+5, # throttle input allowed after shifting delay
 ]
 
 # meta
@@ -844,17 +844,23 @@ func draw_debug():
 			weight_dist[1] = 1.0-weight_dist[0]
 
 func start_engine():
-	rpm = IdleRPM
+	rpm = max(rpm, IdleRPM)
 	is_ignition_on = true
 
 func stop_engine():
 	is_ignition_on = false
+
+func is_above_idle_rpm():
+	return rpm > IdleRPM
 
 
 #region internal
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_debug_mode"):
 		Debug_Mode = !Debug_Mode
+	if event.is_action_pressed("ignition"):
+		if is_ignition_on: stop_engine()
+		else: start_engine()
 
 func _ready():
 	#bullet_fix()
