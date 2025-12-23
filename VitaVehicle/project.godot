@@ -14,7 +14,7 @@ config/name="VitaVehicle tomster"
 config/tags=PackedStringArray("git_project", "sound")
 run/main_scene="res://world.tscn"
 config/features=PackedStringArray("4.5")
-config/icon="res://icon.png"
+config/icon="uid://cep6sdenf2ole"
 
 [autoload]
 
@@ -30,6 +30,13 @@ window/vsync/use_vsync=false
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/short/plugin.cfg", "res://addons/vitavehicle_ui/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://MAIN/": "teal",
+"res://addons/": "orange"
+}
 
 [input]
 
