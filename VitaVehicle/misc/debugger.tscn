@@ -338,7 +338,7 @@ offset_top = -0.4800415
 offset_right = -0.9200134
 offset_bottom = 0.0799561
 
-[node name="controls manipulator" type="Control" parent="." node_paths=PackedStringArray("open_controls_button")]
+[node name="controls manipulator" type="Control" parent="." node_paths=PackedStringArray("open_controls_button", "settings_container")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -347,6 +347,7 @@ anchor_right = 0.665039
 anchor_bottom = 0.8025
 script = ExtResource("8")
 open_controls_button = NodePath("../menus/open controls")
+settings_container = NodePath("scroll/container")
 
 [node name="background" type="ColorRect" parent="controls manipulator"]
 layout_mode = 0
@@ -367,7 +368,7 @@ custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 2.0
 script = ExtResource("7")
-var_name = "GEAR_ASSIST"
+var_name = "shift_assist_level"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider7"]
 layout_mode = 0
@@ -385,12 +386,12 @@ vertical_alignment = 2
 [node name="HSlider16" type="HSlider" parent="controls manipulator/scroll/container"]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
-min_value = 1.0
+min_value = 0.5
 max_value = 2.0
 step = 0.001
 value = 1.0
 script = ExtResource("7")
-var_name = "SteerSensitivity"
+var_name = "steering_sensitivity"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider16"]
 layout_mode = 0
@@ -409,7 +410,7 @@ vertical_alignment = 2
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
-var_name = "UseMouseSteering"
+var_name = "mouse_steering"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox"]
 layout_mode = 0
@@ -428,7 +429,7 @@ vertical_alignment = 2
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
-var_name = "UseAccelerometreSteering"
+var_name = "accelerometer_steering"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox2"]
 layout_mode = 0
@@ -449,7 +450,7 @@ layout_mode = 2
 max_value = 0.2
 step = 0.001
 script = ExtResource("7")
-var_name = "SteerAmountDecay"
+var_name = "steer_amount_decay"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider4"]
 layout_mode = 0
@@ -470,7 +471,7 @@ layout_mode = 2
 max_value = 2.0
 step = 0.001
 script = ExtResource("7")
-var_name = "SteeringAssistance"
+var_name = "steering_assistance"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider5"]
 layout_mode = 0
@@ -491,7 +492,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "SteeringAssistanceAngular"
+var_name = "steering_assistance_angular"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider6"]
 layout_mode = 0
@@ -512,7 +513,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OnThrottleRate"
+var_name = "on_throttle_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider8"]
 layout_mode = 0
@@ -533,7 +534,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OffThrottleRate"
+var_name = "off_throttle_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider9"]
 layout_mode = 0
@@ -554,7 +555,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OnBrakeRate"
+var_name = "on_brake_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider10"]
 layout_mode = 0
@@ -575,7 +576,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OffBrakeRate"
+var_name = "off_brake_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider11"]
 layout_mode = 0
@@ -596,7 +597,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OnHandbrakeRate"
+var_name = "on_handbrake_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider12"]
 layout_mode = 0
@@ -617,7 +618,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OffHandbrakeRate"
+var_name = "off_handbrake_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider13"]
 layout_mode = 0
@@ -638,7 +639,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OnClutchRate"
+var_name = "on_clutch_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider14"]
 layout_mode = 0
@@ -659,7 +660,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "OffClutchRate"
+var_name = "off_clutch_rate"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider15"]
 layout_mode = 0
@@ -680,7 +681,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "MaxThrottle"
+var_name = "max_throttle"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider17"]
 layout_mode = 0
@@ -701,7 +702,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "MaxBrake"
+var_name = "max_brake"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider18"]
 layout_mode = 0
@@ -722,7 +723,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "MaxHandbrake"
+var_name = "max_handbrake"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider19"]
 layout_mode = 0
@@ -743,7 +744,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "MaxClutch"
+var_name = "max_clutch"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider20"]
 layout_mode = 0
@@ -764,7 +765,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "KeyboardSteerSpeed"
+var_name = "keyboard_steer_speed"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider"]
 layout_mode = 0
@@ -785,7 +786,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "KeyboardReturnSpeed"
+var_name = "keyboard_return_speed"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider2"]
 layout_mode = 0
@@ -806,7 +807,7 @@ layout_mode = 2
 max_value = 1.0
 step = 0.001
 script = ExtResource("7")
-var_name = "KeyboardCompensateSpeed"
+var_name = "keyboard_compensate_speed"
 
 [node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider3"]
 layout_mode = 0
@@ -951,7 +952,7 @@ mouse_filter = 1
 text = "Powered by Godot"
 horizontal_alignment = 1
 
-[node name="graphics config" type="Control" parent="." node_paths=PackedStringArray("open_graphics_button")]
+[node name="graphics config" type="Control" parent="." node_paths=PackedStringArray("open_graphics_button", "settings_container")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -960,6 +961,7 @@ anchor_right = 0.665039
 anchor_bottom = 0.8025
 script = ExtResource("5")
 open_graphics_button = NodePath("../menus/open graphics")
+settings_container = NodePath("scroll/container")
 
 [node name="background" type="ColorRect" parent="graphics config"]
 layout_mode = 0
@@ -998,7 +1000,7 @@ vertical_alignment = 2
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
-var_name = "smoke"
+var_name = "tire_smoke"
 
 [node name="text" type="Label" parent="graphics config/scroll/container/Smoke"]
 layout_mode = 0
@@ -1017,7 +1019,7 @@ vertical_alignment = 2
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
-var_name = "fs"
+var_name = "full_screen"
 
 [node name="text" type="Label" parent="graphics config/scroll/container/_FULLSCREEN"]
 layout_mode = 0

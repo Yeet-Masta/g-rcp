@@ -52,7 +52,6 @@ func _physics_process(_delta):
 
 
 func _process(delta):
-	VitaVehicleSimulation.misc_smoke = misc_graphics_settings.smoke
 	if delta>0:
 		get_node("container/fps").text = "fps: " + str(Engine.get_frames_per_second())
 		if car:
@@ -112,7 +111,7 @@ func _process(delta):
 	elif car.gear == -1:
 		$tacho/gear.text = "R"
 	else:
-		if car.TransmissionType == 1 or car.TransmissionType == 2:
+		if car.transmission_type == Car.TransmissionType.AUTOMATIC or car.transmission_type == Car.TransmissionType.CONTINUOUSLY_VARIABLE:
 			$tacho/gear.text = "D"
 		else:
 			$tacho/gear.text = str(car.gear)

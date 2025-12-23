@@ -3,8 +3,9 @@
 extends Camera3D
 
 
-var defaultpos
-var defaultrot
+
+var defaultpos: Vector3
+var defaultrot: Vector3
 var mometum := Vector3(0,0,0)
 var pastspeed := Vector3(0,0,0)
 var mometum_ro := Vector3(0,0,0)

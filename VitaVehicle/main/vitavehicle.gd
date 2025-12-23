@@ -1,35 +1,6 @@
 @tool
 extends Node
 
-# TODO: Find why these are here and are unused, maybe something accesses the global?
-# I think each car overwrites these... why?
-var misc_smoke := true
-
-var GearAssistant := 2 # 0 = manual, 1 = semi-manual, 2 = auto
-
-var UseMouseSteering := false
-var UseAccelerometreSteering := false
-var SteerSensitivity := 1.0
-var KeyboardSteerSpeed := 0.025
-var KeyboardReturnSpeed := 0.05
-var KeyboardCompensateSpeed := 0.1
-
-var SteerAmountDecay := 0.0125 # understeer help
-var SteeringAssistance := 1.0
-var SteeringAssistanceAngular := 0.25
-
-var OnThrottleRate := 0.2
-var OffThrottleRate := 0.2
-
-var OnBrakeRate := 0.05
-var OffBrakeRate := 0.1
-
-var OnHandbrakeRate := 0.2
-var OffHandbrakeRate := 0.2
-
-var OnClutchRate := 0.2
-var OffClutchRate := 0.2
-
 
 
 func multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,RPM,DeclineRPM,DeclineRate,FloatRate,PSI,TurboAmount,EngineCompressionRatio,TEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SCEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness) -> float:

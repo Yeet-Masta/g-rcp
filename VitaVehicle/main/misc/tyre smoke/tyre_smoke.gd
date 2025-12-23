@@ -3,17 +3,21 @@
 
 extends Node3D
 
-# IMPORTANT: Bad practices.
-@onready var velo1 = get_node("../../../velocity")
-@onready var velo2 = get_node("../../../velocity2")
-@onready var wheel_self = get_node("../../..")
 
-@export var dirt_type = false
+
+# IMPORTANT: Bad practices.
+@onready var velo1 := get_node("../../../velocity")
+@onready var velo2 := get_node("../../../velocity2")
+@onready var wheel_self := get_node("../../..")
+
+@export var dirt_type := false
+
+
 
 func _physics_process(_delta):
 	var velo1_v = Helper.get_ancestor(self, 3).velocity
 	
-	visible = VitaVehicleSimulation.misc_smoke
+	visible = ConfigManager.data.graphics.tire_smoke
 	
 	$revolvel.position.x = Convert.mm_to_meter(float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2
 	$revolver.position.x = Convert.mm_to_meter(-float(wheel_self.TyreSettings["Width (mm)"])) * Constants.UNIT_TO_METER/2

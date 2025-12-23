@@ -1,14 +1,13 @@
 extends Node3D
 
+
+
 @export var width_scale := 0.35
 
 var last_pos := transform
 var g := Vector3(0,0,0)
-
 var vertices := []
-
 var del := 0
-
 var wid := 0.125
 
 var inserting := false
@@ -41,6 +40,7 @@ func add_segment():
 func _ready() -> void:
 	wid = Convert.mm_to_meter(Helper.get_ancestor(self, 2).TyreSettings["Width (mm)"]) * Constants.METER_TO_UNIT * width_scale
 
+
 func _physics_process(_delta):
 	#get_parent().get_node("Camera").rotation_degrees.y += 20
 	
@@ -57,6 +57,7 @@ func _physics_process(_delta):
 	if del<0 and inserting:
 		del = 5
 		add_segment()
+
 
 func _process(_delta):
 	

@@ -3,31 +3,49 @@ extends Control
 
 
 @export var open_graphics_button: Button
+@export var settings_container: VBoxContainer
 
+
+
+func apply_graphics_settings():
+	get_tree().get_first_node_in_group("sun").shadow_enabled = ConfigManager.data.graphics.shadows
+
+
+func load_settings():
+	for i: CheckBox in settings_container.get_children():
+		i.button_pressed = ConfigManager.data.graphics.get(i.var_name)
+		i.get_node("amount").text = str(i.button_pressed)
+
+
+func set_setting(setting_name: String, value: bool):
+	ConfigManager.data.graphics.set(setting_name, value)
+
+
+func _on_setting_pressed(setting: CheckBox):
+	set_setting(setting.var_name, setting.button_pressed)
 
 
 func _ready():
-	for i in $scroll/container.get_children():
-		i.button_pressed = misc_graphics_settings.get(i.var_name)
-		i.get_node("amount").text = str(i.button_pressed)
+	load_settings()
 	
-	open_graphics_button.pressed.connect(_on_button_pressed)
+	open_graphics_button.pressed.connect(_on_open_graphics_pressed)
+	for i: CheckBox in settings_container.get_children():
+		i.pressed.connect(_on_setting_pressed.bind(i))
 
 
 func _process(_delta):
-	for i in $scroll/container.get_children():
-		misc_graphics_settings.set(i.var_name,i.button_pressed)
-		i.get_node("amount").text = str(i.button_pressed)
+	load_settings()
+	apply_graphics_settings()
 
 
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):
 		visible = false
 	elif Input.is_action_just_pressed("toggle_fs"):
-		$scroll/container/_FULLSCREEN.button_pressed = !$scroll/container/_FULLSCREEN.button_pressed
+		settings_container.find_child("_FULLSCREEN").button_pressed = !settings_container.find_child("_FULLSCREEN").button_pressed
 
 
-func _on_button_pressed():
+func _on_open_graphics_pressed():
 	open_graphics_button.release_focus()
 	if visible:
 		visible = false

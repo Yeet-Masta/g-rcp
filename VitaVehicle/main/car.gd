@@ -6,42 +6,17 @@ signal debug_lamp_changed
 
 
 
+enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO}
+
+
+
+@export_group("Other")
 @export var fuel: Fuel
 
 @export var Debug_Mode := false
 
-# TODO: fix why are controls in each car and not in one place per user?
-# controls
-@export var Use_Global_Control_Settings := false
-@export var UseMouseSteering := false
-@export var UseAccelerometreSteering := false
-@export var SteerSensitivity := 1.0
-@export var KeyboardSteerSpeed := 0.025
-@export var KeyboardReturnSpeed := 0.05
-@export var KeyboardCompensateSpeed := 0.1
+@export var LooseSteering := false #simulate rack and pinion steering physics (EXPERIMENTAL) # May belong in ControlsConfig, unsure.
 
-@export var SteerAmountDecay := 0.015 # understeer help
-@export var SteeringAssistance := 0.0
-@export var SteeringAssistanceAngular := 0.0
-
-@export var LooseSteering := false #simulate rack and pinion steering physics (EXPERIMENTAL)
-
-@export var OnThrottleRate := 0.2
-@export var OffThrottleRate := 0.2
-
-@export var OnBrakeRate := 0.05
-@export var OffBrakeRate := 0.1
-
-@export var OnHandbrakeRate := 0.2
-@export var OffHandbrakeRate := 0.2
-
-@export var OnClutchRate := 0.2
-@export var OffClutchRate := 0.2
-
-@export var MaxThrottle := 1.0
-@export var MaxBrake := 1.0
-@export var MaxHandbrake := 1.0
-@export var MaxClutch := 1.0
 
 @export var GearAssistant := [ # TODO: Make this more readable.
 20, # Shift delay
@@ -81,7 +56,7 @@ signal debug_lamp_changed
 @export var GearGap := 60.0
 @export var DSWeight := 150.0 # Leave this be, unless you know what you're doing.
 
-@export_enum("Fully Manual", "Automatic", "Continuously Variable", "Semi-Auto") var TransmissionType := 0
+@export var transmission_type := TransmissionType.FULLY_MANUAL
 
 @export var AutoSettings := [
 6500.0, # shift rpm (auto)
@@ -103,9 +78,13 @@ signal debug_lamp_changed
 
 @export_group("Stability")
 ## Anti-lock Braking System.
+@warning_ignore("shadowed_global_identifier")
 @export var abs: ABSProfile
+## Electronic Stability Program.
 @export var esp := ESPProfile
+## Brake-based Traction Control System.
 @export var btcs := BTCSProfile
+## Throttle-based Traction Control System
 @export var ttcs := TTCSProfile
 
 
@@ -199,13 +178,13 @@ var clutchin := false
 var gasrestricted := false
 var revmatch := false
 var gaspedal := 0.0:
-	set(value): gaspedal = clamp(value, 0.0, MaxThrottle)
+	set(value): gaspedal = clamp(value, 0.0, ConfigManager.data.controls.max_throttle)
 var brakepedal := 0.0:
-	set(value): brakepedal = clamp(value, 0.0, MaxBrake)
+	set(value): brakepedal = clamp(value, 0.0, ConfigManager.data.controls.max_brake)
 var clutchpedal := 0.0:
 	set(value): clutchpedal = clamp(value, 0.0, 1.0)
 var clutchpedalreal := 0.0:
-	set(value): clutchpedalreal = clamp(value, 0.0, MaxClutch)
+	set(value): clutchpedalreal = clamp(value, 0.0, ConfigManager.data.controls.max_clutch)
 var steer := 0.0:
 	set(value): steer = clamp(value, -1.0, 1.0)
 var steer2 := 0.0:
@@ -226,7 +205,7 @@ var stall_resistance := 0.0
 
 var brakeline := 0.0
 var handbrakepull := 0.0:
-	set(value): handbrakepull = clamp(value, 0.0, MaxHandbrake)
+	set(value): handbrakepull = clamp(value, 0.0, ConfigManager.data.controls.max_handbrake)
 var dsweight := 0.0
 var dsweightrun := 0.0
 var diffspeed := 0.0
@@ -294,7 +273,7 @@ func controls():
 		mouseposx = get_viewport().get_mouse_position().x/get_viewport().size.x
 	
 	# IMPORTANT: Why if else in controls and in transmission?
-	if UseMouseSteering:
+	if ConfigManager.data.controls.mouse_steering:
 		gas = Input.is_action_pressed("gas_mouse")
 		brake = Input.is_action_pressed("brake_mouse")
 		su = Input.is_action_just_pressed("shiftup_mouse")
@@ -333,36 +312,36 @@ func controls():
 	
 	
 	if Controlled:
-		if GearAssistant[1] == 2:
+		if ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.FULL:
 			if gas and not gasrestricted and not gear == -1 or brake and gear == -1 or revmatch:
-				gaspedal += OnThrottleRate/clock_mult
+				gaspedal += ConfigManager.data.controls.on_throttle_rate/clock_mult
 			else:
-				gaspedal -= OffThrottleRate/clock_mult
+				gaspedal -= ConfigManager.data.controls.off_throttle_rate/clock_mult
 			
 			if brake and not gear == -1 or gas and gear == -1:
-				brakepedal += OnBrakeRate/clock_mult
+				brakepedal += ConfigManager.data.controls.on_brake_rate/clock_mult
 			else:
-				brakepedal -= OffBrakeRate/clock_mult
+				brakepedal -= ConfigManager.data.controls.off_brake_rate/clock_mult
 		else:
-			if GearAssistant[1] == 0:
+			if ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
 				gasrestricted = false
 				clutchin = false
 				revmatch = false
 			
 			if gas and not gasrestricted or revmatch:
-				gaspedal += OnThrottleRate/clock_mult
+				gaspedal += ConfigManager.data.controls.on_throttle_rate/clock_mult
 			else:
-				gaspedal -= OffThrottleRate/clock_mult
+				gaspedal -= ConfigManager.data.controls.off_throttle_rate/clock_mult
 			
 			if brake:
-				brakepedal += OnBrakeRate/clock_mult
+				brakepedal += ConfigManager.data.controls.on_brake_rate/clock_mult
 			else:
-				brakepedal -= OffBrakeRate/clock_mult
+				brakepedal -= ConfigManager.data.controls.off_brake_rate/clock_mult
 		
 		if handbrake:
-			handbrakepull += OnHandbrakeRate/clock_mult
+			handbrakepull += ConfigManager.data.controls.on_handbrake_rate/clock_mult
 		else:
-			handbrakepull -= OffHandbrakeRate/clock_mult
+			handbrakepull -= ConfigManager.data.controls.off_handbrake_rate/clock_mult
 		
 		var siding := absf(velocity.x)
 		
@@ -373,15 +352,15 @@ func controls():
 		going = max(going, 0.0)
 		
 		if not LooseSteering:
-			if UseMouseSteering:
-				steer2 = (mouseposx-0.5)*2.0 * SteerSensitivity
+			if ConfigManager.data.controls.mouse_steering:
+				steer2 = (mouseposx-0.5)*2.0 * ConfigManager.data.controls.steering_sensitivity
 				
 				var s := absf(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
 				
 				steer2 *= s
-			elif UseAccelerometreSteering:
-				steer2 = (Input.get_accelerometer().x/10.0) * SteerSensitivity
+			elif ConfigManager.data.controls.accelerometer_steering:
+				steer2 = (Input.get_accelerometer().x/10.0) * ConfigManager.data.controls.steering_sensitivity
 				
 				var s := absf(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
@@ -391,44 +370,44 @@ func controls():
 			else:
 				if right:
 					if steer2>0:
-						steer2 += KeyboardSteerSpeed
+						steer2 += ConfigManager.data.controls.keyboard_steer_speed
 					else:
-						steer2 += KeyboardCompensateSpeed
+						steer2 += ConfigManager.data.controls.keyboard_compensate_speed
 				elif left:
 					if steer2<0:
-						steer2 -= KeyboardSteerSpeed
+						steer2 -= ConfigManager.data.controls.keyboard_steer_speed
 					else:
-						steer2 -= KeyboardCompensateSpeed
+						steer2 -= ConfigManager.data.controls.keyboard_compensate_speed
 				else:
-					if steer2>KeyboardReturnSpeed:
-						steer2 -= KeyboardReturnSpeed
-					elif steer2<-KeyboardReturnSpeed:
-						steer2 += KeyboardReturnSpeed
+					if steer2 > ConfigManager.data.controls.keyboard_return_speed:
+						steer2 -= ConfigManager.data.controls.keyboard_return_speed
+					elif steer2<-ConfigManager.data.controls.keyboard_return_speed:
+						steer2 += ConfigManager.data.controls.keyboard_return_speed
 					else:
 						steer2 = 0.0
 			
 			if assistance_factor>0.0:
-				var maxsteer := 1.0/(going*(SteerAmountDecay/assistance_factor) +1.0)
+				var maxsteer := 1.0/(going*(ConfigManager.data.controls.steer_amount_decay/assistance_factor) +1.0)
 				
 				var assist_commence := linear_velocity.length()/10.0
 				assist_commence = min(assist_commence, 1.0)
 				
-				steer = (steer2 * maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
+				steer = (steer2 * maxsteer) -(velocity.normalized().x*assist_commence)*(ConfigManager.data.controls.steering_assistance*assistance_factor) +rvelocity.y*(ConfigManager.data.controls.steering_assistance_angular*assistance_factor)
 			else:
 				steer = steer2
 
 
 func transmission():
-	clutch = Input.is_action_pressed("clutch") and not UseMouseSteering or Input.is_action_pressed("clutch_mouse") and UseMouseSteering
-	if not GearAssistant[1] == 0:
-		clutch = Input.is_action_pressed("handbrake") and not UseMouseSteering or Input.is_action_pressed("handbrake_mouse") and UseMouseSteering
+	clutch = Input.is_action_pressed("clutch") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("clutch_mouse") and ConfigManager.data.controls.mouse_steering
+	if not ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
+		clutch = Input.is_action_pressed("handbrake") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("handbrake_mouse") and ConfigManager.data.controls.mouse_steering
 	clutch = not clutch
 	
-	if TransmissionType == 0:
+	if transmission_type == TransmissionType.FULLY_MANUAL:
 		if clutch and not clutchin:
-			clutchpedalreal -= OffClutchRate/clock_mult
+			clutchpedalreal -= ConfigManager.data.controls.off_clutch_rate/clock_mult
 		else:
-			clutchpedalreal += OnClutchRate/clock_mult
+			clutchpedalreal += ConfigManager.data.controls.on_clutch_rate/clock_mult
 		
 		clutchpedal = 1.0-clutchpedalreal
 		
@@ -437,7 +416,7 @@ func transmission():
 		elif gear == -1:
 			ratio = ReverseRatio*FinalDriveRatio*RatioMult
 		
-		if GearAssistant[1] == 0:
+		if ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
 			if su:
 				su = false
 				if gear<len(GearRatios):
@@ -447,7 +426,7 @@ func transmission():
 				sd = false
 				if gear > -1 and gearstress < GearGap:
 					actualgear -= 1
-		elif GearAssistant[1] == 1:
+		elif ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.WEAK:
 			if rpm<GearAssistant[5]:
 				var irga_ca = (GearAssistant[5]-rpm)/(GearAssistant[5]-IdleRPM)
 				clutchpedalreal = pow(irga_ca, 2)
@@ -489,7 +468,7 @@ func transmission():
 							clutchin = true
 							revmatch = true
 							gasrestricted = false
-		elif GearAssistant[1] == 2:
+		elif ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.FULL:
 			var assistshiftspeed = (GearAssistant[4]/ratio)*GearAssistant[2]
 			var assistdownshiftspeed = (GearAssistant[3]/abs((GearRatios[gear-2]*FinalDriveRatio)*RatioMult))*GearAssistant[2]
 			if gear == 0:
@@ -550,10 +529,10 @@ func transmission():
 		
 		gear = actualgear
 	
-	elif TransmissionType == 1:
+	elif transmission_type == TransmissionType.AUTOMATIC:
 		clutchpedal = (rpm- float(AutoSettings[3])*(gaspedal*float(AutoSettings[2]) +(1.0-float(AutoSettings[2]))) )/float(AutoSettings[4])
 		
-		if not GearAssistant[1] == 2:
+		if not ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.FULL:
 			if su:
 				su = false
 				if gear<1:
@@ -600,11 +579,11 @@ func transmission():
 			gear = clamp(gear, 1, len(GearRatios))
 		else:
 			gear = actualgear
-	elif TransmissionType == 2:
+	elif transmission_type == TransmissionType.CONTINUOUSLY_VARIABLE:
 		
 		clutchpedal = (rpm -float(AutoSettings[3]) * (gaspedal*float(AutoSettings[2])+(1.0-float(AutoSettings[2]))) ) / float(AutoSettings[4])
 		
-		if not GearAssistant[1] == 2:
+		if not ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.FULL:
 			if su:
 				su = false
 				if gear<1:
@@ -646,7 +625,7 @@ func transmission():
 		
 		ratio = min(ratio, CVTSettings[3])
 	
-	elif TransmissionType == 3:
+	elif transmission_type == TransmissionType.SEMI_AUTO:
 		clutchpedal = (rpm- float(AutoSettings[3])*(gaspedal*float(AutoSettings[2]) +(1.0-float(AutoSettings[2]))) )/float(AutoSettings[4])
 		
 		if gear>0:
@@ -654,7 +633,7 @@ func transmission():
 		elif gear == -1:
 			ratio = ReverseRatio*FinalDriveRatio*RatioMult
 		
-		if GearAssistant[1]<2:
+		if ConfigManager.data.controls.shift_assist_level < ControlsConfig.ShiftAssistLevel.FULL:
 			if su:
 				su = false
 				if gear<len(GearRatios):
@@ -727,7 +706,7 @@ func drivetrain():
 	c_locked = clamp(c_locked, 0.0, 1.0)
 	
 	var maxd = VitaVehicleSimulation.fastest_wheel(c_pws)
-	var mind = VitaVehicleSimulation.slowest_wheel(c_pws)
+	#var mind = VitaVehicleSimulation.slowest_wheel(c_pws)
 	var what := 0.0
 	
 	var floatreduction := ClutchFloatReduction
@@ -784,7 +763,7 @@ func aero():
 	
 	var veloc := global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	
-	var torq := global_transform.basis.orthonormalized().transposed() * (Vector3(1,0,0))
+	#var torq := global_transform.basis.orthonormalized().transposed() * (Vector3(1,0,0))
 	
 	apply_torque_impulse(global_transform.basis.orthonormalized() * ( Vector3(((-veloc.length()*0.3)*LiftAngle),0,0)  ) )
 	
@@ -872,27 +851,13 @@ func _process(_delta):
 	if Debug_Mode: draw_debug()
 
 func _physics_process(delta):
-	if len(steering_angles)>0:
+	if len(steering_angles) > 0:
 		max_steering_angle = 0.0
 		for i in steering_angles:
 			max_steering_angle = maxf(max_steering_angle,i)
 			
 		assistance_factor = 90.0/max_steering_angle
 	steering_angles = []
-	
-	if Use_Global_Control_Settings:
-		UseMouseSteering = VitaVehicleSimulation.UseMouseSteering
-		UseAccelerometreSteering = VitaVehicleSimulation.UseAccelerometreSteering
-		SteerSensitivity = VitaVehicleSimulation.SteerAmountDecay
-		KeyboardSteerSpeed = VitaVehicleSimulation.KeyboardSteerSpeed
-		KeyboardReturnSpeed = VitaVehicleSimulation.KeyboardReturnSpeed
-		KeyboardCompensateSpeed = VitaVehicleSimulation.KeyboardCompensateSpeed
-		
-		SteerAmountDecay = VitaVehicleSimulation.SteerAmountDecay
-		SteeringAssistance = VitaVehicleSimulation.SteeringAssistance
-		SteeringAssistanceAngular = VitaVehicleSimulation.SteeringAssistanceAngular
-		
-		GearAssistant[1] = VitaVehicleSimulation.GearAssistant
 	
 	velocity = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	rvelocity = global_transform.basis.orthonormalized().transposed() * (angular_velocity)
@@ -951,7 +916,7 @@ func _physics_process(delta):
 			throttle = ThrottleIdle + ( (IdleRPM - rpm) / IdleRPM)
 			# The farther from idle, the higher the throttle.
 	
-	var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
+	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
 	var thr := 0.0
 	
 	if TurboEnabled:
