@@ -97,23 +97,9 @@ class_name Car extends RigidBody3D
 @export_group("Stability")
 ## Anti-lock Braking System.
 @export var abs: ABSProfile
-@export var ESP := [ # electronic stability program
-0.5, # stabilisation theshold
-1.5, # stabilisation rate (higher = understeer, understeer = inefficient)
-1, # yaw threshold
-3.0, # yaw rate
-false, # enableda
-]
-@export var BTCS := [ # brake-based traction control system
-10, # threshold
-0.05, # sensitivity
-false, # enabled
-]
-@export var TTCS := [ # throttle-based traction control system
-5, # threshold
-1.0, # sensitivity
-false, # enabled
-]
+@export var esp := ESPProfile
+@export var btcs := BTCSProfile
+@export var ttcs := TTCSProfile
 
 
 @export_group("Differentials")
@@ -942,7 +928,7 @@ func _physics_process(delta):
 			throttle = ThrottleIdle + ((IdleRPM-rpm)/IdleRPM)
 			# The farther from idle, the higher the throttle.
 	
-	var stab = 300.0
+	var stab = 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
 	var thr = 0.0
 	
 	if TurboEnabled:
