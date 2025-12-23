@@ -523,11 +523,11 @@ func _physics_process(delta):
 		cambered = (g*90.0)
 	
 	$animation.position = $geometry.position
-		
-	var forces = ($velocity2.global_transform.basis.orthonormalized() * (Vector3(0,0,1)))*directional_force.z + ($velocity2.global_transform.basis.orthonormalized() * (Vector3(1,0,0)))*directional_force.x + ($velocity2.global_transform.basis.orthonormalized() * (Vector3(0,1,0)))*directional_force.y
+	
+	var forces = $velocity2.global_transform.basis.orthonormalized() * directional_force
 	
 	
-	car.apply_impulse(forces,hitposition-car.global_transform.origin)
+	car.apply_impulse(forces, hitposition-car.global_transform.origin)
 	
 	# torque
 	var torqed := (wheelpower*w_weight)/4.0
