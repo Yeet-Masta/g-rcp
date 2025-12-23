@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b77dj0608nvq0"]
+[gd_scene load_steps=19 format=3 uid="uid://b77dj0608nvq0"]
 
 [ext_resource type="Texture2D" uid="uid://b315i7ikjj32c" path="res://logo.png" id="2"]
 [ext_resource type="Script" uid="uid://d2kf38826fkpg" path="res://misc/misc scripts/debug.gd" id="3"]
@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" uid="uid://c1wabqtdv36jo" path="res://misc/vertical progress bar/bar.tscn" id="14"]
 [ext_resource type="PackedScene" uid="uid://cnjbclsh2lklc" path="res://misc/visual gravity system/vgs.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://2ojbutsqhnh4" path="res://misc/graph/display.tscn" id="16"]
+[ext_resource type="Texture2D" uid="uid://bj0jt850o26wy" path="res://misc/visual gravity system/circle.png" id="17_pcvgg"]
+[ext_resource type="Script" uid="uid://dv0yraoktk72c" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
 
 [node name="debug" type="Control" node_paths=PackedStringArray("start_engine_button")]
 layout_mode = 3
@@ -30,14 +32,14 @@ start_engine_button = NodePath("start engine")
 [node name="throttle" parent="." instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.979
-anchor_top = 1.0
-anchor_right = 0.979
-anchor_bottom = 1.0
-offset_left = -269.496
-offset_top = -168.0
-offset_right = -261.496
-offset_bottom = -44.0
+anchor_left = 0.83900005
+anchor_top = 0.84400004
+anchor_right = 0.84300005
+anchor_bottom = 0.95900005
+offset_left = -0.696167
+offset_top = 0.47998047
+offset_right = -0.37609863
+offset_bottom = 0.27990723
 
 [node name="ColorRect" parent="throttle" index="0"]
 layout_mode = 1
@@ -49,14 +51,14 @@ color = Color(0, 0.501961, 1, 1)
 [node name="brake" parent="." instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.979
-anchor_top = 1.0
-anchor_right = 0.979
-anchor_bottom = 1.0
-offset_left = -284.496
-offset_top = -168.0
-offset_right = -276.496
-offset_bottom = -44.0
+anchor_left = 0.83100003
+anchor_top = 0.84400004
+anchor_right = 0.83500004
+anchor_bottom = 0.95900005
+offset_left = -0.33605957
+offset_top = 0.47998047
+offset_right = -0.016113281
+offset_bottom = 0.27990723
 
 [node name="ColorRect" parent="brake" index="0"]
 layout_mode = 1
@@ -68,14 +70,14 @@ color = Color(1, 0, 0, 1)
 [node name="handbrake" parent="." instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.979
-anchor_top = 1.0
-anchor_right = 0.979
-anchor_bottom = 1.0
-offset_left = -299.496
-offset_top = -168.0
-offset_right = -291.496
-offset_bottom = -44.0
+anchor_left = 0.823
+anchor_top = 0.84400004
+anchor_right = 0.827
+anchor_bottom = 0.95900005
+offset_left = 0.023925781
+offset_top = 0.47998047
+offset_right = 0.34387207
+offset_bottom = 0.27990723
 
 [node name="ColorRect" parent="handbrake" index="0"]
 layout_mode = 1
@@ -87,14 +89,14 @@ color = Color(0.5, 0, 1, 1)
 [node name="clutch" parent="." instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.979
-anchor_top = 1.0
-anchor_right = 0.979
-anchor_bottom = 1.0
-offset_left = -314.496
-offset_top = -168.0
-offset_right = -306.496
-offset_bottom = -44.0
+anchor_left = 0.81500006
+anchor_top = 0.84400004
+anchor_right = 0.81900007
+anchor_bottom = 0.95900005
+offset_left = 0.38391113
+offset_top = 0.47998047
+offset_right = 0.7038574
+offset_bottom = 0.27990723
 
 [node name="ColorRect" parent="clutch" index="0"]
 layout_mode = 1
@@ -120,16 +122,17 @@ layout_mode = 2
 text = "debug"
 
 [node name="sw" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -64.0
-offset_top = -152.0
-offset_right = 64.0
-offset_bottom = -24.0
+anchors_preset = -1
+anchor_left = 0.467
+anchor_top = 0.859
+anchor_right = 0.53300005
+anchor_bottom = 0.97800004
+offset_left = -0.64001465
+offset_top = 0.27996826
+offset_right = 0.6398926
+offset_bottom = -0.23999023
 grow_horizontal = 2
 grow_vertical = 0
 pivot_offset = Vector2(64, 64)
@@ -139,15 +142,15 @@ expand_mode = 1
 [node name="sw_desired" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -64.0
-offset_top = -152.0
-offset_right = 64.0
-offset_bottom = -24.0
+anchors_preset = -1
+anchor_left = 0.467
+anchor_top = 0.859
+anchor_right = 0.53300005
+anchor_bottom = 0.97800004
+offset_left = -0.64001465
+offset_top = 0.27996826
+offset_right = 0.6398926
+offset_bottom = -0.23999023
 grow_horizontal = 2
 grow_vertical = 0
 pivot_offset = Vector2(64, 64)
@@ -186,25 +189,28 @@ color = Color(1, 0, 0, 1)
 
 [node name="tacho" parent="." instance=ExtResource("13")]
 layout_mode = 1
-anchor_left = 0.979
-anchor_top = 1.0
-anchor_right = 0.979
+anchor_left = 0.846
+anchor_top = 0.76600003
+anchor_right = 0.97900003
 anchor_bottom = 1.0
-offset_left = -256.0
-offset_top = -253.0
-offset_right = -0.495972
+offset_left = -0.6401367
+offset_top = -0.2800293
+offset_right = 0.3199463
 Turbo_Visible = true
 Max_PSI = 32.0
 
 [node name="abs" type="Label" parent="tacho"]
 self_modulate = Color(1, 1, 0, 1)
 layout_mode = 1
-anchors_preset = 9
-anchor_bottom = 1.0
-offset_left = 61.0
-offset_top = 82.0
-offset_right = 96.0
-offset_bottom = -144.0
+anchors_preset = -1
+anchor_left = 0.23900001
+anchor_top = 0.324
+anchor_right = 0.37600002
+anchor_bottom = 0.43100002
+offset_left = -0.06546402
+offset_top = 0.027999878
+offset_right = -0.06951904
+offset_bottom = -0.043006897
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("7_coiix")
 theme_override_font_sizes/font_size = 20
@@ -323,13 +329,13 @@ text = "GS
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.07
-anchor_top = 0.665
-anchor_right = 0.07
+anchor_left = 0.037
+anchor_top = 0.54700005
+anchor_right = 0.104
 anchor_bottom = 0.665
-offset_left = -63.64
-offset_top = -127.92
-offset_right = 64.36
+offset_left = -0.2800064
+offset_top = -0.4800415
+offset_right = -0.9200134
 offset_bottom = 0.0799561
 
 [node name="controls manipulator" type="Control" parent="." node_paths=PackedStringArray("open_controls_button")]
@@ -1175,6 +1181,23 @@ anchor_top = 0.1
 anchor_right = 0.995117
 anchor_bottom = 0.19
 text = "start engine"
+
+[node name="debug_lamp" type="TextureRect" parent="." node_paths=PackedStringArray("debug")]
+modulate = Color(1, 0.25490198, 0, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.90800005
+anchor_top = 0.666
+anchor_right = 0.91700006
+anchor_bottom = 0.68100005
+offset_left = -0.36010742
+offset_top = -19.28003
+offset_right = -0.6401367
+offset_bottom = -18.480042
+texture = ExtResource("17_pcvgg")
+expand_mode = 1
+script = ExtResource("18_ujnq4")
+debug = NodePath("..")
 
 [editable path="throttle"]
 [editable path="brake"]

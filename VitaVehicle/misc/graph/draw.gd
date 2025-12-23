@@ -61,13 +61,13 @@ func _ready():
 	var skip = 0
 	for i in range(Generation_Range):
 		if i>Draw_RPM:
-			var tr = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,i,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
-			var hp = (i/5252.0)*tr
+			var tq = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,i,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
+			var hp = (i/5252.0)*tq
 			
 			if Torque_Unit == 1:
-				tr *= 1.3558179483
+				tq *= 1.3558179483
 			elif Torque_Unit == 2:
-				tr *= 0.138255
+				tq *= 0.138255
 			
 			if Power_Unit == 1:
 				hp *= 0.986
@@ -76,19 +76,19 @@ func _ready():
 			elif Power_Unit == 3:
 				hp *= 0.7457
 			
-			var tr_p = Vector2((i/Generation_Range)*size.x,size.y -(tr*size.y)*draw_scale)
+			var tq_p = Vector2((i/Generation_Range)*size.x,size.y -(tq*size.y)*draw_scale)
 			var hp_p = Vector2((i/Generation_Range)*size.x,size.y -(hp*size.y)*draw_scale)
 			
-			if hp>peakhp[0]:
-				peakhp = [hp,i]
+			if hp > peakhp[0]:
+				peakhp = [hp, i]
 				$power/peak.position = hp_p
 				
-			if tr>peaktq[0]:
-				peaktq = [tr,i]
-				$torque/peak.position = tr_p
+			if tq > peaktq[0]:
+				peaktq = [tq, i]
+				$torque/peak.position = tq_p
 			
 			skip -= 1
-			if skip<=0:
-				$torque.add_point(tr_p)
+			if skip <= 0:
+				$torque.add_point(tq_p)
 				$power.add_point(hp_p)
 				skip = 100

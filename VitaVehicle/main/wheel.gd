@@ -213,7 +213,7 @@ func _physics_process(delta):
 	
 	
 	w_size = ((abs(int(TyreSettings["Width (mm)"]))*((abs(int(TyreSettings["Aspect Ratio"]))*2.0)/100.0) + abs(int(TyreSettings["Rim Size (in)"]))*25.4)*0.003269)/2.0
-	w_weight = pow(w_size,2.0)
+	w_weight = pow(w_size, 2.0)
 	
 	w_size_read = w_size
 	w_size_read = max(w_size_read, 1.0)

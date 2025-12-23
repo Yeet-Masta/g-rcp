@@ -2,7 +2,9 @@
 ## decimeters^3/sec = liters/sec
 
 
-extends Node
+
+class_name Fuel extends Node
+
 
 
 @export var car: Car
@@ -22,6 +24,7 @@ extends Node
 # deceleration fuel cut-off (DFCO)
 ## Turn off the fuel injection when decelerating in gear.
 @export var deceleration_fuel_cutoff := false
+
 
 
 ## Returns fuel consumption in [code]liters/sec[/code].

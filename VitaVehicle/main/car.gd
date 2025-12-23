@@ -1,6 +1,13 @@
 class_name Car extends RigidBody3D
 
 
+
+signal debug_lamp_changed
+
+
+
+@export var fuel: Fuel
+
 @export var Debug_Mode := false
 
 # TODO: fix why are controls in each car and not in one place per user?
@@ -267,6 +274,10 @@ var c_pws := []
 var velocity := Vector3(0,0,0)
 var rvelocity := Vector3(0,0,0)
 
+var debug_lamp := false:
+	set(value): debug_lamp = value; debug_lamp_changed.emit()
+
+
 
 func bullet_fix():
 	var offset = $DRAG_CENTRE.position
@@ -274,6 +285,7 @@ func bullet_fix():
 	
 	for i in get_children():
 		i.position -= offset
+
 
 func controls():
 	var mouseposx = 0.0
@@ -404,6 +416,7 @@ func controls():
 				steer = (steer2 * maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
 			else:
 				steer = steer2
+
 
 func transmission():
 	clutch = Input.is_action_pressed("clutch") and not UseMouseSteering or Input.is_action_pressed("clutch_mouse") and UseMouseSteering
@@ -677,6 +690,7 @@ func transmission():
 		
 		gear = actualgear
 
+
 func drivetrain():
 	rpmcsm -= (rpmcs - resistance)
 	rpmcs += rpmcsm*ClutchElasticity
@@ -730,7 +744,7 @@ func drivetrain():
 	currentstable *= (RevSpeed/Constants.REVSPEED_TUNE)
 	
 	if dsweightrun > 0.0:
-		what = (rpm-(((rpmforce*floatreduction)*pow(currentstable,1.0))/(ds_weight/dsweightrun)))
+		what = (rpm-(((rpmforce*floatreduction)*currentstable)/(ds_weight/dsweightrun)))
 	else:
 		what = rpm
 	
@@ -788,12 +802,14 @@ func aero():
 	else:
 		apply_central_impulse(forc)
 
+
 var front_wheels := []
 var rear_wheels := []
 var front_load := 0.0
 var total := 0.0
 
 var weight_dist := [0.0,0.0]
+
 
 func draw_debug():
 	# BUG: Why do this each frame? Initialize with events no?
@@ -820,13 +836,16 @@ func draw_debug():
 			weight_dist[0] = remap(front_load/total, -1.0, 1.0, 0.0, 1.0)
 			weight_dist[1] = 1.0-weight_dist[0]
 
+
 func start_engine():
 	# TODO: This ignites the engine back up, make it more... natural.
 	rpm = max(rpm, IdleRPM)
 	is_ignition_on = true
 
+
 func stop_engine():
 	is_ignition_on = false
+
 
 func is_above_idle_rpm():
 	return rpm > IdleRPM
@@ -840,12 +859,14 @@ func _input(event: InputEvent) -> void:
 		if is_ignition_on: stop_engine()
 		else: start_engine()
 
+
 func _ready():
 	#bullet_fix()
 	start_engine()
 	for i in Powered_Wheels:
 		var wh := get_node(i)
 		c_pws.append(wh)
+
 
 func _process(_delta):
 	if Debug_Mode: draw_debug()
@@ -916,18 +937,18 @@ func _physics_process(delta):
 	
 	limdel -= 1
 	
-	if limdel<0:
+	if limdel < 0:
 		throttle -= (throttle - (gaspedal/(tcsweight*clutchpedal +1.0)))*(ThrottleResponse/clock_mult)
 	else:
 		throttle -= throttle*(ThrottleResponse/clock_mult)
 	
-	if rpm>RPMLimit:
-		if throttle>ThrottleLimit:
+	if rpm > RPMLimit:
+		if throttle > ThrottleLimit:
 			throttle = ThrottleLimit
 			limdel = LimiterDelay
-	elif rpm<IdleRPM:
-		if throttle<ThrottleIdle:
-			throttle = ThrottleIdle + ((IdleRPM-rpm)/IdleRPM)
+	elif rpm < IdleRPM:
+		if throttle < ThrottleIdle:
+			throttle = ThrottleIdle + ( (IdleRPM - rpm) / IdleRPM)
 			# The farther from idle, the higher the throttle.
 	
 	var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
@@ -989,7 +1010,7 @@ func _physics_process(delta):
 	
 	rpmforce += (rpm*(EngineDrag/clock_mult))*1.0
 	rpmforce -= (torque/clock_mult)*1.0
-	rpm -= rpmforce*RevSpeed
+	rpm -= rpmforce * RevSpeed
 	
 	engine_torque = torque
 	

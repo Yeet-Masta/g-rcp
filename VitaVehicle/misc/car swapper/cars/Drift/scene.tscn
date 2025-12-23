@@ -246,10 +246,11 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[node name="car" type="RigidBody3D" groups=["car"]]
+[node name="car" type="RigidBody3D" node_paths=PackedStringArray("fuel") groups=["car"]]
 mass = 90.0
 can_sleep = false
 script = ExtResource("1_p23ep")
+fuel = NodePath("fuel")
 Weight = 1200.0
 Steer_Radius = 5.5
 Powered_Wheels = Array[String](["rl", "rr"])

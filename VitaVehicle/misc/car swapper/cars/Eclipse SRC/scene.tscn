@@ -246,10 +246,11 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[node name="car" type="RigidBody3D" groups=["car"]]
+[node name="car" type="RigidBody3D" node_paths=PackedStringArray("fuel") groups=["car"]]
 mass = 90.0
 can_sleep = false
 script = ExtResource("2")
+fuel = NodePath("fuel")
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
