@@ -140,7 +140,7 @@ false, # enabled
 @export var EngineFriction := 18000.0
 @export var EngineDrag := 0.006
 @export var ThrottleResponse := 0.5
-@export var DeadRPM := 100.0
+@export var DeadRPM := 200.0
 
 #ECU
 @export var RPMLimit := 7000.0

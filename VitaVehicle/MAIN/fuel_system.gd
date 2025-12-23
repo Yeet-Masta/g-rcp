@@ -16,8 +16,8 @@ extends Node
 ## The idle engine consumption in [code]liters/sec[/code].
 @export var idle_consumption := 0.0002
 
-## The load engine consumption coefficient.
-@export var load_consumption_coefficient := 0.0004
+## The load engine consumption coefficient. (arbitrary value to help mimic realistic-ish consumption under load)
+@export var load_consumption_coefficient := 0.0001
 
 # deceleration fuel cut-off (DFCO)
 ## Turn off the fuel injection when decelerating in gear.

@@ -1,4 +1,10 @@
-extends Node
+@tool
+class_name ProjectLines extends EditorScript
+
+
+
+func _run() -> void:
+	print(get_all_script_lines(), " lines")
 
 
 func get_all_script_lines():
@@ -12,7 +18,3 @@ func get_all_script_lines():
 		print(path + " has " + str(Helper.get_lines_in_file(path)) + " lines")
 	print(scripts, " scripts")
 	return lines
-
-
-func _ready():
-	print(get_all_script_lines(), " lines")
