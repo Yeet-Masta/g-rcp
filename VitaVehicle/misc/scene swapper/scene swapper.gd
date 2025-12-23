@@ -2,7 +2,7 @@ extends Control
 
 @onready var button = $scroll/container/_DEFAULT.duplicate()
 
-var pathh = "res://MISC/scene swapper/"
+@export_custom(PROPERTY_HINT_DIR, "") var pathh: String
 var canclick = true
 var literal_cache = {}
 
@@ -42,7 +42,7 @@ func swapmap(naem):
 	visible = false
 	get_node(current_map).queue_free()
 	
-	var d = load_and_cache(pathh+str("scenes/")+str(naem)+str("/scene")+str(".tscn")).instantiate()
+	var d = load_and_cache(pathh+"/"+str(naem)+str("/scene")+str(".tscn")).instantiate()
 	
 	Helper.get_ancestor(self, 2).add_child(d)
 	
@@ -60,13 +60,13 @@ func _ready():
 	$scroll/container/_DEFAULT.queue_free()
 	
 	
-	var d = list_files_in_directory(pathh+str("scenes"))
+	var d = list_files_in_directory(pathh)
 	
 	for i in d:
 		var but = button.duplicate()
 		$scroll/container.add_child(but)
 		but.get_node("mapname").text = i
-		but.get_node("icon").texture = load(pathh+str("scenes/")+str(i)+str("/thumbnail")+str(".png"))
+		but.get_node("icon").texture = load(pathh+"/"+str(i)+str("/thumbnail")+str(".png"))
 #		but.connect("pressed", self, "swapmap",[i])
 		but.pressed.connect(swapmap.bind(i))
 	

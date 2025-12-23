@@ -2,11 +2,11 @@ extends Control
 
 @onready var button = $scroll/container/_DEFAULT.duplicate()
 
-var pathh = "res://MISC/car swapper/"
+@export_custom(PROPERTY_HINT_DIR, "") var pathh: String
 var canclick = true
 var literal_cache = {}
 
-@onready var default_position = get_tree().get_first_node_in_group("car").global_position
+@onready var default_position = get_tree().get_first_node_in_group("car").global_position # TODO: Fragile, add a thing in a separate group per scene instead. Also why the UI has to know this?
 
 func load_and_cache(path):
 	var loaded = null
@@ -63,7 +63,7 @@ func swapcar(path):
 
 
 func _ready():
-	var d = Helper.get_dir_children(pathh + str("cars/")).folders
+	var d = Helper.get_dir_children(pathh + "/").folders
 	
 	for i: String in d:
 		var but = button.duplicate()

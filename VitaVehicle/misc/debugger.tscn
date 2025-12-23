@@ -1030,6 +1030,7 @@ anchor_top = 0.1975
 anchor_right = 0.816406
 anchor_bottom = 0.8025
 script = ExtResource("10")
+pathh = "res://misc/car swapper/cars"
 
 [node name="background" type="ColorRect" parent="car swapper"]
 layout_mode = 0
@@ -1077,6 +1078,7 @@ anchor_top = 0.1975
 anchor_right = 0.816406
 anchor_bottom = 0.8025
 script = ExtResource("4")
+pathh = "res://misc/scene swapper/scenes"
 current_map = NodePath("../../test scene")
 
 [node name="background" type="ColorRect" parent="scene swapper"]
