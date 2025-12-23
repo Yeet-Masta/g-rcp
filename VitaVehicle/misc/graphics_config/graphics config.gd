@@ -49,6 +49,7 @@ func _on_open_graphics_pressed():
 	open_graphics_button.release_focus()
 	if visible:
 		visible = false
+		ConfigManager.save_config()
 	else:
 		Input.action_press("ui_cancel")
 		await get_tree().create_timer(0.1).timeout

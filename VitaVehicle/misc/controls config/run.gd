@@ -18,6 +18,7 @@ func _on_open_controls_pressed():
 	open_controls_button.release_focus()
 	if visible:
 		visible = false
+		ConfigManager.save_config()
 	else:
 		Input.action_press("ui_cancel")
 		await get_tree().create_timer(0.1).timeout # TODO: swap this for different logic
