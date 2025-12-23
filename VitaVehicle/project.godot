@@ -19,7 +19,7 @@ config/icon="uid://cep6sdenf2ole"
 [autoload]
 
 VitaVehicleSimulation="*res://main/vitavehicle.gd"
-misc_graphics_settings="*res://MISC/autoload/graphics.gd"
+misc_graphics_settings="*res://misc/autoload/graphics.gd"
 
 [display]
 

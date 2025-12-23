@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dftxke3dfn7qf"
+path="res://.godot/imported/8.ogg-286bb737af6d2aa3cd208af912ec0c45.oggvorbisstr"
+
+[deps]
+
+source_file="res://misc/car swapper/cars/Drift/engine sounds/8.ogg"
+dest_files=["res://.godot/imported/8.ogg-286bb737af6d2aa3cd208af912ec0c45.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
