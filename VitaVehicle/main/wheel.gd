@@ -383,10 +383,10 @@ func _physics_process(delta):
 			var forcey = -disty/(slip +1.0)
 			var forcex = -distx/(slip +1.0)
 			
-			if abs(disty) /(tyre_stiffness/3.0)>(car.ABS[0]/grip)*(ground_friction*ground_friction) and car.ABS[3] and abs(velocity.z)>car.ABS[2] and ContactABS:
-				car.abspump = car.ABS[1]
-				if abs(distx) /(tyre_stiffness/3.0)>(car.ABS[5]/grip)*(ground_friction*ground_friction):
-					car.abspump = car.ABS[6]
+			if car.abs and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
+				car.abspump = car.abs.pump_duration
+				if abs(distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
+					car.abspump = car.abs.lateral_pump_duration
 			
 			var yesx = abs(forcex)
 			yesx = min(yesx, 1.0)

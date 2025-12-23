@@ -78,11 +78,10 @@ var dt = {
 	"CVTSettings[5]": ["",0.0],
 }
 var stab = {
-	"ABS": ["Anti-lock Braking System (see below)",[]],
-	"ABS[0]": ["Threshold",0.0],
-	"ABS[1]": ["Pump Time",0],
-	"ABS[2]": ["Vehicle Speed Before Activation",0.0],
-	"ABS[3]": ["Enabled",false],
+	"abs": ["Anti-lock Braking System (see below)",[]],
+	"abs.slip_threshold": ["Threshold",0.0],
+	"abs.pump_duration": ["Pump Time",0],
+	"abs.min_speed": ["Vehicle Speed Before Activation",0.0],
 	"ESP": ["Electronic Stability Program.\n\nCURRENTLY DOESN'T WORK",[]],
 	"BTCS": ["Prevents wheel slippage using the brakes.\n\nCURRENTLY DOESN'T WORK",[]],
 	"TTCS": ["Prevents wheel slippage by partially closing the throttle.\n\nCURRENTLY DOESN'T WORK",[]],

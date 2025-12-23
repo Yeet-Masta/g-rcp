@@ -250,7 +250,6 @@ blend_shape_mode = 0
 mass = 90.0
 can_sleep = false
 script = ExtResource("2")
-ABS = [2500.0, 1, 10, false, 0.5, 500.0, 2]
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)

@@ -17,6 +17,9 @@ No bad feelings, but i'm just noting what i found to ensure that i can learn fro
 - Doesn't use guard clauses.
 - Limits the digits after a decimal with `int(a*10)/10` instead of using things like `snappedf(a, 0.1)`.
 - Uses hardcoded paths instead of `@export` nodes.
+- Folder ambiguity: `res://MAIN/misc` and `res://MISC`.
+- Not using `@export_group` to organize variables, but uses comments instead.
+- Uses array-based objects and then indexes them with `[0-n]` instead of making a dictionary for readability.
 
 So my questions:
 - Why aren't we simplifying code to make it more readable? - It works for him, but not for me.
