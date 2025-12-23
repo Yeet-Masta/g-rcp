@@ -210,7 +210,7 @@ var gearstress := 0.0
 var throttle := 0.0:
 	set(value): throttle = clamp(value, 0.0, 1.0)
 var cvtaccel := 0.0
-var sassistdel := 0
+var shift_assist_delimiter := 0
 var sassiststep := 0
 var clutchin := false
 var gasrestricted := false
@@ -475,9 +475,9 @@ func transmission():
 							if rpm > GearAssistant[5]:
 								clutchin = false
 						else:
-							if sassistdel > 0:
+							if shift_assist_delimiter > 0:
 								actualgear += 1
-							sassistdel = GearAssistant[0]/2.0
+							shift_assist_delimiter = GearAssistant[0]/2.0
 							sassiststep = -4
 							
 							clutchin = true
@@ -492,9 +492,9 @@ func transmission():
 							actualgear -= 1
 							clutchin = false
 						else:
-							if sassistdel>0:
+							if shift_assist_delimiter>0:
 								actualgear -= 1
-							sassistdel = GearAssistant[0]/2.0
+							shift_assist_delimiter = GearAssistant[0]/2.0
 							sassiststep = -2
 							
 							clutchin = true
@@ -505,18 +505,18 @@ func transmission():
 			var assistdownshiftspeed = (GearAssistant[3]/abs((GearRatios[gear-2]*FinalDriveRatio)*RatioMult))*GearAssistant[2]
 			if gear == 0:
 				if gas:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = 1
 				elif brake:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = -1
 				else:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 			elif linear_velocity.length()<5:
 				if not gas and gear == 1 or not brake and gear == -1:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 					actualgear = 0
 			if sassiststep == 0:
 				if rpm<GearAssistant[5]:
@@ -526,31 +526,31 @@ func transmission():
 					clutchin = false
 				if not gear == -1:
 					if gear<len(GearRatios) and linear_velocity.length()>assistshiftspeed:
-						sassistdel = GearAssistant[0]/2.0
+						shift_assist_delimiter = GearAssistant[0]/2.0
 						sassiststep = -4
 						
 						clutchin = true
 						gasrestricted = true
 					if gear>1 and linear_velocity.length()<assistdownshiftspeed:
-						sassistdel = GearAssistant[0]/2.0
+						shift_assist_delimiter = GearAssistant[0]/2.0
 						sassiststep = -2
 						
 						clutchin = true
 						gasrestricted = false
 						revmatch = true
 		
-		if sassiststep == -4 and sassistdel<0:
-			sassistdel = GearAssistant[0]/2
+		if sassiststep == -4 and shift_assist_delimiter<0:
+			shift_assist_delimiter = GearAssistant[0]/2
 			if gear<len(GearRatios):
 				actualgear += 1
 			sassiststep = -3
-		elif sassiststep == -3 and sassistdel<0:
+		elif sassiststep == -3 and shift_assist_delimiter<0:
 			if rpm>GearAssistant[5]:
 				clutchin = false
-			if sassistdel<-GearAssistant[6]:
+			if shift_assist_delimiter<-GearAssistant[6]:
 				sassiststep = 0
 				gasrestricted = false
-		elif sassiststep == -2 and sassistdel<0:
+		elif sassiststep == -2 and shift_assist_delimiter<0:
 			sassiststep = 0
 			if gear>-1:
 				actualgear -= 1
@@ -576,18 +576,18 @@ func transmission():
 		else:
 			if gear == 0:
 				if gas:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = 1
 				elif brake:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = -1
 				else:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 			elif linear_velocity.length()<5:
 				if not gas and gear == 1 or not brake and gear == -1:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 					actualgear = 0
 		
 		if actualgear == -1:
@@ -627,18 +627,18 @@ func transmission():
 		else:
 			if gear == 0:
 				if gas:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = 1
 				elif brake:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = -1
 				else:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 			elif linear_velocity.length()<5:
 				if not gas and gear == 1 or not brake and gear == -1:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 					actualgear = 0
 		
 		gear = actualgear
@@ -679,18 +679,18 @@ func transmission():
 			var assistdownshiftspeed = (GearAssistant[3]/abs((GearRatios[gear-2]*FinalDriveRatio)*RatioMult))*GearAssistant[2]
 			if gear == 0:
 				if gas:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = 1
 				elif brake:
-					sassistdel -= 1
-					if sassistdel<0:
+					shift_assist_delimiter -= 1
+					if shift_assist_delimiter<0:
 						actualgear = -1
 				else:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 			elif linear_velocity.length()<5:
 				if not gas and gear == 1 or not brake and gear == -1:
-					sassistdel = 60
+					shift_assist_delimiter = 60
 					actualgear = 0
 			if sassiststep == 0:
 				if not gear == -1:
@@ -910,7 +910,7 @@ func _physics_process(delta):
 	
 	ratio = 10.0
 	
-	sassistdel -= 1
+	shift_assist_delimiter -= 1
 	
 	transmission()
 	
