@@ -51,7 +51,7 @@ func _physics_process(_delta):
 	vacuum = (car.gaspedal-car.throttle)*4.0
 	vacuum = clamp(vacuum, 0.0, 1.0)
 	
-	var sfk = 1.0-(vacuum*car.throttle)
+	var sfk := 1.0-(vacuum*car.throttle)
 	sfk = max(sfk, vacuum_crossfade)
 	
 	fade *= sfk
@@ -59,20 +59,20 @@ func _physics_process(_delta):
 	volume += (1.0-sfk)*vacuum_loudness
 	
 	for i in get_children():
-		var maxvol = float(str(i.get_child(0).name))/100.0
-		var maxpitch = float(str(i.name))/100000.0
+		var maxvol := float(i.get_child(0).name)/100.0
+		var maxpitch := float(i.name)/100000.0 # TODO: Fix this to a proper attribute and not a random name.
 		
-		var index = float(i.get_index())
-		var dist = pow(abs(index - fade), 2)
+		var index := float(i.get_index())
+		var dist := pow(absf(index - fade), 2)
 		
-		var vol = 1.0-dist
+		var vol := 1.0-dist
 		vol = clamp(vol, 0.0, 1.0)
-		var db = linear_to_db((vol*maxvol)*(volume*(overall_volume)))
+		var db := linear_to_db((vol*maxvol)*(volume*(overall_volume)))
 		db = max(db, -60.0)
 		
 		i.volume_db = db
 		i.max_db = i.volume_db
-		var pit = abs(pitch*maxpitch)
+		var pit := absf(pitch*maxpitch)
 		pit = clamp(pit, 0.01, 5.0)
 		i.pitch_scale = pit
 #endregion internal

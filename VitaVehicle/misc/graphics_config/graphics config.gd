@@ -1,19 +1,24 @@
 extends Control
 
-var car
 
-func setcar():
-	car = get_parent().get_node(get_parent().car)
+
+@export var open_graphics_button: Button
+
+
 
 func _ready():
 	for i in $scroll/container.get_children():
 		i.button_pressed = misc_graphics_settings.get(i.var_name)
 		i.get_node("amount").text = str(i.button_pressed)
+	
+	open_graphics_button.pressed.connect(_on_button_pressed)
+
 
 func _process(_delta):
 	for i in $scroll/container.get_children():
 		misc_graphics_settings.set(i.var_name,i.button_pressed)
 		i.get_node("amount").text = str(i.button_pressed)
+
 
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):
@@ -22,8 +27,8 @@ func _input(_event):
 		$scroll/container/_FULLSCREEN.button_pressed = !$scroll/container/_FULLSCREEN.button_pressed
 
 
-func _on_Button_pressed():
-	get_parent().get_node("open graphics").release_focus()
+func _on_button_pressed():
+	open_graphics_button.release_focus()
 	if visible:
 		visible = false
 	else:

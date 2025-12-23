@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://cnjbclsh2lklc" path="res://misc/visual gravity system/vgs.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://2ojbutsqhnh4" path="res://misc/graph/display.tscn" id="16"]
 
-[node name="debug" type="Control"]
+[node name="debug" type="Control" node_paths=PackedStringArray("start_engine_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,6 +25,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3")
+start_engine_button = NodePath("start engine")
 
 [node name="throttle" parent="." instance=ExtResource("14")]
 layout_mode = 1
@@ -331,7 +332,7 @@ offset_top = -127.92
 offset_right = 64.36
 offset_bottom = 0.0799561
 
-[node name="controls manipulator" type="Control" parent="."]
+[node name="controls manipulator" type="Control" parent="." node_paths=PackedStringArray("open_controls_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -339,6 +340,7 @@ anchor_top = 0.1975
 anchor_right = 0.665039
 anchor_bottom = 0.8025
 script = ExtResource("8")
+open_controls_button = NodePath("../menus/open controls")
 
 [node name="background" type="ColorRect" parent="controls manipulator"]
 layout_mode = 0
@@ -813,7 +815,7 @@ anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="inform" type="Control" parent="."]
+[node name="inform" type="Control" parent="." node_paths=PackedStringArray("open_info_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.102539
@@ -821,6 +823,7 @@ anchor_top = 0.12
 anchor_right = 0.897461
 anchor_bottom = 0.881667
 script = ExtResource("6")
+open_info_button = NodePath("../menus/info")
 
 [node name="background" type="ColorRect" parent="inform"]
 layout_mode = 0
@@ -942,7 +945,7 @@ mouse_filter = 1
 text = "Powered by Godot"
 horizontal_alignment = 1
 
-[node name="graphics config" type="Control" parent="."]
+[node name="graphics config" type="Control" parent="." node_paths=PackedStringArray("open_graphics_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -950,6 +953,7 @@ anchor_top = 0.1975
 anchor_right = 0.665039
 anchor_bottom = 0.8025
 script = ExtResource("5")
+open_graphics_button = NodePath("../menus/open graphics")
 
 [node name="background" type="ColorRect" parent="graphics config"]
 layout_mode = 0
@@ -1022,7 +1026,7 @@ anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="car swapper" type="Control" parent="."]
+[node name="car swapper" type="Control" parent="." node_paths=PackedStringArray("swap_car_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.183594
@@ -1031,6 +1035,7 @@ anchor_right = 0.816406
 anchor_bottom = 0.8025
 script = ExtResource("10")
 pathh = "res://misc/car swapper/cars"
+swap_car_button = NodePath("../menus/swap car")
 
 [node name="background" type="ColorRect" parent="car swapper"]
 layout_mode = 0
@@ -1070,7 +1075,7 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="scene swapper" type="Control" parent="."]
+[node name="scene swapper" type="Control" parent="." node_paths=PackedStringArray("swap_map_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.183594
@@ -1079,6 +1084,7 @@ anchor_right = 0.816406
 anchor_bottom = 0.8025
 script = ExtResource("4")
 pathh = "res://misc/scene swapper/scenes"
+swap_map_button = NodePath("../menus/swap map")
 current_map = NodePath("../../test scene")
 
 [node name="background" type="ColorRect" parent="scene swapper"]
@@ -1122,55 +1128,53 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="open controls" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.849609
-anchor_right = 0.998047
-anchor_bottom = 0.08
-text = "control config"
+[node name="menus" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.578
+anchor_top = 0.009000001
+anchor_right = 0.99500006
+anchor_bottom = 0.069000006
+offset_left = 0.23999023
+offset_top = 0.27999973
+offset_right = -0.40014648
+offset_bottom = -0.5200043
+grow_horizontal = 0
+theme_override_constants/separation = 10
 
-[node name="fix engine" type="Button" parent="."]
-layout_mode = 0
+[node name="open controls" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "controls"
+
+[node name="open graphics" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "graphics"
+
+[node name="info" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "info"
+
+[node name="swap car" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "swap car"
+
+[node name="swap map" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "swap map"
+
+[node name="start engine" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.852539
 anchor_top = 0.1
 anchor_right = 0.995117
 anchor_bottom = 0.19
 text = "start engine"
-
-[node name="open graphics" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.451172
-anchor_right = 0.609375
-anchor_bottom = 0.08
-text = "graphics config"
-
-[node name="info" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.325195
-anchor_right = 0.444336
-anchor_bottom = 0.08
-text = "information"
-
-[node name="swap car" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.74707
-anchor_right = 0.844727
-anchor_bottom = 0.08
-text = "swap car"
-
-[node name="swap map" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 0.613281
-anchor_right = 0.742188
-anchor_bottom = 0.08
-text = "change scene"
-
-[connection signal="pressed" from="open controls" to="controls manipulator" method="_on_Button_pressed"]
-[connection signal="pressed" from="fix engine" to="." method="engine_restart"]
-[connection signal="pressed" from="open graphics" to="graphics config" method="_on_Button_pressed"]
-[connection signal="pressed" from="info" to="inform" method="_on_info_pressed"]
-[connection signal="pressed" from="swap car" to="car swapper" method="_on_swap_car_pressed"]
-[connection signal="pressed" from="swap map" to="scene swapper" method="_on_swap_map_pressed"]
 
 [editable path="throttle"]
 [editable path="brake"]

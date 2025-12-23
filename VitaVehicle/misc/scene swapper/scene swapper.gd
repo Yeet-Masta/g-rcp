@@ -1,34 +1,20 @@
 extends Control
 
-@onready var button = $scroll/container/_DEFAULT.duplicate()
+
+
+@onready var button := $scroll/container/_DEFAULT.duplicate()
 
 @export_custom(PROPERTY_HINT_DIR, "") var pathh: String
-var canclick = true
-var literal_cache = {}
+var canclick := true
+var literal_cache := {}
+@export var swap_map_button: Button
 
-@export var current_map = NodePath()
+@export var current_map := NodePath()
 
-func list_files_in_directory(path):
-	
-	var files = []
-#	var dir = Directory.new()
-	var dir = DirAccess.open(path)
-	dir.list_dir_begin()
-	
-	while true:
-		var file = dir.get_next()
-		if file == "":
-			break
-		elif not file.begins_with("."):
-			files.append(file)
-	
-	dir.list_dir_end()
-	
-	return files
-	
 
-func load_and_cache(path):
-	var loaded = null
+
+func load_and_cache(path: String) -> Resource:
+	var loaded: Resource
 	
 	if path in literal_cache:
 		pass
@@ -38,45 +24,46 @@ func load_and_cache(path):
 	loaded = literal_cache[path]
 	return loaded
 
-func swapmap(naem):
+
+func swapmap(naem: String):
 	visible = false
 	get_node(current_map).queue_free()
 	
-	var d = load_and_cache(pathh+"/"+str(naem)+str("/scene")+str(".tscn")).instantiate()
+	var d: Node = load_and_cache(pathh + "/" + naem + "/scene.tscn").instantiate()
 	
 	Helper.get_ancestor(self, 2).add_child(d)
 	
-	current_map = "../../"+str(d.name)
+	current_map = "../../" + d.name
 	
 	await get_tree().create_timer(0.1).timeout
-	var car = get_tree().get_first_node_in_group("car")
-	car.global_position *= 0
-	car.global_rotation *= 0
-	car.linear_velocity *= 0
-	car.angular_velocity *= 0
+	var car: Car = get_tree().get_first_node_in_group("car")
+	car.global_position *= Vector3.ZERO
+	car.global_rotation *= Vector3.ZERO
+	car.linear_velocity *= Vector3.ZERO
+	car.angular_velocity *= Vector3.ZERO
 
 
 func _ready():
+	swap_map_button.pressed.connect(_on_button_pressed)
+	
 	$scroll/container/_DEFAULT.queue_free()
 	
 	
-	var d = list_files_in_directory(pathh)
-	
-	for i in d:
-		var but = button.duplicate()
+	for i in DirAccess.get_directories_at(pathh):
+		var but := button.duplicate()
 		$scroll/container.add_child(but)
 		but.get_node("mapname").text = i
-		but.get_node("icon").texture = load(pathh+"/"+str(i)+str("/thumbnail")+str(".png"))
-#		but.connect("pressed", self, "swapmap",[i])
+		but.get_node("icon").texture = load(pathh + "/" +  i + "/thumbnail.png")
 		but.pressed.connect(swapmap.bind(i))
-	
+
 
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):
 		visible = false
 
-func _on_swap_map_pressed():
-	get_parent().get_node("swap map").release_focus()
+
+func _on_button_pressed():
+	swap_map_button.release_focus()
 	if visible:
 		visible = false
 	else:

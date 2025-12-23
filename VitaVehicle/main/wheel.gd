@@ -2,7 +2,7 @@ extends RayCast3D
 
 @export var car: Car
 
-@export var RealismOptions = {
+@export var RealismOptions := {
 }
 
 @export var Steer := true
@@ -111,19 +111,19 @@ var ground_builduprate := 0.0
 var ground_dirt := false
 var hitposition := Vector3(0,0,0)
 
-var cache_tyrestiffness = 0.0
-var cache_friction_action = 0.0
+var cache_tyrestiffness := 0.0
+var cache_friction_action := 0.0
 
 func power():
 	if not c_p == 0:
 		dist *= (car.clutchpedal*car.clutchpedal)/(car.currentstable)
-		var dist_cache = dist
+		var dist_cache := dist
 		
-		var tol = (.1475/1.3558)*car.ClutchGrip
+		var tol := (.1475/1.3558)*car.ClutchGrip
 		
 		dist_cache = clamp(dist_cache, -tol, tol)
 		
-		var dist2 = dist_cache
+		var dist2 := dist_cache
 		
 		car.dsweight += c_p
 		car.stress += stress*c_p
@@ -136,10 +136,10 @@ func power():
 func diffs():
 	if car.locked>0.0:
 		if not Differed_Wheel == "":
-			var d_w = car.get_node(Differed_Wheel)
+			var d_w := car.get_node(Differed_Wheel)
 			snap = abs(d_w.wheelpower_global)/(car.locked*16.0) +1.0
 			absolute_wv = output_wv+(offset*snap)
-			var distanced2 = abs(absolute_wv - d_w.absolute_wv_diff)/(car.locked*16.0)
+			var distanced2 := absf(absolute_wv - d_w.absolute_wv_diff)/(car.locked*16.0)
 			distanced2 += abs(d_w.wheelpower_global)/(car.locked*16.0)
 			if distanced2<snap:
 				distanced2 = snap
@@ -149,30 +149,30 @@ func diffs():
 
 func sway():
 	if not SwayBarConnection == "":
-		var linkedwheel = car.get_node(SwayBarConnection)
+		var linkedwheel := car.get_node(SwayBarConnection)
 		rolldist = rd - linkedwheel.rd
 
 
-var directional_force = Vector3(0,0,0)
-var slip_perc = Vector2(0,0)
-var slip_perc2 = 0.0
-var slip_percpre = 0.0
+var directional_force := Vector3(0,0,0)
+var slip_perc := Vector2(0,0)
+var slip_perc2 := 0.0
+var slip_percpre := 0.0
 
-var velocity_last = Vector3(0,0,0)
-var velocity2_last = Vector3(0,0,0)
+var velocity_last := Vector3(0,0,0)
+var velocity2_last := Vector3(0,0,0)
 
 #region internal
 func _ready():
 	c_tp = TyrePressure
 
 func _physics_process(delta):
-	var translation = position
-	var cast_to = target_position
-	var global_translation = global_position
-	var last_translation = position
+	var translation := position
+	var cast_to := target_position
+	var global_translation := global_position
+	var last_translation := position
 	
 	if Steer and absf(car.steer)>0:
-		var lasttransform = global_transform
+		var lasttransform := global_transform
 		
 		look_at_from_position(translation,Vector3(car.steering_geometry[0],0.0,car.steering_geometry[1]))
 		
@@ -184,13 +184,13 @@ func _physics_process(delta):
 		else:
 			rotate_object_local(Vector3(0,1,0),deg_to_rad(90.0))
 		
-		var roter = global_rotation.y
+		var roter := global_rotation.y
 		
 		look_at_from_position(translation,Vector3(car.Steer_Radius,0,car.steering_geometry[1]),Vector3(0,1,0))
 		# this one too
 		global_transform.origin = lasttransform.origin
 		rotate_object_local(Vector3(0,1,0),deg_to_rad(90.0))
-		var roter_estimateed = rad_to_deg(global_rotation.y)
+		var roter_estimateed := rad_to_deg(global_rotation.y)
 		
 		get_parent().steering_angles.append(roter_estimateed)
 		
@@ -233,14 +233,14 @@ func _physics_process(delta):
 	$velocity2.rotation = Vector3(0,0,0)
 	
 	# VARS
-	var elasticity = S_Stiffness
-	var damping = S_Damping
-	var damping_rebound = S_ReboundDamping
+	var elasticity := S_Stiffness
+	var damping := S_Damping
+	var damping_rebound := S_ReboundDamping
 	
-	var swaystiff = AR_Stiff
-	var swayelast = AR_Elast
+	var swaystiff := AR_Stiff
+	var swayelast := AR_Elast
 	
-	var s = rolldist
+	var s := rolldist
 	s = clamp(s, -1.0, 1.0)
 	
 	elasticity *= swayelast*s +1.0
@@ -275,15 +275,15 @@ func _physics_process(delta):
 	
 	wheelpower = 0.0
 	
-	var braked = car.brakeline*B_Bias + car.handbrakepull*HB_Bias
+	var braked := car.brakeline*B_Bias + car.handbrakepull*HB_Bias
 	braked = min(braked, 1.0)
-	var bp = (B_Torque*braked)/w_weight_read
+	var bp := (B_Torque*braked)/w_weight_read
 	
 	if car.actualgear != 0 and car.dsweightrun > 0.0:
 		bp += ((car.stall_resistance*(c_p/car.ds_weight))*car.clutchpedal)*(((500.0/(car.RevSpeed*100.0))/(car.dsweightrun/2.5))/w_weight_read)
 	if bp>0.0:
 		if abs(absolute_wv)>0.0:
-			var distanced = abs(absolute_wv)/bp
+			var distanced := absf(absolute_wv)/bp
 			distanced = max(distanced - car.brakeline, snap*(w_size_read/B_Saturation))
 			wheelpower += -absolute_wv/distanced
 		else:
@@ -340,16 +340,16 @@ func _physics_process(delta):
 		# FRICTION
 		var grip = (suspforce*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
 		stress = grip
-		var rigidity = 0.67
+		var rigidity := 0.67
 		
-		var distw = velocity2.z - wv*w_size
+		var distw := velocity2.z - wv*w_size
 		wv += (wheelpower*(1.0-(1.0/tyre_stiffness)))
-		var disty = velocity2.z - wv*w_size
+		var disty := velocity2.z - wv*w_size
 		
 		offset = disty/w_size
 		offset = clamp(offset, -grip, grip)
 		
-		var distx = velocity2.x
+		var distx := velocity2.x
 		
 		var compensate2 = suspforce
 		var grav_incline = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).x

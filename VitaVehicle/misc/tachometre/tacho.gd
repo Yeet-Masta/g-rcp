@@ -1,14 +1,14 @@
 extends Control
 
-var currentrpm :float = 0.0
-var currentpsi :float = 0.0
+var currentrpm := 0.0
+var currentpsi := 0.0
 
-@export var Turbo_Visible :bool = false
-@export var Max_PSI :float = 13.0
-@export var RPM_Range :float = 9000.0
-@export var Redline :float = 7000.0
+@export var Turbo_Visible := false
+@export var Max_PSI := 13.0
+@export var RPM_Range := 9000.0
+@export var Redline := 7000.0
 
-var generated = []
+var generated := []
 
 func _ready():
 	$turbo.visible = Turbo_Visible
@@ -18,19 +18,19 @@ func _ready():
 			i.queue_free()
 		generated.clear()
 	
-	var lowangle = -120
-	var highangle = 120
+	var lowangle := -120.0
+	var highangle := 120.0
 	
-	var maximum = int(RPM_Range/1000.0)
-	var red = Redline/1000.0 -0.001
+	var maximum := int(RPM_Range/1000.0)
+	var red := Redline/1000.0 -0.001
 	
-	for i in range(maximum+1):
-		var dist = float(i)/float(maximum)
-		var dist2 = (float(i)+0.25)/float(maximum)
-		var dist3 = (float(i)+0.5)/float(maximum)
-		var dist4 = (float(i)+0.75)/float(maximum)
+	for i in range(maximum + 1):
+		var dist := float(i)/float(maximum)
+		var dist2 := (float(i)+0.25)/float(maximum)
+		var dist3 := (float(i)+0.5)/float(maximum)
+		var dist4 := (float(i)+0.75)/float(maximum)
 		
-		var d = $tacho/major.duplicate(true)
+		var d := $tacho/major.duplicate(true)
 		$tacho.add_child(d)
 		d.rotation_degrees = lowangle*(1.0-dist) + highangle*dist
 		d.visible = true
@@ -38,8 +38,8 @@ func _ready():
 		d.get_node("tetx").rotation_degrees = -d.rotation_degrees
 		generated.append(d)
 		
-		if float(i)>red:
-			d.color = Color(1,0,0)
+		if float(i) > red:
+			d.color = Color(1, 0, 0)
 		
 		if len(d.get_node("tetx").text)>1:
 			d.get_node("tetx").position.y += 5

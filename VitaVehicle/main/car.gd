@@ -295,8 +295,8 @@ func controls():
 		sd = Input.is_action_just_pressed("shiftdown")
 		handbrake = Input.is_action_pressed("handbrake")
 	
-	var left = Input.is_action_pressed("left")
-	var right = Input.is_action_pressed("right")
+	var left := Input.is_action_pressed("left")
+	var right := Input.is_action_pressed("right")
 	
 	steer_velocity += 0.01 * Input.get_axis("left", "right")
 	
@@ -352,26 +352,26 @@ func controls():
 		else:
 			handbrakepull -= OffHandbrakeRate/clock_mult
 		
-		var siding = abs(velocity.x)
+		var siding := absf(velocity.x)
 		
 		if velocity.x > 0 and steer2 > 0 or velocity.x < 0 and steer2 < 0:
 			siding = 0.0
 			
-		var going = velocity.z/(siding +1.0)
+		var going := velocity.z/(siding +1.0)
 		going = max(going, 0.0)
 		
 		if not LooseSteering:
 			if UseMouseSteering:
 				steer2 = (mouseposx-0.5)*2.0 * SteerSensitivity
 				
-				var s = abs(steer2)*1.0 + 0.5
+				var s := absf(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
 				
 				steer2 *= s
 			elif UseAccelerometreSteering:
 				steer2 = (Input.get_accelerometer().x/10.0) * SteerSensitivity
 				
-				var s = abs(steer2)*1.0 + 0.5
+				var s := absf(steer2)*1.0 + 0.5
 				s = min(s, 1.0)
 				
 				steer2 *= s
@@ -396,9 +396,9 @@ func controls():
 						steer2 = 0.0
 			
 			if assistance_factor>0.0:
-				var maxsteer = 1.0/(going*(SteerAmountDecay/assistance_factor) +1.0)
+				var maxsteer := 1.0/(going*(SteerAmountDecay/assistance_factor) +1.0)
 				
-				var assist_commence = linear_velocity.length()/10.0
+				var assist_commence := linear_velocity.length()/10.0
 				assist_commence = min(assist_commence, 1.0)
 				
 				steer = (steer2 * maxsteer) -(velocity.normalized().x*assist_commence)*(SteeringAssistance*assistance_factor) +rvelocity.y*(SteeringAssistanceAngular*assistance_factor)
@@ -618,7 +618,7 @@ func transmission():
 					actualgear = 0
 		
 		gear = actualgear
-		var wv = 0.0
+		var wv := 0.0
 		
 		for i in c_pws:
 			wv += i.wv/len(c_pws)
@@ -691,7 +691,7 @@ func drivetrain():
 		rpm += ((rpmcs*1.0)/clock_mult)*(RevSpeed/Constants.REVSPEED_TUNE)
 	
 	gearstress = (abs(resistance)*StressFactor)*clutchpedal
-	var stabled = ratio*0.9 +0.1
+	var stabled := ratio * 0.9 + 0.1
 	ds_weight = DSWeight/stabled
 	
 	whinepitch = abs(rpm/ratio)*1.5
@@ -714,27 +714,27 @@ func drivetrain():
 	
 	var maxd = VitaVehicleSimulation.fastest_wheel(c_pws)
 	var mind = VitaVehicleSimulation.slowest_wheel(c_pws)
-	var what = 0.0
+	var what := 0.0
 	
-	var floatreduction = ClutchFloatReduction
+	var floatreduction := ClutchFloatReduction
 	
-	if dsweightrun>0.0:
-		floatreduction = ClutchFloatReduction/dsweightrun
+	if dsweightrun > 0.0:
+		floatreduction = ClutchFloatReduction / dsweightrun
 	else:
 		floatreduction = 0.0
 	
-	var stabling = -(GearRatioRatioThreshold -ratio*drivewheels_size)*ThresholdStable
+	var stabling := -(GearRatioRatioThreshold -ratio*drivewheels_size) * ThresholdStable
 	stabling = max(stabling, 0.0)
 	
 	currentstable = ClutchStable + stabling
 	currentstable *= (RevSpeed/Constants.REVSPEED_TUNE)
 	
-	if dsweightrun>0.0:
+	if dsweightrun > 0.0:
 		what = (rpm-(((rpmforce*floatreduction)*pow(currentstable,1.0))/(ds_weight/dsweightrun)))
 	else:
 		what = rpm
 	
-	if gear<0.0:
+	if gear < 0.0:
 		dist = maxd.wv + what/ratio
 	else:
 		dist = maxd.wv - what/ratio
@@ -763,22 +763,23 @@ func drivetrain():
 	tcsweight = 0.0
 	stress = 0.0
 
+
 func aero():
-	var drag = DragCoefficient
-	var df = Downforce
+	var drag := DragCoefficient
+	var df := Downforce
 	
-	var veloc = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
+	var veloc := global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	
-	var torq = global_transform.basis.orthonormalized().transposed() * (Vector3(1,0,0))
+	var torq := global_transform.basis.orthonormalized().transposed() * (Vector3(1,0,0))
 	
 	apply_torque_impulse(global_transform.basis.orthonormalized() * ( Vector3(((-veloc.length()*0.3)*LiftAngle),0,0)  ) )
 	
-	var vx = veloc.x*0.15
-	var vy = veloc.z*0.15
-	var vz = veloc.y*0.15
-	var vl = veloc.length()*0.15
+	var vx := veloc.x*0.15
+	var vy := veloc.z*0.15
+	var vz := veloc.y*0.15
+	var vl := veloc.length()*0.15
 	
-	var forc = global_transform.basis.orthonormalized() * Vector3(-vx*drag,0,0)
+	var forc := global_transform.basis.orthonormalized() * Vector3(-vx*drag,0,0)
 	forc += global_transform.basis.orthonormalized() * Vector3(0,0,-vy*drag)
 	forc += global_transform.basis.orthonormalized() * Vector3(0,-vl*df -vz*drag,0)
 	
@@ -787,12 +788,12 @@ func aero():
 	else:
 		apply_central_impulse(forc)
 
-var front_wheels = []
-var rear_wheels = []
-var front_load = 0.0
-var total = 0.0
+var front_wheels := []
+var rear_wheels := []
+var front_load := 0.0
+var total := 0.0
 
-var weight_dist = [0.0,0.0]
+var weight_dist := [0.0,0.0]
 
 func draw_debug():
 	# BUG: Why do this each frame? Initialize with events no?
@@ -820,6 +821,7 @@ func draw_debug():
 			weight_dist[1] = 1.0-weight_dist[0]
 
 func start_engine():
+	# TODO: This ignites the engine back up, make it more... natural.
 	rpm = max(rpm, IdleRPM)
 	is_ignition_on = true
 
@@ -842,7 +844,7 @@ func _ready():
 	#bullet_fix()
 	start_engine()
 	for i in Powered_Wheels:
-		var wh = get_node(str(i))
+		var wh := get_node(i)
 		c_pws.append(wh)
 
 func _process(_delta):
@@ -890,9 +892,9 @@ func _physics_process(delta):
 	
 	transmission()
 	
-	var steeroutput = steer
+	var steeroutput := steer
 	
-	var uhh = pow(max_steering_angle/90.0, 2)
+	var uhh := pow(max_steering_angle/90.0, 2)
 	uhh *= 0.5
 	steeroutput *= abs(steer)*(uhh) +(1.0-uhh)
 	
@@ -928,8 +930,8 @@ func _physics_process(delta):
 			throttle = ThrottleIdle + ((IdleRPM-rpm)/IdleRPM)
 			# The farther from idle, the higher the throttle.
 	
-	var stab = 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
-	var thr = 0.0
+	var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
+	var thr := 0.0
 	
 	if TurboEnabled:
 		thr = (throttle-SpoolThreshold)/(1-SpoolThreshold)
@@ -952,26 +954,26 @@ func _physics_process(delta):
 	
 	vvt = rpm>VVTRPM
 	
-	var torque = 0.0
+	var torque := 0.0
 	
 	if !is_ignition_on:
 		throttle = 0.0
 		turbopsi = 0.0
 	elif vvt:
-		var f = rpm-VVT_RiseRPM
+		var f := rpm-VVT_RiseRPM
 		f = max(f, 0.0)
 		torque = (rpm*VVT_BuildUpTorque +VVT_OffsetTorque + pow(f, 2) * (VVT_TorqueRise*Constants.RISE_FACTOR))*throttle
 		torque += ( (turbopsi*TurboAmount) * (EngineCompressionRatio*0.609) )
-		var j = rpm-VVT_DeclineRPM
+		var j := rpm-VVT_DeclineRPM
 		j = max(j, 0.0)
 		torque /= (j*(j*VVT_DeclineSharpness +(1.0-VVT_DeclineSharpness)))*(VVT_DeclineRate*Constants.RISE_FACTOR) +1.0
 		torque /= pow(abs(rpm), 2)*(VVT_FloatRate*Constants.RISE_FACTOR) +1.0
 	else:
-		var f = rpm-RiseRPM
+		var f := rpm-RiseRPM
 		f = max(f, 0.0)
 		torque = (rpm*BuildUpTorque +OffsetTorque + pow(f, 2) * (TorqueRise*Constants.RISE_FACTOR))*throttle
 		torque += ( (turbopsi*TurboAmount) * (EngineCompressionRatio*0.609) )
-		var j = rpm-DeclineRPM
+		var j := rpm-DeclineRPM
 		j = max(j, 0.0)
 		torque /= (j*(j*DeclineSharpness +(1.0-DeclineSharpness)))*(DeclineRate*Constants.RISE_FACTOR) +1.0
 		torque /= pow(abs(rpm), 2)*(FloatRate*Constants.RISE_FACTOR) +1.0

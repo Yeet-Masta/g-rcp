@@ -1,15 +1,15 @@
 extends Control
 
-@export var vgs_scale = 1.0
-@export var MaxG = 0.75
+@export var vgs_scale := 1.0
+@export var MaxG := 0.75
 
-@export var gforce = Vector2(0,0)
+@export var gforce := Vector2(0,0)
 
-@onready var wheel = $wheel.duplicate()
+@onready var wheel := $wheel.duplicate()
 
-var glength = 0.0
+var glength := 0.0
 
-var appended = []
+var appended := []
 
 func _ready():
 	$wheel.queue_free()
@@ -22,10 +22,10 @@ func clear():
 	
 
 func append_wheel(position,settings,node):
-	var w_size = ((abs(int(settings["Width (mm)"]))*((abs(int(settings["Aspect Ratio"]))*2.0)/100.0) + abs(int(settings["Rim Size (in)"]))*25.4)*0.003269)/2.0
-	var width = (abs(int(settings["Width (mm)"]))*0.003269)/2.0
+	var w_size := ((absf(int(settings["Width (mm)"]))*((absf(int(settings["Aspect Ratio"]))*2.0)/100.0) + absf(int(settings["Rim Size (in)"]))*25.4)*0.003269)/2.0
+	var width := (absf(int(settings["Width (mm)"]))*0.003269)/2.0
 	
-	var w = wheel.duplicate()
+	var w := wheel.duplicate()
 	add_child(w)
 	w.pos = -Vector2(position.x,position.z)*2.0
 	w.setting = settings

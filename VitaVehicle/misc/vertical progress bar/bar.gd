@@ -1,6 +1,6 @@
 extends ColorRect
 
-@export var bar_scale = 0.0
+@export var bar_scale := 0.0
 
 
 func _process(_delta):

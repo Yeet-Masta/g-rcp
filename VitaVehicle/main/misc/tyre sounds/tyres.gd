@@ -3,12 +3,12 @@
 
 extends Node3D
 
-var length = 0.0
-var width = 0.0
-var weight = 0.0
-var dirt = 0.0
+var length := 0.0
+var width := 0.0
+var weight := 0.0
+var dirt := 0.0
 
-var wheels = []
+var wheels := []
 
 
 #region methods
@@ -22,7 +22,7 @@ func stop():
 		i.stop()
 
 func most_skidding(array):
-	var val = -10000000000000000000000000000000000.0
+	var val := -10000000000000000000000000000000000.0
 	var obj
 	for i in array:
 		val = max(val, abs(i.skvol))
@@ -55,7 +55,7 @@ func _physics_process(_delta):
 	width -= (width - (1.0 -(roll/10.0 -1.0)))*0.05
 	width = clamp(width, 0.0, 1.0)
 	
-	var total = 0.0
+	var total := 0.0
 	
 	for i in wheels:
 		total += i.skvol

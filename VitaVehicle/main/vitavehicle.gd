@@ -32,7 +32,7 @@ var OffClutchRate := 0.2
 
 
 
-func multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,RPM,DeclineRPM,DeclineRate,FloatRate,PSI,TurboAmount,EngineCompressionRatio,TEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SCEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness):
+func multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,RPM,DeclineRPM,DeclineRate,FloatRate,PSI,TurboAmount,EngineCompressionRatio,TEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SCEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness) -> float:
 	var value := 0.0
 	
 	var maxpsi := 0.0

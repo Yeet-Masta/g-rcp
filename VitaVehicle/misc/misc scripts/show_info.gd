@@ -1,11 +1,22 @@
 extends Control
 
+
+
+@export var open_info_button: Button
+
+
+
+func _ready() -> void:
+	open_info_button.pressed.connect(_on_button_pressed)
+
+
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):
 		visible = false
 
-func _on_info_pressed():
-	get_parent().get_node("info").release_focus()
+
+func _on_button_pressed():
+	open_info_button.release_focus()
 	if visible:
 		visible = false
 	else:

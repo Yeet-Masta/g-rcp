@@ -1,14 +1,18 @@
 extends Control
 
+
+
+@export var open_controls_button: Button
 var car: RigidBody3D
+
 
 
 func setcar():
 	car = get_tree().get_first_node_in_group("car")
 
 
-func _on_Button_pressed():
-	get_parent().get_node("open controls").release_focus()
+func _on_button_pressed():
+	open_controls_button.release_focus()
 	if visible:
 		visible = false
 	else:
@@ -33,6 +37,9 @@ func _ready():
 			else:
 				i.button_pressed = car.get(i.var_name)
 				i.get_node("amount").text = str(i.button_pressed)
+	
+	open_controls_button.pressed.connect(_on_button_pressed)
+
 
 func _process(_delta):
 	if !car: return
@@ -48,6 +55,7 @@ func _process(_delta):
 			else:
 				car.set(i.var_name,i.button_pressed)
 				i.get_node("amount").text = str(i.button_pressed)
+
 
 func _input(_event):
 	if Input.is_action_just_pressed("ui_cancel"):
