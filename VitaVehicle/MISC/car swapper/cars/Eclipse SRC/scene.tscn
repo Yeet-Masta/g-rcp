@@ -1,12 +1,12 @@
 [gd_scene load_steps=33 format=4 uid="uid://c1qlms1ih0s2l"]
 
-[ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://MAIN/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://MAIN/car.gd" id="2"]
-[ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://MAIN/misc/engine sound/engine.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
+[ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://main/car.gd" id="2"]
+[ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="AudioStream" uid="uid://ckt75vv2etwoa" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/1.ogg" id="4_ppb00"]
-[ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://MAIN/misc/tyre sounds/tyres.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="AudioStream" uid="uid://cqdajib2yo6rv" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/2.ogg" id="5_imbti"]
-[ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://MAIN/misc/mechanical sounds/other_sounds.tscn" id="6"]
+[ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
 [ext_resource type="AudioStream" uid="uid://d6eb4cnoayb7" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/3.ogg" id="6_bubjy"]
 [ext_resource type="AudioStream" uid="uid://bgadta1w1wxsb" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/4.ogg" id="7_87coq"]
 [ext_resource type="AudioStream" uid="uid://css4spfpu75vb" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/5.ogg" id="8_b4h4g"]
@@ -15,7 +15,7 @@
 [ext_resource type="AudioStream" uid="uid://bvu4bihqkrgdt" path="res://MISC/car swapper/cars/Eclipse SRC/engine sounds/8.ogg" id="11_1v2r1"]
 [ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://MISC/misc scripts/interior_feedback_camera.gd" id="14_o84in"]
 [ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://MISC/car swapper/cars/Base/change_cam.gd" id="15_xnd00"]
-[ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://MAIN/fuel_system.gd" id="16_elpyq"]
+[ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://main/fuel_system.gd" id="16_elpyq"]
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)

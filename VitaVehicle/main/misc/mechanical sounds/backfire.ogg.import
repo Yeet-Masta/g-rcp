@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dknq0s5ifqnau"
+path="res://.godot/imported/backfire.ogg-b9fb8e5dd346e707f5321096341d49ab.oggvorbisstr"
+
+[deps]
+
+source_file="res://main/misc/mechanical sounds/backfire.ogg"
+dest_files=["res://.godot/imported/backfire.ogg-b9fb8e5dd346e707f5321096341d49ab.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

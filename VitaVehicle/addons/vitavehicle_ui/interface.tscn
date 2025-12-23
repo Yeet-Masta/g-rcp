@@ -4,8 +4,8 @@
 [ext_resource type="Script" uid="uid://cqjkc1sj12bs0" path="res://addons/vitavehicle_ui/graph.gd" id="3"]
 [ext_resource type="Script" uid="uid://cfqljat4xxm8x" path="res://addons/vitavehicle_ui/handler.gd" id="4"]
 [ext_resource type="Script" uid="uid://bmloxfe8n3wjv" path="res://addons/vitavehicle_ui/tune_vars.gd" id="5"]
-[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://FONT/DroidSans.ttf" id="5_f53yw"]
-[ext_resource type="FontFile" uid="uid://luy46vxwmlu4" path="res://FONT/DroidSans-Bold.ttf" id="5_lt6mm"]
+[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://assets/font/DroidSans.ttf" id="5_f53yw"]
+[ext_resource type="FontFile" uid="uid://luy46vxwmlu4" path="res://assets/font/DroidSans-Bold.ttf" id="5_lt6mm"]
 [ext_resource type="Script" uid="uid://u2gkx3t0la62" path="res://addons/vitavehicle_ui/api_references.gd" id="6"]
 [ext_resource type="Script" uid="uid://dovsu12t70hoj" path="res://addons/vitavehicle_ui/folds.gd" id="7"]
 

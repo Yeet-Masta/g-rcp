@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://b1vo60v1pjs6w"]
 
-[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://FONT/DroidSans.ttf" id="1"]
+[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://assets/font/DroidSans.ttf" id="1"]
 [ext_resource type="Texture2D" uid="uid://bps2hhmk1v6t1" path="res://MISC/tachometre/rpm_background.png" id="2"]
 [ext_resource type="Texture2D" uid="uid://c27vyxa5uwwp6" path="res://MISC/tachometre/rpm_needle.png" id="3"]
 [ext_resource type="Script" uid="uid://rbi2of0oprst" path="res://MISC/tachometre/tacho.gd" id="4"]

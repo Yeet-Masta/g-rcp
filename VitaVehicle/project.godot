@@ -18,7 +18,7 @@ config/icon="uid://cep6sdenf2ole"
 
 [autoload]
 
-VitaVehicleSimulation="*res://MAIN/vitavehicle.gd"
+VitaVehicleSimulation="*res://main/vitavehicle.gd"
 misc_graphics_settings="*res://MISC/autoload/graphics.gd"
 
 [display]
@@ -34,8 +34,8 @@ enabled=PackedStringArray("res://addons/short/plugin.cfg", "res://addons/vitaveh
 [file_customization]
 
 folder_colors={
-"res://MAIN/": "teal",
-"res://addons/": "orange"
+"res://addons/": "orange",
+"res://main/": "teal"
 }
 
 [input]

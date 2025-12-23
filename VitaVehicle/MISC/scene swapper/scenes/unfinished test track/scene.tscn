@@ -1,6 +1,6 @@
 [gd_scene load_steps=26 format=4 uid="uid://mgrne38eb2pe"]
 
-[ext_resource type="Script" uid="uid://ddlr528rnt21u" path="res://MAIN/ground_surface_variables.gd" id="1"]
+[ext_resource type="Script" uid="uid://ddlr528rnt21u" path="res://main/ground_surface_variables.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://darskrbadljf8" path="res://MISC/scene swapper/scenes/unfinished test track/assets/roadmark0.png" id="2"]
 [ext_resource type="Texture2D" uid="uid://che72isf8a6ni" path="res://MISC/scene swapper/scenes/unfinished test track/assets/ripples0.png" id="3"]
 [ext_resource type="Texture2D" uid="uid://dv8ehtahnqiv2" path="res://MISC/scene swapper/scenes/unfinished test track/assets/roadmark1.png" id="4"]
