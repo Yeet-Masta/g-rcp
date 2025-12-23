@@ -103,7 +103,7 @@ func alignAxisToVector(xform, norm): # i named this literally out of blender
 	return xform
 
 
-func suspension(own,maxcompression,incline_free,incline_impact,rest,      elasticity,damping,damping_rebound     ,linearz,g_range,located,hit_located,weight,ground_bump,ground_bump_height):
+func suspension(own,maxcompression,incline_free,incline_impact,rest,      elasticity,damping,damping_rebound     ,linearz,g_range,located,hit_located,weight,ground_bump,ground_bump_height) -> float:
 	own.get_node("geometry").global_position = own.get_collision_point()
 	own.get_node("geometry").position.y -= (ground_bump*ground_bump_height)
 	own.get_node("geometry").position.y = max(own.get_node("geometry").position.y, -g_range)

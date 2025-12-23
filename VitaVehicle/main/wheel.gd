@@ -10,7 +10,7 @@ extends RayCast3D
 @export var SwayBarConnection := ""
 
 @export var W_PowerBias := 1.0
-@export var TyreSettings := {
+@export var TyreSettings: Dictionary[String, float] = {
 	"GripInfluence": 1.0,
 	"Width (mm)": 185.0,
 	"Aspect Ratio": 60.0,
@@ -21,7 +21,7 @@ extends RayCast3D
 @export var Caster := 0.0
 @export var Toe := 0.0
 
-@export var CompoundSettings := {
+@export var CompoundSettings: Dictionary[String, float] = {
 	"OptimumTemp": 50.0,
 	"Stiffness": 1.0,
 	"TractionFactor": 1.0,
@@ -253,18 +253,18 @@ func _physics_process(delta):
 	
 	sway()
 	
-	var tyre_maxgrip = TyreSettings["GripInfluence"]/CompoundSettings["TractionFactor"]
+	var tyre_maxgrip := TyreSettings["GripInfluence"]/CompoundSettings["TractionFactor"]
 	
-	var tyre_stiffness2 = abs(int(TyreSettings["Width (mm)"]))/(abs(int(TyreSettings["Aspect Ratio"]))/1.5)
+	var tyre_stiffness2 := absf(int(TyreSettings["Width (mm)"]))/(absf(int(TyreSettings["Aspect Ratio"]))/1.5)
 	
-	var deviding = (Vector2(velocity.x,velocity.z).length()/50.0 +0.5)*CompoundSettings["DeformFactor"]
+	var deviding := (Vector2(velocity.x,velocity.z).length()/50.0 +0.5)*CompoundSettings["DeformFactor"]
 	
 	deviding /= ground_stiffness +fore_stiffness*CompoundSettings["ForeStiffness"]
 	deviding = max(deviding, 1.0)
 	tyre_stiffness2 /= deviding
 	
 	
-	var tyre_stiffness = (tyre_stiffness2*((c_tp/30.0)*0.1 +0.9) )*CompoundSettings["Stiffness"] +effectiveness
+	var tyre_stiffness := (tyre_stiffness2*((c_tp/30.0)*0.1 +0.9) )*CompoundSettings["Stiffness"] +effectiveness
 	tyre_stiffness = max(tyre_stiffness, 1.0)
 	
 	cache_tyrestiffness = tyre_stiffness
@@ -334,11 +334,11 @@ func _physics_process(delta):
 				ground_bump = 1.0
 				ground_bump_up = true
 		
-		var suspforce = VitaVehicleSimulation.suspension(self,S_MaxCompression,A_InclineArea,A_ImpactForce,S_RestLength, elasticity,damping,damping_rebound, velocity.y,abs(cast_to.y),global_translation,get_collision_point(),car.mass,ground_bump,ground_bump_height)
+		var suspforce := VitaVehicleSimulation.suspension(self,S_MaxCompression,A_InclineArea,A_ImpactForce,S_RestLength, elasticity,damping,damping_rebound, velocity.y,abs(cast_to.y),global_translation,get_collision_point(),car.mass,ground_bump,ground_bump_height)
 		compress = suspforce
 		
 		# FRICTION
-		var grip = (suspforce*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
+		var grip := (suspforce*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
 		stress = grip
 		var rigidity := 0.67
 		
@@ -351,7 +351,7 @@ func _physics_process(delta):
 		
 		var distx := velocity2.x
 		
-		var compensate2 = suspforce
+		var compensate2 := suspforce
 		var grav_incline = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).x
 		var grav_incline2 = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).z
 		compensate = grav_incline2*(compensate2/tyre_stiffness)
@@ -365,7 +365,7 @@ func _physics_process(delta):
 		distx -= atan2(abs(wv),1.0)*((angle*10.0)*w_size)
 		
 		if grip>0:
-			var slip = Vector2(distx, disty).length()/grip
+			var slip := Vector2(distx, disty).length()/grip
 			
 			slip_percpre = slip/tyre_stiffness
 			
@@ -373,39 +373,39 @@ func _physics_process(delta):
 			slip -= CompoundSettings["TractionFactor"]
 			slip = max(slip, 0.0)
 			
-			var slip_sk = Vector2(distx*2.0, disty).length()/grip
+			var slip_sk := Vector2(distx*2.0, disty).length()/grip
 			slip_sk /= slip*ground_builduprate +1
 			slip_sk -= CompoundSettings["TractionFactor"]
 			slip_sk = max(slip_sk, 0.0)
 			
-			var slipw = Vector2(distx, 0.0).length()/grip
+			var slipw := Vector2(distx, 0.0).length()/grip
 			slipw /= slipw*ground_builduprate +1.0
-			var forcey = -disty/(slip +1.0)
-			var forcex = -distx/(slip +1.0)
+			var forcey := -disty/(slip +1.0)
+			var forcex := -distx/(slip +1.0)
 			
 			if car.abs and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
 				car.abspump = car.abs.pump_duration
 				if abs(distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
 					car.abspump = car.abs.lateral_pump_duration
 			
-			var yesx = abs(forcex)
+			var yesx := absf(forcex)
 			yesx = min(yesx, 1.0)
-			var smoothx = pow(yesx, 2)
+			var smoothx := pow(yesx, 2)
 			smoothx = min(smoothx, 1.0)
-			var yesy = abs(forcey)
+			var yesy := absf(forcey)
 			yesy = min(yesy, 1.0)
-			var smoothy = yesy * 1.0
+			var smoothy := yesy * 1.0
 			smoothy = min(smoothy, 1.0)
 			forcex /= (smoothx*(rigidity) +(1.0-rigidity))
 			forcey /= (smoothy*(rigidity) +(1.0-rigidity))
 			
-			var distyw = Vector2(distx, disty).length()
-			var tr2 = (grip/tyre_stiffness)
-			var afg = tyre_stiffness*tr2
+			var distyw := Vector2(distx, disty).length()
+			var tr2 := (grip/tyre_stiffness)
+			var afg := tyre_stiffness*tr2
 			distyw /= CompoundSettings["TractionFactor"]
 			distyw = max(distyw, afg)
 			
-			var ok = ((distyw/tyre_stiffness)/grip)/w_size
+			var ok := ((distyw/tyre_stiffness)/grip)/w_size
 			ok = min(ok, 1.0)
 			
 			snap = ok*w_weight_read
@@ -444,20 +444,20 @@ func _physics_process(delta):
 		directional_force.y = VitaVehicleSimulation.suspension(self,S_MaxCompression,A_InclineArea,A_ImpactForce,S_RestLength, elasticity,damping,damping_rebound, velocity.y,abs(cast_to.y),global_translation,get_collision_point(),car.mass,ground_bump,ground_bump_height)
 		
 		# FRICTION
-		var grip = (directional_force.y*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
-		var rigidity = 0.67
-		var r = 1.0-rigidity
+		var grip := (directional_force.y*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
+		var rigidity := 0.67
+		var r := 1.0-rigidity
 		
-		var patch_hardness = 1.0
+		var patch_hardness := 1.0
 		
-		var disty = velocity2.z - (wv*w_size)/(drag +1.0)
+		var disty := velocity2.z - (wv*w_size)/(drag +1.0)
 		if not Differed_Wheel == "":
-			var d_w = car.get_node(Differed_Wheel)
+			var d_w := car.get_node(Differed_Wheel)
 			disty = velocity2.z - ((wv*(1.0-get_parent().locked) +d_w.wv_diff*get_parent().locked)*w_size)/(drag +1)
 		
-		var distx = velocity2.x
+		var distx := velocity2.x
 		
-		var compensate2 = directional_force.y
+		var compensate2 := directional_force.y
 		var grav_incline = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).x
 		
 		distx -= (grav_incline*(compensate2/tyre_stiffness))*1.1
@@ -470,25 +470,25 @@ func _physics_process(delta):
 		distx -= atan2(abs(wv),1.0)*((angle*10.0)*w_size)
 		
 		if grip>0:
-			var slipraw = Vector2(distx, disty).length()
+			var slipraw := Vector2(distx, disty).length()
 			slipraw = min(slipraw, grip)
 			
-			var slip = Vector2(distx, disty).length()/grip
+			var slip := Vector2(distx, disty).length()/grip
 			slip /= slip*ground_builduprate +1.0
 			slip -= CompoundSettings["TractionFactor"]
 			slip = max(slip, 0.0)
 			slip_perc2 = slip
 			
-			var forcey = -disty/(slip +1.0)
-			var forcex = -distx/(slip +1.0)
+			var forcey := -disty/(slip +1.0)
+			var forcex := -distx/(slip +1.0)
 			
-			var yesx = abs(forcex)
+			var yesx := absf(forcex)
 			yesx = min(yesx, 1.0)
-			var smoothx = yesx*yesx
+			var smoothx := yesx*yesx
 			smoothx = min(smoothx, 1.0)
-			var yesy = abs(forcey)
+			var yesy := absf(forcey)
 			yesy = min(yesy, 1.0)
-			var smoothy = yesy*1.0
+			var smoothy := yesy*1.0
 			smoothy = min(smoothy, 1.0)
 			forcex /= (smoothx*(rigidity) +(1.0-rigidity))
 			forcey /= (smoothy*(rigidity) +(1.0-rigidity))
@@ -503,14 +503,14 @@ func _physics_process(delta):
 	
 	$geometry.position.y += w_size
 	
-	var inned = (abs(cambered)+A_Geometry4)/90.0
+	var inned := (absf(cambered)+A_Geometry4)/90.0
 	inned *= inned -A_Geometry4/90.0
 	
 	$geometry.position.x = -inned*translation.x
 	
 	$animation/camber.rotation.z = -(deg_to_rad(c_camber*sign(translation.x)) -deg_to_rad(cambered*sign(translation.x))*A_Geometry2)
 	
-	var g
+	var g: float
 	axle_position = $geometry.position.y
 	
 	if str(Solidify_Axles) == "":
@@ -530,6 +530,6 @@ func _physics_process(delta):
 	car.apply_impulse(forces,hitposition-car.global_transform.origin)
 	
 	# torque
-	var torqed = (wheelpower*w_weight)/4.0
+	var torqed := (wheelpower*w_weight)/4.0
 	wv_ds = wv
 #endregion internal

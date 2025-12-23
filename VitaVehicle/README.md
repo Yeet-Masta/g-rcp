@@ -42,3 +42,4 @@ Test these cases to ensure stability:
 Lines of code:
 	- First measured 4627 lines in 42 scripts
 	- After some cleanup i got 4407 lines in 42 scripts
+	- After way more cleanup (and some extra features) i got 4028 lines in 47 scripts
