@@ -131,10 +131,12 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @export var BlowRate := 35.0
 @export var SCThreshold := 6.0
 
+## Current RPM.
 var rpm := 0.0
 var rpmspeed := 0.0
 var resistancerpm := 0.0
 var resistancedv := 0.0
+## Current transmission gear.
 var gear := 0
 var limiter_delay := 0
 var actualgear := 0
@@ -142,7 +144,8 @@ var gearstress := 0.0
 var throttle := 0.0:
 	set(value): throttle = clamp(value, 0.0, 1.0)
 var cvtaccel := 0.0
-var shift_assist_delimiter := 0
+var shift_assist_delay := 0
+## Shift assist step.
 var sassiststep := 0
 var clutchin := false
 var gasrestricted := false
@@ -211,12 +214,15 @@ var dist := 0.0
 var stress := 0.0
 
 # control flags
+## Input shift up.
 var su := false
+## Input shift down.
 var sd := false
 var gas := false
 var brake := false
 var handbrake := false
 var clutch := false
+## Powered wheel nodes.
 var c_pws := []
 
 var velocity := Vector3(0, 0, 0)
@@ -241,6 +247,7 @@ func toggle_ignition():
 		start_engine()
 
 
+## Is variable valve timing activated?
 func is_vvt_active():
 	return rpm > VVTRPM
 
@@ -440,9 +447,9 @@ func simulate_manual():
 						if rpm > shift_assist.clutch_out_rpm:
 							clutchin = false
 					else:
-						if shift_assist_delimiter > 0:
+						if shift_assist_delay > 0:
 							actualgear += 1
-						shift_assist_delimiter = int(shift_assist.shift_delay / 2.0)
+						shift_assist_delay = int(shift_assist.shift_delay / 2.0)
 						sassiststep = -4
 						
 						clutchin = true
@@ -457,9 +464,9 @@ func simulate_manual():
 						actualgear -= 1
 						clutchin = false
 					else:
-						if shift_assist_delimiter > 0:
+						if shift_assist_delay > 0:
 							actualgear -= 1
-						shift_assist_delimiter = int(shift_assist.shift_delay / 2.0)
+						shift_assist_delay = int(shift_assist.shift_delay / 2.0)
 						sassiststep = -2
 						
 						clutchin = true
@@ -470,18 +477,18 @@ func simulate_manual():
 		var assistdownshiftspeed = (shift_assist.downshift_rpm / abs((GearRatios[gear-2] * FinalDriveRatio) * RatioMult)) * drivewheels_size
 		if gear == 0:
 			if gas:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay < 0:
 					actualgear = 1
 			elif brake:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter < 0:
+				shift_assist_delay -= 1
+				if shift_assist_delay < 0:
 					actualgear = -1
 			else:
-				shift_assist_delimiter = 60 # TODO: Swap this magic value for a variable.
+				shift_assist_delay = 60
 		elif linear_velocity.length()<5:
 			if not gas and gear == 1 or not brake and gear == -1:
-				shift_assist_delimiter = 60 # TODO: Swap this magic value for a variable.
+				shift_assist_delay = 60
 				actualgear = 0
 		if sassiststep == 0:
 			if rpm<shift_assist.clutch_out_rpm:
@@ -491,31 +498,31 @@ func simulate_manual():
 				clutchin = false
 			if not gear == -1:
 				if gear < len(GearRatios) and linear_velocity.length() > assistshiftspeed:
-					shift_assist_delimiter = int(shift_assist.shift_delay / 2.0)
+					shift_assist_delay = int(shift_assist.shift_delay / 2.0)
 					sassiststep = -4
 					
 					clutchin = true
 					gasrestricted = true
 				if gear>1 and linear_velocity.length()<assistdownshiftspeed:
-					shift_assist_delimiter = int(shift_assist.shift_delay / 2.0)
+					shift_assist_delay = int(shift_assist.shift_delay / 2.0)
 					sassiststep = -2
 					
 					clutchin = true
 					gasrestricted = false
 					revmatch = true
 	
-	if sassiststep == -4 and shift_assist_delimiter<0:
-		shift_assist_delimiter = int(shift_assist.shift_delay / 2.0)
+	if sassiststep == -4 and shift_assist_delay < 0:
+		shift_assist_delay = int(shift_assist.shift_delay / 2.0)
 		if gear<len(GearRatios):
 			actualgear += 1
 		sassiststep = -3
-	elif sassiststep == -3 and shift_assist_delimiter<0:
+	elif sassiststep == -3 and shift_assist_delay < 0:
 		if rpm > shift_assist.clutch_out_rpm:
 			clutchin = false
-		if shift_assist_delimiter < - shift_assist.post_shift_delay:
+		if shift_assist_delay < -shift_assist.post_shift_delay:
 			sassiststep = 0
 			gasrestricted = false
-	elif sassiststep == -2 and shift_assist_delimiter<0:
+	elif sassiststep == -2 and shift_assist_delay < 0:
 		sassiststep = 0
 		if gear > -1:
 			actualgear -= 1
@@ -542,18 +549,18 @@ func simulate_automatic_gearbox():
 	else:
 		if gear == 0:
 			if gas:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay < 0:
 					actualgear = 1
 			elif brake:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay < 0:
 					actualgear = -1
 			else:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 		elif linear_velocity.length() < 5:
 			if not gas and gear == 1 or not brake and gear == -1:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 				actualgear = 0
 	
 	if actualgear == -1:
@@ -594,18 +601,18 @@ func simulate_cvt():
 	else:
 		if gear == 0:
 			if gas:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay<0:
 					actualgear = 1
 			elif brake:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay<0:
 					actualgear = -1
 			else:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 		elif linear_velocity.length() < 5:
 			if not gas and gear == 1 or not brake and gear == -1:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 				actualgear = 0
 	
 	gear = actualgear
@@ -646,18 +653,18 @@ func simulate_semi_auto_gearbox():
 		var assistdownshiftspeed = (shift_assist.downshift_rpm / abs((GearRatios[gear-2] * FinalDriveRatio) * RatioMult)) * drivewheels_size
 		if gear == 0:
 			if gas:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay<0:
 					actualgear = 1
 			elif brake:
-				shift_assist_delimiter -= 1
-				if shift_assist_delimiter<0:
+				shift_assist_delay -= 1
+				if shift_assist_delay<0:
 					actualgear = -1
 			else:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 		elif linear_velocity.length() < 5:
 			if not gas and gear == 1 or not brake and gear == -1:
-				shift_assist_delimiter = 60
+				shift_assist_delay = 60
 				actualgear = 0
 		if sassiststep == 0:
 			if not gear == -1:
@@ -913,7 +920,7 @@ func _physics_process(delta):
 	
 	ratio = 10.0
 	
-	shift_assist_delimiter -= 1
+	shift_assist_delay -= 1
 	
 	transmission()
 	
@@ -989,7 +996,7 @@ func _physics_process(delta):
 		torque /= pow(abs(rpm), 2)*(FloatRate*Constants.RISE_FACTOR) +1.0
 	
 	rpmforce = (rpm/(pow(abs(rpm), 2)/(EngineFriction/clock_mult) +1.0))*1.0
-	if rpm<DeadRPM:
+	if rpm < DeadRPM:
 		stop_engine()
 		torque = 0.0
 		rpmforce /= 5.0
@@ -997,8 +1004,8 @@ func _physics_process(delta):
 	else:
 		stall_resistance = 0.0
 	
-	rpmforce += (rpm*(EngineDrag/clock_mult))*1.0
-	rpmforce -= (torque/clock_mult)*1.0
+	rpmforce += (rpm * (EngineDrag / clock_mult) ) * 1.0
+	rpmforce -= (torque / clock_mult) * 1.0
 	rpm -= rpmforce * RevSpeed
 	
 	engine_torque = torque
