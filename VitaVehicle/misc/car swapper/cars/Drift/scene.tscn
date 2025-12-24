@@ -1,7 +1,8 @@
-[gd_scene load_steps=33 format=4 uid="uid://fejt734fjfym"]
+[gd_scene load_steps=35 format=4 uid="uid://fejt734fjfym"]
 
 [ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://main/car.gd" id="1_p23ep"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="2_j41wq"]
+[ext_resource type="Script" uid="uid://6cnvipuwxkq5" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_xbjtj"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3_n8oe8"]
 [ext_resource type="AudioStream" uid="uid://b0lic8xc7py8g" path="res://misc/car swapper/cars/Drift/engine sounds/1.ogg" id="4_m5ojj"]
 [ext_resource type="AudioStream" uid="uid://c85hb27ghhdxx" path="res://misc/car swapper/cars/Drift/engine sounds/2.ogg" id="5_wxr45"]
@@ -16,6 +17,10 @@
 [ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://misc/misc scripts/interior_feedback_camera.gd" id="14_2tneh"]
 [ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://misc/car swapper/cars/Base/change_cam.gd" id="15_3lo5n"]
 [ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://main/fuel_system.gd" id="16_j41wq"]
+
+[sub_resource type="Resource" id="Resource_5tvlg"]
+script = ExtResource("2_xbjtj")
+metadata/_custom_type_script = "uid://6cnvipuwxkq5"
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)
@@ -250,6 +255,7 @@ blend_shape_mode = 0
 mass = 90.0
 can_sleep = false
 script = ExtResource("1_p23ep")
+shift_assist = SubResource("Resource_5tvlg")
 fuel = NodePath("fuel")
 Weight = 1200.0
 Steer_Radius = 5.5

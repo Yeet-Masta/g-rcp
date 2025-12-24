@@ -1,8 +1,9 @@
-[gd_scene load_steps=21 format=4 uid="uid://crtwme8ggggra"]
+[gd_scene load_steps=23 format=4 uid="uid://crtwme8ggggra"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
 [ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://main/car.gd" id="2"]
 [ext_resource type="Resource" uid="uid://crv7ofv4a4csx" path="res://resources/abs/default.tres" id="2_ei6tv"]
+[ext_resource type="Script" uid="uid://6cnvipuwxkq5" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_p1d67"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Texture2D" uid="uid://del2h14nydk3g" path="res://main/misc/textures/rim.jpg" id="4"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
@@ -12,6 +13,10 @@
 [ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://misc/misc scripts/interior_feedback_camera.gd" id="9_sellu"]
 [ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://misc/car swapper/cars/Base/change_cam.gd" id="10_jak2h"]
 [ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://main/fuel_system.gd" id="11_q0weh"]
+
+[sub_resource type="Resource" id="Resource_k4r5v"]
+script = ExtResource("2_p1d67")
+metadata/_custom_type_script = "uid://6cnvipuwxkq5"
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)
@@ -234,9 +239,10 @@ point_count = 2
 mass = 90.0
 can_sleep = false
 script = ExtResource("2")
+shift_assist = SubResource("Resource_k4r5v")
+abs = ExtResource("2_ei6tv")
 fuel = NodePath("fuel")
 Debug_Mode = true
-abs = ExtResource("2_ei6tv")
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
