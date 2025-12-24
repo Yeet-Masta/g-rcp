@@ -44,7 +44,7 @@ func _physics_process(_delta):
 	pitch = abs(car.rpm*pitch_influence)/pitch_calibrate
 	
 	volume = 0.5 +car.throttle*0.5
-	fade = (get_node("100500").pitch_scale  -0.22222)*(crossfade_influence +float(car.throttle)*crossfade_throttle +float(car.vvt)*crossfade_vvt)
+	fade = (get_node("100500").pitch_scale  -0.22222)*(crossfade_influence +float(car.throttle)*crossfade_throttle +float(car.is_vvt_active())*crossfade_vvt)
 	
 	fade = clamp(fade, 0.0, childcount-1.0)
 	

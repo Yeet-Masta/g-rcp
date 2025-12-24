@@ -212,7 +212,7 @@ func _physics_process(delta):
 	$velocity.position = Vector3(0,0,0)
 	
 	
-	w_size = ((abs(int(TyreSettings["Width (mm)"]))*((abs(int(TyreSettings["Aspect Ratio"]))*2.0)/100.0) + abs(int(TyreSettings["Rim Size (in)"]))*25.4)*0.003269)/2.0
+	w_size = ((abs(int(TyreSettings["Width (mm)"]))*((abs(int(TyreSettings["Aspect Ratio"]))*2.0)/100.0) + abs(int(TyreSettings["Rim Size (in)"]))*25.4)*0.003269)/2.0 # TODO: Use the constant and adjust for the fact this is in mm.
 	w_weight = pow(w_size, 2.0)
 	
 	w_size_read = w_size
@@ -342,7 +342,6 @@ func _physics_process(delta):
 		stress = grip
 		var rigidity := 0.67
 		
-		var distw := velocity2.z - wv*w_size
 		wv += (wheelpower*(1.0-(1.0/tyre_stiffness)))
 		var disty := velocity2.z - wv*w_size
 		
@@ -356,15 +355,14 @@ func _physics_process(delta):
 		var grav_incline2 = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).z
 		compensate = grav_incline2*(compensate2/tyre_stiffness)
 		
-		distx -= (grav_incline*(compensate2/tyre_stiffness))*1.1
-
+		distx -= (grav_incline * (compensate2 / tyre_stiffness) ) * 1.1
+		
 		disty *= tyre_stiffness
-		distw *= tyre_stiffness
 		distx *= tyre_stiffness
 		
 		distx -= atan2(abs(wv),1.0)*((angle*10.0)*w_size)
 		
-		if grip>0:
+		if grip > 0:
 			var slip := Vector2(distx, disty).length()/grip
 			
 			slip_percpre = slip/tyre_stiffness
@@ -384,9 +382,9 @@ func _physics_process(delta):
 			var forcex := -distx/(slip +1.0)
 			
 			if car.abs and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
-				car.abspump = car.abs.pump_duration
+				car.abs_delay = car.abs.pump_duration
 				if abs(distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
-					car.abspump = car.abs.lateral_pump_duration
+					car.abs_delay = car.abs.lateral_pump_duration
 			
 			var yesx := absf(forcex)
 			yesx = min(yesx, 1.0)
@@ -446,9 +444,9 @@ func _physics_process(delta):
 		# FRICTION
 		var grip := (directional_force.y*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
 		var rigidity := 0.67
-		var r := 1.0-rigidity
+		#var r := 1.0-rigidity
 		
-		var patch_hardness := 1.0
+		#var patch_hardness := 1.0
 		
 		var disty := velocity2.z - (wv*w_size)/(drag +1.0)
 		if not Differed_Wheel == "":
@@ -530,6 +528,6 @@ func _physics_process(delta):
 	car.apply_impulse(forces, hitposition-car.global_transform.origin)
 	
 	# torque
-	var torqed := (wheelpower*w_weight)/4.0
+	#var torqed := (wheelpower*w_weight)/4.0
 	wv_ds = wv
 #endregion internal

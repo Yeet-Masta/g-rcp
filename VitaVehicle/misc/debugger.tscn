@@ -1150,21 +1150,6 @@ offset_bottom = -0.5200043
 grow_horizontal = 0
 theme_override_constants/separation = 10
 
-[node name="open controls" type="Button" parent="menus"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "controls"
-
-[node name="open graphics" type="Button" parent="menus"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "graphics"
-
-[node name="info" type="Button" parent="menus"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "info"
-
 [node name="swap car" type="Button" parent="menus"]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -1174,6 +1159,21 @@ text = "swap car"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "swap map"
+
+[node name="info" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "info"
+
+[node name="open controls" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "controls"
+
+[node name="open graphics" type="Button" parent="menus"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "graphics"
 
 [node name="start engine" type="Button" parent="."]
 layout_mode = 1

@@ -21,18 +21,18 @@ func clear():
 	appended = []
 	
 
-func append_wheel(position,settings,node):
-	var w_size := ((absf(int(settings["Width (mm)"]))*((absf(int(settings["Aspect Ratio"]))*2.0)/100.0) + absf(int(settings["Rim Size (in)"]))*25.4)*0.003269)/2.0
-	var width := (absf(int(settings["Width (mm)"]))*0.003269)/2.0
+func append_wheel(pos, settings, node):
+	var w_size := ((absf(int(settings["Width (mm)"]))*((absf(int(settings["Aspect Ratio"]))*2.0)/100.0) + absf(int(settings["Rim Size (in)"]))*25.4)*0.003269)/2.0 # TODO: Use the constant and adjust for the fact this is in mm.
+	var width := (absf(int(settings["Width (mm)"]))*0.003269)/2.0 # TODO: Use the constant and adjust for the fact this is in mm.
 	
 	var w := wheel.duplicate()
 	add_child(w)
-	w.pos = -Vector2(position.x,position.z)*2.0
+	w.pos = -Vector2(pos.x, pos.z)*2.0
 	w.setting = settings
 	w.node = node
 	
-	w.scale.x = (width*2.0)/(vgs_scale/2.0)
-	w.scale.y = w_size/(vgs_scale/2.0)
+	w.scale.x = (width * 2.0) / (vgs_scale / 2.0)
+	w.scale.y = w_size/ (vgs_scale / 2.0)
 	
 	appended.append(w)
 

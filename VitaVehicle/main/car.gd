@@ -18,7 +18,7 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @export var LooseSteering := false #simulate rack and pinion steering physics (EXPERIMENTAL) # May belong in ControlsConfig, unsure.
 
 
-@export var GearAssistant := [ # TODO: Make this more readable.
+@export var GearAssistant := [ # TODO: Make this more readable. gearbox_assist
 20, # Shift delay
 0, # Assistance Level (0 - 2)
 0.944087, # Speed Influence (will be automatically set)
@@ -166,7 +166,7 @@ var rpmspeed := 0.0
 var resistancerpm := 0.0
 var resistancedv := 0.0
 var gear := 0
-var limdel := 0
+var limiter_delay := 0
 var actualgear := 0
 var gearstress := 0.0
 var throttle := 0.0:
@@ -189,12 +189,11 @@ var steer := 0.0:
 	set(value): steer = clamp(value, -1.0, 1.0)
 var steer2 := 0.0:
 	set(value): steer2 = clamp(value, -1.0, 1.0)
-var abspump := 0.0
+var abs_delay := 0.0
 var tcsweight := 0.0
 var tcsflash := false
 var espflash := false
 var ratio := 0.0
-var vvt := false
 var brake_allowed := 1.0
 ## Real engine torque.
 var engine_torque := 0.0
@@ -235,8 +234,8 @@ var assistance_factor := 0.0
 
 
 
-var pastvelocity := Vector3(0,0,0)
-var gforce := Vector3(0,0,0)
+var pastvelocity := Vector3(0, 0, 0)
+var gforce := Vector3(0, 0, 0)
 var clock_mult := 1.0
 var dist := 0.0
 var stress := 0.0
@@ -250,12 +249,64 @@ var handbrake := false
 var clutch := false
 var c_pws := []
 
-var velocity := Vector3(0,0,0)
-var rvelocity := Vector3(0,0,0)
+var velocity := Vector3(0, 0, 0)
+var rvelocity := Vector3(0, 0, 0)
 
 var debug_lamp := false:
 	set(value): debug_lamp = value; debug_lamp_changed.emit()
 
+
+
+func toggle_ignition():
+	if is_ignition_on:
+		stop_engine()
+	else:
+		start_engine()
+
+
+func is_vvt_active():
+	return rpm > VVTRPM
+
+
+func is_redline_limiter_on():
+	return limiter_delay > 0
+
+
+func apply_redline_limiter():
+	if rpm > RPMLimit and throttle > ThrottleLimit:
+		throttle = ThrottleLimit
+		limiter_delay = LimiterDelay
+	
+	limiter_delay -= 1
+
+
+func apply_idle_throttle_compensation():
+	if rpm < IdleRPM:
+		throttle = clamp(throttle, ThrottleIdle + ( (IdleRPM - rpm) / IdleRPM), 1.0)
+		# The farther from idle, the higher the throttle.
+		# TODO: Swap this out for a curve resource.
+
+
+func apply_abs():
+	if abs_delay > 0:
+		brake_allowed -= abs.pump_rate
+	else:
+		brake_allowed += abs.pump_rate
+	brake_allowed = clamp(brake_allowed, 0.0, 1.0)
+	
+	abs_delay -= 1
+
+
+func apply_clutch_wear():
+	pass # Future mechanic. Clutch wears over time, this calculates how much wear and applies its reduced effect.
+
+
+func shift_up():
+	pass
+
+
+func shift_down():
+	pass
 
 
 func bullet_fix():
@@ -411,7 +462,7 @@ func transmission():
 		
 		clutchpedal = 1.0-clutchpedalreal
 		
-		if gear>0:
+		if gear > 0:
 			ratio = GearRatios[gear-1]*FinalDriveRatio*RatioMult
 		elif gear == -1:
 			ratio = ReverseRatio*FinalDriveRatio*RatioMult
@@ -763,18 +814,16 @@ func aero():
 	
 	var veloc := global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	
-	#var torq := global_transform.basis.orthonormalized().transposed() * (Vector3(1,0,0))
+	#var torq := global_transform.basis.orthonormalized().transposed() * (Vector3(1, 0, 0))
 	
-	apply_torque_impulse(global_transform.basis.orthonormalized() * ( Vector3(((-veloc.length()*0.3)*LiftAngle),0,0)  ) )
+	apply_torque_impulse(global_transform.basis.orthonormalized() * ( Vector3(((-veloc.length()*0.3)*LiftAngle), 0, 0)  ) )
 	
-	var vx := veloc.x*0.15
-	var vy := veloc.z*0.15
-	var vz := veloc.y*0.15
-	var vl := veloc.length()*0.15
+	var vx := veloc.x * 0.15
+	var vy := veloc.z * 0.15
+	var vz := veloc.y * 0.15
+	var vl := veloc.length() * 0.15
 	
-	var forc := global_transform.basis.orthonormalized() * Vector3(-vx*drag,0,0)
-	forc += global_transform.basis.orthonormalized() * Vector3(0,0,-vy*drag)
-	forc += global_transform.basis.orthonormalized() * Vector3(0,-vl*df -vz*drag,0)
+	var forc := global_transform.basis.orthonormalized() * Vector3(-vx * drag, -vl * df -vz * drag, -vy * drag)
 	
 	if has_node("DRAG_CENTRE"):
 		apply_impulse(forc, global_transform.basis.orthonormalized() * ($DRAG_CENTRE.position))
@@ -817,7 +866,7 @@ func draw_debug():
 
 
 func start_engine():
-	# TODO: This ignites the engine back up, make it more... natural.
+	# TODO: This ignites the engine back up, make it more... natural. WARNING: Don't assume i start from 0.
 	rpm = max(rpm, IdleRPM)
 	is_ignition_on = true
 
@@ -888,33 +937,20 @@ func _physics_process(delta):
 		steering_geometry = [-Steer_Radius/steeroutput,AckermannPoint]
 	
 	
-	if abs:
-		abspump -= 1
-		if abspump < 0:
-			brake_allowed += abs.pump_rate
-		else:
-			brake_allowed -= abs.pump_rate
-		brake_allowed = clamp(brake_allowed, 0.0, 1.0)
+	if abs: apply_abs()
 	
 	brakeline = brakepedal * brake_allowed
 	
 	brakeline = max(brakeline, 0.0)
 	
-	limdel -= 1
 	
-	if limdel < 0:
+	if !is_redline_limiter_on():
 		throttle -= (throttle - (gaspedal/(tcsweight*clutchpedal +1.0)))*(ThrottleResponse/clock_mult)
 	else:
 		throttle -= throttle*(ThrottleResponse/clock_mult)
 	
-	if rpm > RPMLimit:
-		if throttle > ThrottleLimit:
-			throttle = ThrottleLimit
-			limdel = LimiterDelay
-	elif rpm < IdleRPM:
-		if throttle < ThrottleIdle:
-			throttle = ThrottleIdle + ( (IdleRPM - rpm) / IdleRPM)
-			# The farther from idle, the higher the throttle.
+	apply_redline_limiter()
+	apply_idle_throttle_compensation()
 	
 	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
 	var thr := 0.0
@@ -938,14 +974,12 @@ func _physics_process(delta):
 	else:
 		turbopsi = 0.0
 	
-	vvt = rpm>VVTRPM
-	
 	var torque := 0.0
 	
 	if !is_ignition_on:
 		throttle = 0.0
 		turbopsi = 0.0
-	elif vvt:
+	elif is_vvt_active():
 		var f := rpm-VVT_RiseRPM
 		f = max(f, 0.0)
 		torque = (rpm*VVT_BuildUpTorque +VVT_OffsetTorque + pow(f, 2) * (VVT_TorqueRise*Constants.RISE_FACTOR))*throttle

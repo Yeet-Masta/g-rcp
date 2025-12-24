@@ -7,7 +7,7 @@ class_name Fuel extends Node
 
 
 
-@export var car: Car
+@export var car: Car # TODO: Call down, signal up. Don't access the car directly. Let the car access you.
 
 ## The maximum amount of fuel in [code]liters[/code].
 @export var max_fuel := 40.0
