@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="UserConfig" load_steps=6 format=3 uid="uid://bfvp52i6j3q63"]
 
-[ext_resource type="Script" uid="uid://dsp7nljcm7t4v" path="res://main/definitions/controls_config.gd" id="1_47t4v"]
-[ext_resource type="Script" uid="uid://c7yxkknt5pv1w" path="res://main/definitions/graphics_config.gd" id="2_m7jgs"]
-[ext_resource type="Script" uid="uid://d2vxuvrj82hx1" path="res://main/definitions/user_config.gd" id="3_yiast"]
+[ext_resource type="Script" uid="uid://dsp7nljcm7t4v" path="res://main/definitions/config/controls_config.gd" id="1_47t4v"]
+[ext_resource type="Script" uid="uid://c7yxkknt5pv1w" path="res://main/definitions/config/graphics_config.gd" id="2_m7jgs"]
+[ext_resource type="Script" uid="uid://d2vxuvrj82hx1" path="res://main/definitions/config/user_config.gd" id="3_yiast"]
 
 [sub_resource type="Resource" id="Resource_n2e7c"]
 script = ExtResource("1_47t4v")
