@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://fejt734fjfym"]
+[gd_scene load_steps=36 format=4 uid="uid://fejt734fjfym"]
 
 [ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://main/car.gd" id="1_p23ep"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="2_j41wq"]
@@ -17,6 +17,10 @@
 [ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://misc/misc scripts/interior_feedback_camera.gd" id="14_2tneh"]
 [ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://misc/car swapper/cars/Base/change_cam.gd" id="15_3lo5n"]
 [ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://main/fuel_system.gd" id="16_j41wq"]
+
+[sub_resource type="Resource" id="Resource_xbjtj"]
+script = ExtResource("16_j41wq")
+metadata/_custom_type_script = "uid://dqx6fx7pbs33c"
 
 [sub_resource type="Resource" id="Resource_5tvlg"]
 script = ExtResource("2_xbjtj")
@@ -251,12 +255,12 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 
-[node name="car" type="RigidBody3D" node_paths=PackedStringArray("fuel") groups=["car"]]
+[node name="car" type="RigidBody3D" groups=["car"]]
 mass = 90.0
 can_sleep = false
 script = ExtResource("1_p23ep")
+fuel = SubResource("Resource_xbjtj")
 shift_assist = SubResource("Resource_5tvlg")
-fuel = NodePath("fuel")
 Weight = 1200.0
 Steer_Radius = 5.5
 Powered_Wheels = Array[String](["rl", "rr"])
@@ -400,10 +404,6 @@ script = ExtResource("14_2tneh")
 [node name="change_cam" type="Node" parent="Camera3D" node_paths=PackedStringArray("this_camera")]
 script = ExtResource("15_3lo5n")
 this_camera = NodePath("..")
-
-[node name="fuel" type="Node" parent="." node_paths=PackedStringArray("car")]
-script = ExtResource("16_j41wq")
-car = NodePath("..")
 
 [editable path="engine_sound"]
 [editable path="fr"]

@@ -11,6 +11,8 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 
 
 @export_group("Profiles")
+@export var fuel: Fuel
+
 @export_subgroup("Gearbox")
 @export var shift_assist: ShiftAssistProfile
 @export var auto_gearbox: AutoGearboxProfile
@@ -28,7 +30,6 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @export var ttcs := TTCSProfile
 
 @export_group("Other")
-@export var fuel: Fuel
 @export var Debug_Mode := false
 @export var LooseSteering := false #simulate rack and pinion steering physics (EXPERIMENTAL) # May belong in ControlsConfig, unsure.
 # meta
@@ -240,6 +241,9 @@ var weight_dist := [0.0, 0.0]
 var debug_lamp := false:
 	set(value): debug_lamp = value; debug_lamp_changed.emit()
 
+## The current amount of fuel in [code]liters[/code].
+@onready var current_fuel := fuel.max_fuel
+
 
 
 func toggle_ignition():
@@ -256,6 +260,14 @@ func is_vvt_active():
 
 func is_redline_limiter_on():
 	return limiter_delay > 0
+
+
+func is_in_gear():
+	return actualgear != 0
+
+
+func is_throttle_open():
+	return throttle != 0.0
 
 
 func apply_redline_limiter():
@@ -878,6 +890,22 @@ func drivetrain():
 	stress = 0.0
 
 
+func simulate_fuel():
+	if !fuel: return
+	
+	var fuel_consumption := fuel.get_consumption(engine_torque, rpm)
+	
+	if !is_ignition_on:
+		fuel_consumption = 0.0
+	elif is_above_idle_rpm() and is_in_gear() and !is_throttle_open():
+		fuel_consumption = 0.0
+	
+	current_fuel -= fuel_consumption * get_physics_process_delta_time()
+	
+	if current_fuel <= 0.0:
+		stop_engine()
+
+
 func aero():
 	var drag := DragCoefficient
 	var df := Downforce
@@ -1017,4 +1045,5 @@ func _physics_process(delta):
 	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
 	simulate_engine()
 	drivetrain()
+	simulate_fuel()
 #endregion internal
