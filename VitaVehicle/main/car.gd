@@ -69,7 +69,8 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @export var Centre_Preload := 0.0
 
 @export_group("Engine")
-@export var RevSpeed := 2.0 # Flywheel lightness
+## Flywheel lightness.
+@export var RevSpeed := 2.0
 @export var EngineFriction := 18000.0
 @export var EngineDrag := 0.006
 @export var ThrottleResponse := 0.5
@@ -166,6 +167,7 @@ var abs_delay := 0.0
 var tcsweight := 0.0
 var tcsflash := false
 var espflash := false
+# Related to gears, idk yet.
 var ratio := 0.0
 var brake_allowed := 1.0
 ## Real engine torque.
@@ -269,6 +271,70 @@ func apply_idle_throttle_compensation():
 		throttle = clamp(throttle, ThrottleIdle + ( (IdleRPM - rpm) / IdleRPM), 1.0)
 		# The farther from idle, the higher the throttle.
 		# TODO: Swap this out for a curve resource.
+
+
+func simulate_turbo():
+	var thr := 0.0
+	
+	if TurboEnabled:
+		thr = (throttle - SpoolThreshold) / (1 - SpoolThreshold)
+			
+		if boosting > thr:
+			boosting = thr
+		else:
+			boosting -= (boosting - thr) * TurboEfficiency
+		
+		turbopsi += (boosting * rpm) / ( (TurboSize / Compressor) * 60.9)
+		
+		turbopsi -= turbopsi * BlowoffRate
+		turbopsi = clamp(turbopsi, -TurboVacuum, MaxPSI)
+	elif SuperchargerEnabled:
+		scrpm = rpm * SCRPMInfluence
+		turbopsi = (scrpm / 10000.0) * BlowRate - SCThreshold
+		turbopsi = clamp(turbopsi, 0.0, MaxPSI)
+	else:
+		turbopsi = 0.0
+
+
+func simulate_engine():
+	var torque := 0.0
+	
+	if !is_ignition_on:
+		throttle = 0.0
+		turbopsi = 0.0
+	elif is_vvt_active():
+		var f := rpm - VVT_RiseRPM
+		f = max(f, 0.0)
+		torque = (rpm * VVT_BuildUpTorque + VVT_OffsetTorque + pow(f, 2) * (VVT_TorqueRise * Constants.RISE_FACTOR)) * throttle
+		torque += ( (turbopsi * TurboAmount) * (EngineCompressionRatio * 0.609) )
+		var j := rpm - VVT_DeclineRPM
+		j = max(j, 0.0)
+		torque /= (j * (j * VVT_DeclineSharpness + (1.0 - VVT_DeclineSharpness) ) ) * (VVT_DeclineRate * Constants.RISE_FACTOR) + 1.0
+		torque /= pow(abs(rpm), 2) * (VVT_FloatRate * Constants.RISE_FACTOR) + 1.0
+	else:
+		var f := rpm - RiseRPM
+		f = max(f, 0.0)
+		torque = (rpm * BuildUpTorque + OffsetTorque + pow(f, 2) * (TorqueRise * Constants.RISE_FACTOR)) * throttle
+		torque += ( (turbopsi * TurboAmount) * (EngineCompressionRatio * 0.609) )
+		var j := rpm - DeclineRPM
+		j = max(j, 0.0)
+		torque /= (j * (j * DeclineSharpness + (1.0 - DeclineSharpness) ) ) * (DeclineRate * Constants.RISE_FACTOR) + 1.0
+		torque /= pow(abs(rpm), 2) * (FloatRate * Constants.RISE_FACTOR) + 1.0
+	
+	rpmforce = (rpm / (pow(abs(rpm), 2) / (EngineFriction / clock_mult) + 1.0)) * 1.0
+	if rpm < DeadRPM:
+		stop_engine()
+		torque = 0.0
+		rpmforce /= 5.0
+		stall_resistance = 1.0 - rpm / DeadRPM
+	else:
+		stall_resistance = 0.0
+	
+	rpmforce += (rpm * (EngineDrag / clock_mult) ) * 1.0
+	rpmforce -= (torque / clock_mult) * 1.0
+	rpm -= rpmforce * RevSpeed
+	
+	engine_torque = torque
 
 
 func apply_abs():
@@ -783,9 +849,9 @@ func drivetrain():
 		what = rpm
 	
 	if gear < 0.0:
-		dist = maxd.wv + what/ratio
+		dist = maxd.wv + what / ratio
 	else:
-		dist = maxd.wv - what/ratio
+		dist = maxd.wv - what / ratio
 	
 	dist *= pow(clutchpedal, 2)
 	
@@ -900,18 +966,18 @@ func _physics_process(delta):
 	if len(steering_angles) > 0:
 		max_steering_angle = 0.0
 		for i in steering_angles:
-			max_steering_angle = maxf(max_steering_angle,i)
+			max_steering_angle = maxf(max_steering_angle, i)
 			
-		assistance_factor = 90.0/max_steering_angle
+		assistance_factor = 90.0 / max_steering_angle
 	steering_angles = []
 	
 	velocity = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
 	rvelocity = global_transform.basis.orthonormalized().transposed() * (angular_velocity)
 	
-	mass = Weight/10.0
+	mass = Weight / 10.0 # Shouldn't this be the gravity?
 	aero()
 	
-	gforce = (linear_velocity - pastvelocity)*((Constants.UNIT_TO_METER/Physics.EARTH_GRAVITY)/delta)
+	gforce = (linear_velocity - pastvelocity) * ((Constants.UNIT_TO_METER / Physics.EARTH_GRAVITY) / delta)
 	pastvelocity = linear_velocity
 	
 	gforce = global_transform.basis.orthonormalized().transposed() * gforce
@@ -926,12 +992,11 @@ func _physics_process(delta):
 	
 	var steeroutput := steer
 	
-	var uhh := pow(max_steering_angle/90.0, 2)
-	uhh *= 0.5
-	steeroutput *= abs(steer)*(uhh) +(1.0-uhh)
+	var uhh := pow(max_steering_angle / 90.0, 2) * 0.5
+	steeroutput *= abs(steer) * (uhh) + (1.0 - uhh)
 	
-	if abs(steeroutput)>0.0:
-		steering_geometry = [-Steer_Radius/steeroutput,AckermannPoint]
+	if abs(steeroutput) > 0.0:
+		steering_geometry = [-Steer_Radius / steeroutput, AckermannPoint]
 	
 	
 	if abs: apply_abs()
@@ -948,67 +1013,8 @@ func _physics_process(delta):
 	
 	apply_redline_limiter()
 	apply_idle_throttle_compensation()
-	
+	simulate_turbo()
 	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
-	var thr := 0.0
-	
-	if TurboEnabled:
-		thr = (throttle-SpoolThreshold)/(1-SpoolThreshold)
-			
-		if boosting>thr:
-			boosting = thr
-		else:
-			boosting -= (boosting - thr)*TurboEfficiency
-		
-		turbopsi += (boosting*rpm)/((TurboSize/Compressor)*60.9)
-		
-		turbopsi -= turbopsi*BlowoffRate
-		turbopsi = clamp(turbopsi, -TurboVacuum, MaxPSI)
-	elif SuperchargerEnabled:
-		scrpm = rpm*SCRPMInfluence
-		turbopsi = (scrpm/10000.0)*BlowRate -SCThreshold
-		turbopsi = clamp(turbopsi, 0.0, MaxPSI)
-	else:
-		turbopsi = 0.0
-	
-	var torque := 0.0
-	
-	if !is_ignition_on:
-		throttle = 0.0
-		turbopsi = 0.0
-	elif is_vvt_active():
-		var f := rpm-VVT_RiseRPM
-		f = max(f, 0.0)
-		torque = (rpm*VVT_BuildUpTorque +VVT_OffsetTorque + pow(f, 2) * (VVT_TorqueRise*Constants.RISE_FACTOR))*throttle
-		torque += ( (turbopsi*TurboAmount) * (EngineCompressionRatio*0.609) )
-		var j := rpm-VVT_DeclineRPM
-		j = max(j, 0.0)
-		torque /= (j*(j*VVT_DeclineSharpness +(1.0-VVT_DeclineSharpness)))*(VVT_DeclineRate*Constants.RISE_FACTOR) +1.0
-		torque /= pow(abs(rpm), 2)*(VVT_FloatRate*Constants.RISE_FACTOR) +1.0
-	else:
-		var f := rpm-RiseRPM
-		f = max(f, 0.0)
-		torque = (rpm*BuildUpTorque +OffsetTorque + pow(f, 2) * (TorqueRise*Constants.RISE_FACTOR))*throttle
-		torque += ( (turbopsi*TurboAmount) * (EngineCompressionRatio*0.609) )
-		var j := rpm-DeclineRPM
-		j = max(j, 0.0)
-		torque /= (j*(j*DeclineSharpness +(1.0-DeclineSharpness)))*(DeclineRate*Constants.RISE_FACTOR) +1.0
-		torque /= pow(abs(rpm), 2)*(FloatRate*Constants.RISE_FACTOR) +1.0
-	
-	rpmforce = (rpm/(pow(abs(rpm), 2)/(EngineFriction/clock_mult) +1.0))*1.0
-	if rpm < DeadRPM:
-		stop_engine()
-		torque = 0.0
-		rpmforce /= 5.0
-		stall_resistance = 1.0 - rpm / DeadRPM
-	else:
-		stall_resistance = 0.0
-	
-	rpmforce += (rpm * (EngineDrag / clock_mult) ) * 1.0
-	rpmforce -= (torque / clock_mult) * 1.0
-	rpm -= rpmforce * RevSpeed
-	
-	engine_torque = torque
-	
+	simulate_engine()
 	drivetrain()
 #endregion internal
