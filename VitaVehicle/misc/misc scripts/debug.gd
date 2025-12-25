@@ -52,13 +52,13 @@ func _physics_process(_delta):
 
 
 func _process(delta):
-	if delta>0:
+	if delta > 0:
 		get_node("container/fps").text = "fps: " + str(Engine.get_frames_per_second())
 		if car:
-			$sw.rotation_degrees = car.steer * 380.0
-			$sw_desired.rotation_degrees = car.steer2 * 380.0
+			$sw.rotation_degrees = car.final_steer * 380.0
+			$sw_desired.rotation_degrees = car.steer_target * 380.0
 			if car.Debug_Mode:
-				get_node("container/weight_dist").text = "weight distribution: F%f/R%f" % [car.weight_dist[0]*100,car.weight_dist[1]*100]
+				get_node("container/weight_dist").text = "weight distribution: F%f/R%f" % [car.weight_dist[0] * 100,car.weight_dist[1] * 100]
 			else:
 				get_node("container/weight_dist").text = "[ enable Debug_Mode or press F to\nfetch weight distribution ]"
 	

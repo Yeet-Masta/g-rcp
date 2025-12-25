@@ -22,11 +22,11 @@ func stop():
 		i.stop()
 
 func most_skidding(array):
-	var val := -10000000000000000000000000000000000.0
+	var val := -INF
 	var obj
 	for i in array:
-		val = max(val, abs(i.skvol))
-		if val == abs(i.skvol):
+		val = max(val, absf(i.skvol))
+		if val == absf(i.skvol):
 			obj = i
 	return obj
 #endregion methods

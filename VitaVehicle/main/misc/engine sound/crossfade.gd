@@ -60,7 +60,7 @@ func _physics_process(_delta):
 	
 	for i in get_children():
 		var maxvol := float(i.get_child(0).name)/100.0
-		var maxpitch := float(i.name)/100000.0 # TODO: Fix this to a proper attribute and not a random name.
+		var maxpitch := float(i.name)/100000.0 # TODO
 		
 		var index := float(i.get_index())
 		var dist := pow(absf(index - fade), 2)

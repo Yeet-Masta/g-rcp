@@ -171,48 +171,48 @@ func _physics_process(delta):
 	var global_translation := global_position
 	var last_translation := position
 	
-	if Steer and absf(car.steer)>0:
+	if Steer and absf(car.final_steer) > 0:
 		var lasttransform := global_transform
 		
-		look_at_from_position(translation,Vector3(car.steering_geometry[0],0.0,car.steering_geometry[1]))
+		look_at_from_position(translation,Vector3(car.steering_geometry[0], 0.0, car.steering_geometry[1]))
 		
 		# just making this use origin fixed it. lol
 		global_transform.origin = lasttransform.origin
 		
-		if car.steer > 0.0 :
-			rotate_object_local(Vector3(0,1,0),-deg_to_rad(90.0))
+		if car.final_steer > 0.0:
+			rotate_object_local(Vector3(0,1,0), -deg_to_rad(90.0))
 		else:
-			rotate_object_local(Vector3(0,1,0),deg_to_rad(90.0))
+			rotate_object_local(Vector3(0,1,0), deg_to_rad(90.0))
 		
 		var roter := global_rotation.y
 		
 		look_at_from_position(translation,Vector3(car.Steer_Radius,0,car.steering_geometry[1]),Vector3(0,1,0))
 		# this one too
 		global_transform.origin = lasttransform.origin
-		rotate_object_local(Vector3(0,1,0),deg_to_rad(90.0))
+		rotate_object_local(Vector3(0,1,0), deg_to_rad(90.0))
 		var roter_estimateed := rad_to_deg(global_rotation.y)
 		
 		get_parent().steering_angles.append(roter_estimateed)
 		
-		rotation_degrees = Vector3(0,0,0)
-		rotation = Vector3(0,0,0)
+		rotation_degrees = Vector3(0, 0, 0)
+		rotation = Vector3(0, 0, 0)
 		
 		rotation.y = roter
 		
-		rotation_degrees += Vector3(0,-Toe*sign(translation.x),0)
+		rotation_degrees += Vector3(0, -Toe * sign(translation.x), 0)
 	else:
-		rotation_degrees = Vector3(0,-Toe*sign(translation.x),0)
+		rotation_degrees = Vector3(0, -Toe * sign(translation.x), 0)
 	
 	translation = last_translation
 	
-	c_camber = Camber +Caster*rotation.y*sign(translation.x)
+	c_camber = Camber + Caster * rotation.y * sign(translation.x)
 	
-	directional_force = Vector3(0,0,0)
+	directional_force = Vector3(0, 0, 0)
 	
-	$velocity.position = Vector3(0,0,0)
+	$velocity.position = Vector3(0, 0, 0)
 	
 	
-	w_size = ((abs(int(TyreSettings["Width (mm)"]))*((abs(int(TyreSettings["Aspect Ratio"]))*2.0)/100.0) + abs(int(TyreSettings["Rim Size (in)"]))*25.4)*0.003269)/2.0 # TODO: Use the constant and adjust for the fact this is in mm.
+	w_size = ((abs(int(TyreSettings["Width (mm)"])) * ((abs(int(TyreSettings["Aspect Ratio"])) * 2.0) / 100.0) + abs(int(TyreSettings["Rim Size (in)"])) * 25.4) * 0.003269) / 2.0 # TODO: Use the constant and adjust for the fact this is in mm.
 	w_weight = pow(w_size, 2.0)
 	
 	w_size_read = w_size
@@ -229,8 +229,8 @@ func _physics_process(delta):
 	velocity = -$velocity/step.position / delta
 	velocity2 = -$velocity2/step.position / delta
 	
-	$velocity.rotation = Vector3(0,0,0)
-	$velocity2.rotation = Vector3(0,0,0)
+	$velocity.rotation = Vector3(0, 0, 0)
+	$velocity2.rotation = Vector3(0, 0, 0)
 	
 	# VARS
 	var elasticity := S_Stiffness
@@ -243,9 +243,9 @@ func _physics_process(delta):
 	var s := rolldist
 	s = clamp(s, -1.0, 1.0)
 	
-	elasticity *= swayelast*s +1.0
-	damping *= swaystiff*s +1.0
-	damping_rebound *= swaystiff*s +1.0
+	elasticity *= swayelast * s + 1.0
+	damping *= swaystiff * s + 1.0
+	damping_rebound *= swaystiff * s + 1.0
 	
 	elasticity = max(elasticity, 0.0)
 	damping = max(damping, 0.0)
@@ -253,24 +253,24 @@ func _physics_process(delta):
 	
 	sway()
 	
-	var tyre_maxgrip := TyreSettings["GripInfluence"]/CompoundSettings["TractionFactor"]
+	var tyre_maxgrip := TyreSettings["GripInfluence"] / CompoundSettings["TractionFactor"]
 	
-	var tyre_stiffness2 := absf(int(TyreSettings["Width (mm)"]))/(absf(int(TyreSettings["Aspect Ratio"]))/1.5)
+	var tyre_stiffness2 := absf(int(TyreSettings["Width (mm)"])) / (absf(int(TyreSettings["Aspect Ratio"])) / 1.5)
 	
-	var deviding := (Vector2(velocity.x,velocity.z).length()/50.0 +0.5)*CompoundSettings["DeformFactor"]
+	var deviding := (Vector2(velocity.x,velocity.z).length() / 50.0 +0.5) * CompoundSettings["DeformFactor"]
 	
-	deviding /= ground_stiffness +fore_stiffness*CompoundSettings["ForeStiffness"]
+	deviding /= ground_stiffness +fore_stiffness * CompoundSettings["ForeStiffness"]
 	deviding = max(deviding, 1.0)
 	tyre_stiffness2 /= deviding
 	
 	
-	var tyre_stiffness := (tyre_stiffness2*((c_tp/30.0)*0.1 +0.9) )*CompoundSettings["Stiffness"] +effectiveness
+	var tyre_stiffness := (tyre_stiffness2 * ((c_tp / 30.0) * 0.1 +0.9) ) * CompoundSettings["Stiffness"] +effectiveness
 	tyre_stiffness = max(tyre_stiffness, 1.0)
 	
 	cache_tyrestiffness = tyre_stiffness
 		
-	absolute_wv = output_wv+(offset*snap) -compensate*1.15296
-	absolute_wv_brake = output_wv+((offset/w_size_read)*snap) -compensate*1.15296
+	absolute_wv = output_wv+(offset * snap) -compensate * 1.15296
+	absolute_wv_brake = output_wv+((offset / w_size_read) * snap) -compensate * 1.15296
 	absolute_wv_diff = output_wv
 	
 	wheelpower = 0.0
