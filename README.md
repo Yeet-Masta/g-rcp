@@ -26,6 +26,9 @@ More help can be found in the VitaVehicle Interface once you've opened the proje
 This is tomsterBG's copy of VitaVehicle. I am not the best when it comes to not abandoning projects, but i'll try :)
 I really love this game because it runs well on my laptop and feels good. Maybe with some extra effort and QOL it'll become a dream game for potato computers, who knows?
 
+## Private work
+This project is not abandoned, but i have continued working on it privately. Also the `dev` branch is much more forward than `main`.
+
 # Current TODO
 - [ ] Simple refactoring of code for readability, flexibility, simplicity and ease of use.
 - [ ] Simple QOL improvements to controls.
