@@ -15,7 +15,7 @@ extends RayCast3D
 	"Width (mm)": 185.0,
 	"Aspect Ratio": 60.0,
 	"Rim Size (in)": 14.0
-	}
+}
 @export var TyrePressure := 30.0
 @export var Camber := 0.0
 @export var Caster := 0.0
@@ -30,8 +30,8 @@ extends RayCast3D
 	"ForeStiffness": 0.0,
 	"GroundDragAffection": 1.0,
 	"BuildupAffection": 1.0,
-	"CoolRate": 0.000075}
-
+	"CoolRate": 0.000075
+}
 @export var S_Stiffness := 47.0
 @export var S_Damping := 3.5
 @export var S_ReboundDamping := 3.5
@@ -87,8 +87,8 @@ var rollvol := 0.0
 var sl := 0.0
 var skvol := 0.0 # Amount of skidding
 var skvol_d := 0.0
-var velocity := Vector3(0,0,0)
-var velocity2 := Vector3(0,0,0)
+var velocity := Vector3(0, 0, 0)
+var velocity2 := Vector3(0, 0, 0)
 var compress := 0.0
 var compensate := 0.0
 var axle_position := 0.0
@@ -109,10 +109,20 @@ var fore_stiffness := 0.0
 var drag := 0.0
 var ground_builduprate := 0.0
 var ground_dirt := false
-var hitposition := Vector3(0,0,0)
+var hitposition := Vector3(0, 0, 0)
 
 var cache_tyrestiffness := 0.0
 var cache_friction_action := 0.0
+
+var directional_force := Vector3(0, 0, 0)
+var slip_perc := Vector2(0, 0)
+var slip_perc2 := 0.0
+var slip_percpre := 0.0
+
+var velocity_last := Vector3(0, 0, 0)
+var velocity2_last := Vector3(0, 0, 0)
+
+
 
 func power():
 	if not c_p == 0:
@@ -133,6 +143,7 @@ func power():
 				wheelpower -= (((dist2/car.ds_weight)/(car.dsweightrun/2.5))*c_p)/w_weight
 			car.resistance += (((dist_cache*(10.0))/car.dsweightrun)*c_p)
 
+
 func diffs():
 	if car.locked>0.0:
 		if not Differed_Wheel == "":
@@ -147,23 +158,17 @@ func diffs():
 			if distanced2>0.0:
 				wheelpower += -((absolute_wv_diff - d_w.absolute_wv_diff)/distanced2)
 
+
 func sway():
 	if not SwayBarConnection == "":
 		var linkedwheel := car.get_node(SwayBarConnection)
 		rolldist = rd - linkedwheel.rd
 
 
-var directional_force := Vector3(0,0,0)
-var slip_perc := Vector2(0,0)
-var slip_perc2 := 0.0
-var slip_percpre := 0.0
-
-var velocity_last := Vector3(0,0,0)
-var velocity2_last := Vector3(0,0,0)
-
 #region internal
 func _ready():
 	c_tp = TyrePressure
+
 
 func _physics_process(delta):
 	var translation := position
@@ -174,7 +179,7 @@ func _physics_process(delta):
 	if Steer and absf(car.final_steer) > 0:
 		var lasttransform := global_transform
 		
-		look_at_from_position(translation,Vector3(car.steering_geometry[0], 0.0, car.steering_geometry[1]))
+		look_at_from_position(translation, Vector3(car.steering_geometry[0], 0.0, car.steering_geometry[1]))
 		
 		# just making this use origin fixed it. lol
 		global_transform.origin = lasttransform.origin
@@ -186,7 +191,7 @@ func _physics_process(delta):
 		
 		var roter := global_rotation.y
 		
-		look_at_from_position(translation,Vector3(car.Steer_Radius,0,car.steering_geometry[1]),Vector3(0,1,0))
+		look_at_from_position(translation, Vector3(car.Steer_Radius, 0, car.steering_geometry[1]), Vector3(0, 1, 0))
 		# this one too
 		global_transform.origin = lasttransform.origin
 		rotate_object_local(Vector3(0,1,0), deg_to_rad(90.0))
@@ -299,30 +304,31 @@ func _physics_process(delta):
 	
 	# WHEEL
 	if is_colliding():
-		if "drag" in get_collider():
-			drag = get_collider().get("drag")*CompoundSettings["GroundDragAffection"]*CompoundSettings["GroundDragAffection"]
-		if "ground_friction" in get_collider():
-			ground_friction = get_collider().get("ground_friction")
-		if "fore_friction" in get_collider():
-			fore_friction = get_collider().get("fore_friction")
-		if "ground_stiffness" in get_collider():
-			ground_stiffness = get_collider().get("ground_stiffness")
-		if "fore_stiffness" in get_collider():
-			fore_stiffness = get_collider().get("fore_stiffness")
-		if "ground_builduprate" in get_collider():
-			ground_builduprate = get_collider().get("ground_builduprate")*CompoundSettings["BuildupAffection"]
-		if "ground_dirt" in get_collider():
-			ground_dirt = get_collider().get("ground_dirt")
-		if "ground_bump_frequency" in get_collider():
-			ground_bump_frequency = get_collider().get("ground_bump_frequency")
-		if "ground_bump_frequency_random" in get_collider():
-			ground_bump_frequency_random = get_collider().get("ground_bump_frequency_random") +1.0
-		if "ground_bump_height" in get_collider():
-			ground_bump_height = get_collider().get("ground_bump_height")
-		if "wear_rate" in get_collider():
-			wear_rate = get_collider().get("wear_rate")
-		if "heat_rate" in get_collider():
-			heat_rate = get_collider().get("heat_rate")
+		var collider := get_collider()
+		if "drag" in collider:
+			drag = collider.get("drag") * CompoundSettings["GroundDragAffection"] * CompoundSettings["GroundDragAffection"]
+		if "ground_friction" in collider:
+			ground_friction = collider.get("ground_friction")
+		if "fore_friction" in collider:
+			fore_friction = collider.get("fore_friction")
+		if "ground_stiffness" in collider:
+			ground_stiffness = collider.get("ground_stiffness")
+		if "fore_stiffness" in collider:
+			fore_stiffness = collider.get("fore_stiffness")
+		if "ground_builduprate" in collider:
+			ground_builduprate = collider.get("ground_builduprate")*CompoundSettings["BuildupAffection"]
+		if "ground_dirt" in collider:
+			ground_dirt = collider.get("ground_dirt")
+		if "ground_bump_frequency" in collider:
+			ground_bump_frequency = collider.get("ground_bump_frequency")
+		if "ground_bump_frequency_random" in collider:
+			ground_bump_frequency_random = collider.get("ground_bump_frequency_random") +1.0
+		if "ground_bump_height" in collider:
+			ground_bump_height = collider.get("ground_bump_height")
+		if "wear_rate" in collider:
+			wear_rate = collider.get("wear_rate")
+		if "heat_rate" in collider:
+			heat_rate = collider.get("heat_rate")
 		if ground_bump_up:
 			ground_bump -= randf_range(ground_bump_frequency/ground_bump_frequency_random,ground_bump_frequency*ground_bump_frequency_random)*(velocity.length()/1000.0)
 			if ground_bump<0.0:
@@ -419,9 +425,9 @@ func _physics_process(delta):
 			
 			sl = slip_sk-tyre_stiffness
 			sl = max(sl, 0.0)
-			skvol = sl/4.0
+			skvol = sl / 4.0
 			
-			skvol_d = slip*25.0
+			skvol_d = slip * 25.0
 	else:
 		wv += wheelpower
 		stress = 0.0
@@ -432,7 +438,7 @@ func _physics_process(delta):
 		compress = 0.0
 		compensate = 0.0
 	
-	slip_perc = Vector2(0,0)
+	slip_perc = Vector2(0, 0)
 	slip_perc2 = 0.0
 	
 	wv_diff = wv

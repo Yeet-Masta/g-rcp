@@ -254,6 +254,87 @@ var debug_lamp := false:
 
 
 
+#region internal
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_debug_mode"):
+		Debug_Mode = !Debug_Mode
+	if event.is_action_pressed("ignition"):
+		if is_ignition_on: stop_engine()
+		else: start_engine()
+
+
+func _ready():
+	#bullet_fix()
+	start_engine()
+	for i in Powered_Wheels:
+		var wh := get_node(i)
+		c_pws.append(wh)
+
+
+func _process(_delta):
+	if Debug_Mode: draw_debug()
+
+
+func _physics_process(delta):
+	if len(steering_angles) > 0:
+		max_steering_angle = 0.0
+		for i in steering_angles:
+			max_steering_angle = maxf(max_steering_angle, i)
+			
+		assistance_factor = 90.0 / max_steering_angle
+	steering_angles = []
+	
+	velocity = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
+	rvelocity = global_transform.basis.orthonormalized().transposed() * (angular_velocity)
+	
+	mass = Weight / 10.0 # Shouldn't this be the gravity?
+	aero()
+	
+	gforce = (linear_velocity - pastvelocity) * ((Constants.UNIT_TO_METER / Physics.EARTH_GRAVITY) / delta)
+	pastvelocity = linear_velocity
+	
+	gforce = global_transform.basis.orthonormalized().transposed() * gforce
+	
+	controls()
+	
+	ratio = 10.0
+	
+	shift_assist_delay -= 1
+	
+	transmission()
+	
+	var steeroutput := final_steer
+	
+	## Reduces steering sensitivity as you approach max angle.
+	var steer_reduction := pow(max_steering_angle / 90.0, 2) * 0.5
+	steeroutput *= abs(final_steer) * (steer_reduction) + (1.0 - steer_reduction)
+	
+	if abs(steeroutput) > 0.0:
+		steering_geometry = [-Steer_Radius / steeroutput, AckermannPoint]
+	
+	
+	if abs: apply_abs()
+	
+	brakeline = brakepedal * brake_allowed
+	
+	brakeline = max(brakeline, 0.0)
+	
+	
+	if !is_redline_limiter_on():
+		throttle -= (throttle - (gaspedal / (tcsweight * clutchpedal + 1.0) ) ) * (ThrottleResponse / clock_mult)
+	else:
+		throttle -= throttle * (ThrottleResponse / clock_mult)
+	
+	apply_redline_limiter()
+	apply_idle_throttle_compensation()
+	simulate_turbo()
+	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
+	simulate_engine()
+	drivetrain()
+	simulate_fuel()
+#endregion internal
+
+
 func toggle_ignition():
 	if is_ignition_on:
 		stop_engine()
@@ -275,7 +356,7 @@ func is_in_gear():
 
 
 func is_throttle_open():
-	return throttle != 0.0
+	return throttle > 0.0
 
 
 func apply_redline_limiter():
@@ -434,6 +515,7 @@ func control_car():
 	else:
 		handbrakepull -= ConfigManager.data.controls.off_handbrake_rate / clock_mult
 	
+	## Sideways movement.
 	var siding := absf(velocity.x)
 	
 	if velocity.x > 0 and steer_target > 0 or velocity.x < 0 and steer_target < 0:
@@ -483,9 +565,9 @@ func control_car():
 				steer_target = 0.0
 	
 	if assistance_factor > 0.0:
-		var maxsteer := 1.0/(going*(ConfigManager.data.controls.steer_amount_decay/assistance_factor) +1.0)
+		var maxsteer := 1.0 / (going * (ConfigManager.data.controls.steer_amount_decay / assistance_factor) + 1.0)
 		
-		var assist_commence := linear_velocity.length()/10.0
+		var assist_commence := linear_velocity.length() / 10.0
 		assist_commence = min(assist_commence, 1.0)
 		
 		final_steer = (steer_target * maxsteer) - (velocity.normalized().x * assist_commence) * (ConfigManager.data.controls.steering_assistance * assistance_factor) + rvelocity.y * (ConfigManager.data.controls.steering_assistance_angular * assistance_factor)
@@ -495,11 +577,11 @@ func control_car():
 
 func simulate_manual():
 	if clutch and not clutchin:
-		clutchpedalreal -= ConfigManager.data.controls.off_clutch_rate/clock_mult
+		clutchpedalreal -= ConfigManager.data.controls.off_clutch_rate / clock_mult
 	else:
-		clutchpedalreal += ConfigManager.data.controls.on_clutch_rate/clock_mult
+		clutchpedalreal += ConfigManager.data.controls.on_clutch_rate / clock_mult
 	
-	clutchpedal = 1.0-clutchpedalreal
+	clutchpedal = 1.0 - clutchpedalreal
 	
 	if gear > 0:
 		ratio = GearRatios[gear-1] * final_drive * ratio_multi
@@ -509,8 +591,8 @@ func simulate_manual():
 	if ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
 		if input_upshift:
 			input_upshift = false
-			if gear<len(GearRatios):
-				if gearstress<GearGap:
+			if gear < len(GearRatios):
+				if gearstress < GearGap:
 					actualgear += 1
 		if input_downshift:
 			input_downshift = false
@@ -795,10 +877,11 @@ func controls():
 
 
 func transmission():
-	clutch = Input.is_action_pressed("clutch") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("clutch_mouse") and ConfigManager.data.controls.mouse_steering
-	if not ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
-		clutch = Input.is_action_pressed("handbrake") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("handbrake_mouse") and ConfigManager.data.controls.mouse_steering
-	clutch = !clutch
+	if Controlled:
+		clutch = Input.is_action_pressed("clutch") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("clutch_mouse") and ConfigManager.data.controls.mouse_steering
+		if not ConfigManager.data.controls.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
+			clutch = Input.is_action_pressed("handbrake") and not ConfigManager.data.controls.mouse_steering or Input.is_action_pressed("handbrake_mouse") and ConfigManager.data.controls.mouse_steering
+		clutch = !clutch
 	
 	if transmission_type == TransmissionType.FULLY_MANUAL:
 		simulate_manual()
@@ -976,83 +1059,3 @@ func stop_engine():
 
 func is_above_idle_rpm():
 	return rpm > IdleRPM
-
-
-#region internal
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_debug_mode"):
-		Debug_Mode = !Debug_Mode
-	if event.is_action_pressed("ignition"):
-		if is_ignition_on: stop_engine()
-		else: start_engine()
-
-
-func _ready():
-	#bullet_fix()
-	start_engine()
-	for i in Powered_Wheels:
-		var wh := get_node(i)
-		c_pws.append(wh)
-
-
-func _process(_delta):
-	if Debug_Mode: draw_debug()
-
-func _physics_process(delta):
-	if len(steering_angles) > 0:
-		max_steering_angle = 0.0
-		for i in steering_angles:
-			max_steering_angle = maxf(max_steering_angle, i)
-			
-		assistance_factor = 90.0 / max_steering_angle
-	steering_angles = []
-	
-	velocity = global_transform.basis.orthonormalized().transposed() * (linear_velocity)
-	rvelocity = global_transform.basis.orthonormalized().transposed() * (angular_velocity)
-	
-	mass = Weight / 10.0 # Shouldn't this be the gravity?
-	aero()
-	
-	gforce = (linear_velocity - pastvelocity) * ((Constants.UNIT_TO_METER / Physics.EARTH_GRAVITY) / delta)
-	pastvelocity = linear_velocity
-	
-	gforce = global_transform.basis.orthonormalized().transposed() * gforce
-	
-	controls()
-	
-	ratio = 10.0
-	
-	shift_assist_delay -= 1
-	
-	transmission()
-	
-	var steeroutput := final_steer
-	
-	## Reduces steering sensitivity as you approach max angle.
-	var steer_reduction := pow(max_steering_angle / 90.0, 2) * 0.5
-	steeroutput *= abs(final_steer) * (steer_reduction) + (1.0 - steer_reduction)
-	
-	if abs(steeroutput) > 0.0:
-		steering_geometry = [-Steer_Radius / steeroutput, AckermannPoint]
-	
-	
-	if abs: apply_abs()
-	
-	brakeline = brakepedal * brake_allowed
-	
-	brakeline = max(brakeline, 0.0)
-	
-	
-	if !is_redline_limiter_on():
-		throttle -= (throttle - (gaspedal / (tcsweight * clutchpedal + 1.0) ) ) * (ThrottleResponse / clock_mult)
-	else:
-		throttle -= throttle * (ThrottleResponse / clock_mult)
-	
-	apply_redline_limiter()
-	apply_idle_throttle_compensation()
-	simulate_turbo()
-	#var stab := 300.0 # What is this? Remove it? Stab for stability? Some sort of stability strength level?
-	simulate_engine()
-	drivetrain()
-	simulate_fuel()
-#endregion internal
