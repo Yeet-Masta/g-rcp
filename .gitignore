@@ -1,3 +1,5 @@
 VitaVehicle/.godot/
 
 VitaVehicle/export/
+*.import
+*.uid
