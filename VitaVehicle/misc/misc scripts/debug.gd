@@ -20,24 +20,45 @@ func toggle_forces():
 
 
 func reload():
-	car = get_tree().get_first_node_in_group("car")
+	# Always clear stale wheel refs first, even if we're about to bail.
+	$vgs.clear()
+	
+	var active := CarManager.get_active()
+	if active != null:
+		car = active
+	else:
+		car = get_tree().get_first_node_in_group("car")
 	if !car: return
 	
-	$vgs.clear()
 	for d in car.get_children():
 		if "TyreSettings" in d:
-			$vgs.append_wheel(d.position,d.TyreSettings,d)
+			$vgs.append_wheel(d.position, d.TyreSettings, d)
 	
 	for i in $power_graph.get_script().get_script_property_list():
 		if i["name"] != "peakhp" and i["name"] != "tr" and i["name"] != "hp" and i["name"] != "skip" and i["name"] != "scale":
 			if i["name"] in car:
 				$power_graph.set(i["name"], car.get(i["name"]))
+	
+	$power_graph._ready()
+	
+	if has_node("tacho"):
+		$tacho.Redline = int(float(car.RPMLimit / 1000.0)) * 1000
+		$tacho.RPM_Range = int(float(car.RPMLimit / 1000.0)) * 1000 + 2000
+		$tacho.Turbo_Visible = car.TurboEnabled
+		$tacho.Max_PSI = car.MaxPSI * car.TurboAmount
+		$tacho._ready()
 #endregion methods
 
 
 #region internal
 func _ready():
 	start_engine_button.pressed.connect(_on_start_engine_pressed)
+	# Listen for car cycling so all the UI follows the active car.
+	CarManager.active_car_changed.connect(_on_active_car_changed)
+	reload()
+
+
+func _on_active_car_changed(_new_car: Node) -> void:
 	reload()
 
 
@@ -74,6 +95,10 @@ func _process(delta):
 	$brake.bar_scale = car.brakepedal
 	$handbrake.bar_scale = car.handbrakepull
 	$clutch.bar_scale = car.clutchpedalreal
+	if car.fuel and car.fuel.max_fuel > 0.0:
+		$fuel.bar_scale = car.current_fuel / car.fuel.max_fuel
+	else:
+		$fuel.bar_scale = 0.0
 	
 	var car_speed := car.linear_velocity.length()
 	$tacho/speedk.text = "KMH: " + str(int(car_speed*Constants.UNIT_TO_KMH))

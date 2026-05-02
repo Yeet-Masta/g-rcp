@@ -70,8 +70,25 @@ func _ready():
 				d.color = Color(1,0,0)
 
 func _process(_delta):
+	# 1. Dynamically retrieve the currently active car
+	var active_car = CarManager.get_active()
+	
+	# 2. Check if the active car is valid before trying to read it
+	if is_instance_valid(active_car):
+		# Fetch the live engine data from the car instance
+		if "rpm" in active_car:
+			currentrpm = active_car.rpm
+		elif "EngineRPM" in active_car:
+			currentrpm = active_car.get("EngineRPM")
+			
+		if "turbopsi" in active_car:
+			currentpsi = active_car.turbopsi
+	else:
+		# If no car is found/active, smoothly drop to 0 instead of getting stuck
+		currentrpm = move_toward(currentrpm, 0.0, 50.0)
+		currentpsi = move_toward(currentpsi, 0.0, 0.5)
+
+	# Update needles
 	$tacho/needle.rotation_degrees = remap(abs(currentrpm), 0.0, RPM_Range, -120.0, 120.0)
-	
 	$turbo/needle.rotation_degrees = remap(currentpsi, 0.0, Max_PSI, -90.0, 90.0)
-	
 	$turbo/needle.rotation_degrees = max($turbo/needle.rotation_degrees, -90.0)

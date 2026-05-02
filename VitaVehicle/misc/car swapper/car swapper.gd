@@ -22,50 +22,87 @@ func load_and_cache(path):
 	loaded = literal_cache[path]
 	return loaded
 
-
 func swapcar(path: String):
 	visible = false
 	swap_car_button.visible = false
-	if canclick:
-		canclick = false
-		get_parent().get_node("vgs").clear()
-		
-		default_position = get_tree().get_first_node_in_group("car").global_position
-		
-		get_tree().get_first_node_in_group("car").queue_free()
-		
-		await get_tree().create_timer(1.0).timeout
-		
-		var d = load_and_cache(path + "/scene.tscn").instantiate()
-		
-		Helper.get_ancestor(self, 2).add_child(d)
-		
-		d.global_position = default_position + Vector3(0,5,0)
-		var car: Car = get_tree().get_first_node_in_group("car")
-		
-		get_parent().reload()
-		get_parent().get_node("controls manipulator").setcar()
-		
-		get_parent().get_node("power_graph").Generation_Range = float(int(float(car.RPMLimit / 1000.0)) * 1000 + 1000)
-		get_parent().get_node("power_graph").Draw_RPM = car.IdleRPM
-		
-		get_parent().get_node("power_graph")._ready()
-		
-		var peak = max(get_parent().get_node("power_graph").peaktq[0],get_parent().get_node("power_graph").peakhp[0])
-		
-		get_parent().get_node("power_graph").draw_scale = 1.0/peak
-		get_parent().get_node("power_graph")._ready()
-		
-		get_parent().get_node("tacho").Redline = int(float(car.RPMLimit / 1000.0)) * 1000
-		get_parent().get_node("tacho").RPM_Range = int(float(car.RPMLimit / 1000.0)) * 1000 + 2000
-		get_parent().get_node("tacho").Turbo_Visible = car.TurboEnabled
-		get_parent().get_node("tacho").Max_PSI = car.MaxPSI * car.TurboAmount
-		
-		get_parent().get_node("tacho")._ready()
-		
-		canclick = true
+	if not canclick:
+		return
+	
+	canclick = false
+	get_parent().get_node("vgs").clear()
+	
+	# 1. Get the current active car and remember where it is
+	var current_car: Node = CarManager.get_active()
+	if current_car == null:
+		current_car = get_tree().get_first_node_in_group("car")
+	
+	if current_car != null:
+		default_position = current_car.global_position
+		# Unregister BEFORE freeing so CarManager doesn't briefly
+		# fall back to it during the await.
+		CarManager.unregister(current_car)
+		current_car.queue_free()
+	
+	# Allow Godot to completely remove the old car from memory
+	await get_tree().create_timer(1.0).timeout
+	
+	# 2. Instantiate and add the new car
+	var d = load_and_cache(path + "/scene.tscn").instantiate()
+	Helper.get_ancestor(self, 2).add_child(d)
+	d.global_position = default_position + Vector3(0, 5, 0)
+	
+	# 3. Make sure it's in the "car" group (other scripts look for it there)
+	if not d.is_in_group("car"):
+		d.add_to_group("car")
+	
+	# 4. Force start the engine and enable control IMMEDIATELY
+	if "Controlled" in d:
+		d.Controlled = true
+	if d.has_method("start_engine"):
+		d.start_engine()
+	
+	# 5. Register with CarManager and explicitly activate it.
+	# Car._ready() may have already registered it, but register() is idempotent.
+	CarManager.register(d)
+	CarManager.set_active(d)
+	
+	var car: Car = d
+	
+	# 6. Tell the rest of the UI to refresh against the new car.
+	# If your debug.gd is hooked to CarManager.active_car_changed,
+	# reload() will already have run by now — but calling it again is safe.
+	get_parent().reload()
+	
+	var manipulator = get_parent().get_node_or_null("controls manipulator")
+	if manipulator and manipulator.has_method("setcar"):
+		if "car" in manipulator:
+			manipulator.car = car
+		manipulator.setcar()
+	
+	# Power graph
+	var power_graph = get_parent().get_node("power_graph")
+	if "car" in power_graph:
+		power_graph.car = car
+	power_graph.Generation_Range = float(int(float(car.RPMLimit / 1000.0)) * 1000 + 1000)
+	power_graph.Draw_RPM = car.IdleRPM
+	power_graph._ready()
+	
+	var peak = max(power_graph.peaktq[0], power_graph.peakhp[0])
+	power_graph.draw_scale = 1.0 / peak
+	power_graph._ready()
+	
+	# Tacho
+	var tacho = get_parent().get_node("tacho")
+	if "car" in tacho:
+		tacho.car = car
+	tacho.Redline = int(float(car.RPMLimit / 1000.0)) * 1000
+	tacho.RPM_Range = int(float(car.RPMLimit / 1000.0)) * 1000 + 2000
+	tacho.Turbo_Visible = car.TurboEnabled
+	tacho.Max_PSI = car.MaxPSI * car.TurboAmount
+	tacho._ready()
+	
+	canclick = true
 	swap_car_button.visible = true
-
 
 func _ready():
 	swap_car_button.pressed.connect(_on_button_pressed)

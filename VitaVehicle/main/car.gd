@@ -265,10 +265,38 @@ func _input(event: InputEvent) -> void:
 
 func _ready():
 	#bullet_fix()
-	start_engine()
+	# Multi-car: register with the manager (if the autoload is configured) so
+	# the active car can be tracked and cycled. Resolved by-name to avoid a
+	# compile dependency on the autoload.
+	var car_manager := _find_car_manager()
+	if car_manager != null:
+		car_manager.call("register", self)
+	# Auto-start the engine for spark engines (you turn the key) and for
+	# diesels that are already cranking above their auto-ignition threshold.
+	# The fuel resource may be null in tests; default to spark behavior.
+	var should_start := true
+	if fuel != null and "ignition_type" in fuel:
+		# COMPRESSION = 1 in the IgnitionType enum on Fuel. Compare by value
+		# rather than the symbol so older Fuel resources (without the field)
+		# don't blow up.
+		if fuel.ignition_type == 1:  # IgnitionType.COMPRESSION
+			should_start = fuel.should_compression_autostart(rpm)
+	if should_start:
+		start_engine()
 	for i in Powered_Wheels:
 		var wh := get_node(i)
 		c_pws.append(wh)
+
+
+func _find_car_manager() -> Node:
+	# CarManager is set up as an autoload (Project Settings → Autoload).
+	# Resolved by-name so this script still loads if the autoload isn't wired.
+	if get_tree() == null:
+		return null
+	var root := get_tree().root
+	if root.has_node("CarManager"):
+		return root.get_node("CarManager")
+	return null
 
 
 func _process(_delta):
@@ -399,6 +427,13 @@ func simulate_turbo():
 
 func simulate_engine():
 	var torque := 0.0
+	
+	# Diesel: if the engine is off but the wheels are turning the crank fast
+	# enough (clutch engaged in gear, push-start, etc.), it self-ignites.
+	if !is_ignition_on and fuel != null and "ignition_type" in fuel:
+		if fuel.ignition_type == 1 and fuel.should_compression_autostart(rpm):
+			if current_fuel > 0.0:
+				start_engine()
 	
 	if !is_ignition_on:
 		throttle = 0.0
@@ -984,16 +1019,16 @@ func drivetrain():
 func simulate_fuel():
 	if !fuel: return
 	
-	var fuel_consumption := fuel.get_consumption(engine_torque, rpm)
-	
-	if !is_ignition_on:
-		fuel_consumption = 0.0
-	elif is_above_idle_rpm() and is_in_gear() and !is_throttle_open():
-		fuel_consumption = 0.0
+	# New BSFC-based API: pass the whole car so the model can read throttle,
+	# AFR target, boost, gear, clutch state etc. The fuel resource handles
+	# DFCO/ignition internally. Older Fuel resources without the new fields
+	# still work because their idle_consumption export is preserved.
+	var fuel_consumption: float = fuel.get_consumption(self)
 	
 	current_fuel -= fuel_consumption * get_physics_process_delta_time()
 	
 	if current_fuel <= 0.0:
+		current_fuel = 0.0
 		stop_engine()
 
 
@@ -1059,3 +1094,13 @@ func stop_engine():
 
 func is_above_idle_rpm():
 	return rpm > IdleRPM
+
+
+## Asks [code]CarManager[/code] (if present) to hand control to this car.
+## No-op when the autoload isn't configured.
+func make_active() -> void:
+	var cm := _find_car_manager()
+	if cm != null:
+		cm.call("set_active", self)
+	else:
+		Controlled = true

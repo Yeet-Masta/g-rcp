@@ -11,7 +11,7 @@ var car: Car
 
 
 func setcar():
-	car = get_tree().get_first_node_in_group("car")
+	car = CarManager.get_active()
 
 
 func _on_open_controls_pressed():

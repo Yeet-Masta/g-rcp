@@ -37,7 +37,7 @@ func append_wheel(pos, settings, node):
 	appended.append(w)
 
 func _physics_process(_delta):
-	
+	appended = appended.filter(func(w): return is_instance_valid(w) and is_instance_valid(w.node))
 	for i in appended:
 		i.position = size/2
 		i.position += ((i.pos*(64.0/vgs_scale))/9.806)

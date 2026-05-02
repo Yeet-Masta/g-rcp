@@ -1,25 +1,25 @@
-[gd_scene load_steps=19 format=3 uid="uid://b77dj0608nvq0"]
+[gd_scene format=3 uid="uid://b77dj0608nvq0"]
 
-[ext_resource type="Texture2D" uid="uid://b315i7ikjj32c" path="res://logo.png" id="2"]
-[ext_resource type="Script" uid="uid://d2kf38826fkpg" path="res://misc/misc scripts/debug.gd" id="3"]
-[ext_resource type="Script" uid="uid://c55dbe3spnjag" path="res://misc/scene swapper/scene swapper.gd" id="4"]
-[ext_resource type="Script" uid="uid://64w6gkk8hbbc" path="res://misc/graphics_config/graphics config.gd" id="5"]
-[ext_resource type="Script" uid="uid://bx78k1bed1fks" path="res://misc/misc scripts/show_info.gd" id="6"]
-[ext_resource type="Script" uid="uid://cjs1u3f47s7p1" path="res://misc/controls config/slider_variables.gd" id="7"]
-[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://assets/font/DroidSans.ttf" id="7_coiix"]
-[ext_resource type="Script" uid="uid://c2frarges64u4" path="res://misc/controls config/run.gd" id="8"]
-[ext_resource type="Script" uid="uid://ddgkkei8jbfuy" path="res://misc/controls config/check_variables.gd" id="9"]
-[ext_resource type="Script" uid="uid://bxaxnjc7r0jhv" path="res://misc/car swapper/car swapper.gd" id="10"]
-[ext_resource type="Texture2D" uid="uid://cr5l3r8wqkyn6" path="res://main/misc/textures/sw.png" id="11"]
-[ext_resource type="Texture2D" uid="uid://b7tkt12prqch8" path="res://main/misc/textures/sw_desired.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://ciey7qc8c0n88" path="res://logo.png" id="2"]
+[ext_resource type="Script" uid="uid://busfe5xshhkwy" path="res://misc/misc scripts/debug.gd" id="3"]
+[ext_resource type="Script" uid="uid://cxos0evytwscq" path="res://misc/scene swapper/scene swapper.gd" id="4"]
+[ext_resource type="Script" uid="uid://2rbs3kla6u76" path="res://misc/graphics_config/graphics config.gd" id="5"]
+[ext_resource type="Script" uid="uid://c8eewi8g53da7" path="res://misc/misc scripts/show_info.gd" id="6"]
+[ext_resource type="Script" uid="uid://85abxwydrspy" path="res://misc/controls config/slider_variables.gd" id="7"]
+[ext_resource type="FontFile" uid="uid://bbwusye2t6xja" path="res://assets/font/DroidSans.ttf" id="7_coiix"]
+[ext_resource type="Script" uid="uid://bfwhlr648wcnr" path="res://misc/controls config/run.gd" id="8"]
+[ext_resource type="Script" uid="uid://deynnaacj5mue" path="res://misc/controls config/check_variables.gd" id="9"]
+[ext_resource type="Script" uid="uid://cnbpwyxj1ptaj" path="res://misc/car swapper/car swapper.gd" id="10"]
+[ext_resource type="Texture2D" uid="uid://b336dbjpvlm1h" path="res://main/misc/textures/sw.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://c041k6yh2ifxw" path="res://main/misc/textures/sw_desired.png" id="12"]
 [ext_resource type="PackedScene" uid="uid://b1vo60v1pjs6w" path="res://misc/tachometre/tacho.tscn" id="13"]
 [ext_resource type="PackedScene" uid="uid://c1wabqtdv36jo" path="res://misc/vertical progress bar/bar.tscn" id="14"]
 [ext_resource type="PackedScene" uid="uid://cnjbclsh2lklc" path="res://misc/visual gravity system/vgs.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://2ojbutsqhnh4" path="res://misc/graph/display.tscn" id="16"]
-[ext_resource type="Texture2D" uid="uid://bj0jt850o26wy" path="res://misc/visual gravity system/circle.png" id="17_pcvgg"]
-[ext_resource type="Script" uid="uid://dv0yraoktk72c" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
+[ext_resource type="Texture2D" uid="uid://wgoed8dgkuc8" path="res://misc/visual gravity system/circle.png" id="17_pcvgg"]
+[ext_resource type="Script" uid="uid://csjbsmwfcx8di" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
 
-[node name="debug" type="Control" node_paths=PackedStringArray("start_engine_button")]
+[node name="debug" type="Control" unique_id=1409536949 node_paths=PackedStringArray("start_engine_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,7 +29,7 @@ grow_vertical = 2
 script = ExtResource("3")
 start_engine_button = NodePath("start engine")
 
-[node name="throttle" parent="." instance=ExtResource("14")]
+[node name="throttle" parent="." unique_id=315123642 instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.83900005
@@ -48,7 +48,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0.501961, 1, 1)
 
-[node name="brake" parent="." instance=ExtResource("14")]
+[node name="brake" parent="." unique_id=969851916 instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.83100003
@@ -67,7 +67,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 0, 0, 1)
 
-[node name="handbrake" parent="." instance=ExtResource("14")]
+[node name="handbrake" parent="." unique_id=284674775 instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.823
@@ -86,7 +86,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.5, 0, 1, 1)
 
-[node name="clutch" parent="." instance=ExtResource("14")]
+[node name="clutch" parent="." unique_id=1957309313 instance=ExtResource("14")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.81500006
@@ -104,7 +104,26 @@ anchors_preset = 15
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="container" type="VBoxContainer" parent="."]
+[node name="fuel" parent="." unique_id=543211491 instance=ExtResource("14")]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.98600006
+anchor_top = 0.84400004
+anchor_right = 0.99000007
+anchor_bottom = 0.95900005
+offset_left = -0.12011719
+offset_top = 0.47998047
+offset_right = 0.1998291
+offset_bottom = 0.27990723
+
+[node name="ColorRect" parent="fuel" index="0"]
+layout_mode = 1
+anchors_preset = 15
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0.64705884, 0, 1)
+
+[node name="container" type="VBoxContainer" parent="." unique_id=212268544]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -113,15 +132,15 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="fps" type="Label" parent="container"]
+[node name="fps" type="Label" parent="container" unique_id=1841598681]
 layout_mode = 2
 text = "debug"
 
-[node name="weight_dist" type="Label" parent="container"]
+[node name="weight_dist" type="Label" parent="container" unique_id=104226456]
 layout_mode = 2
 text = "debug"
 
-[node name="sw" type="TextureRect" parent="."]
+[node name="sw" type="TextureRect" parent="." unique_id=1851850054]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
 anchors_preset = -1
@@ -139,7 +158,7 @@ pivot_offset = Vector2(64, 64)
 texture = ExtResource("11")
 expand_mode = 1
 
-[node name="sw_desired" type="TextureRect" parent="."]
+[node name="sw_desired" type="TextureRect" parent="." unique_id=807164587]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
 anchors_preset = -1
@@ -157,7 +176,7 @@ pivot_offset = Vector2(64, 64)
 texture = ExtResource("12")
 expand_mode = 1
 
-[node name="power_graph" parent="." instance=ExtResource("16")]
+[node name="power_graph" parent="." unique_id=647803871 instance=ExtResource("16")]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.0166016
@@ -165,14 +184,14 @@ anchor_top = 0.19
 anchor_right = 0.203125
 anchor_bottom = 0.368333
 
-[node name="ColorRect" type="ColorRect" parent="power_graph"]
+[node name="ColorRect" type="ColorRect" parent="power_graph" unique_id=404544046]
 show_behind_parent = true
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.184314)
 
-[node name="rpm" type="ColorRect" parent="power_graph"]
+[node name="rpm" type="ColorRect" parent="power_graph" unique_id=488429842]
 show_behind_parent = true
 custom_minimum_size = Vector2(2, 107)
 layout_mode = 1
@@ -180,14 +199,14 @@ anchors_preset = 9
 anchor_bottom = 1.0
 grow_vertical = 2
 
-[node name="redline" type="ColorRect" parent="power_graph"]
+[node name="redline" type="ColorRect" parent="power_graph" unique_id=807979252]
 show_behind_parent = true
 custom_minimum_size = Vector2(2, 107)
 layout_mode = 0
 anchor_bottom = 1.0
 color = Color(1, 0, 0, 1)
 
-[node name="tacho" parent="." instance=ExtResource("13")]
+[node name="tacho" parent="." unique_id=1326092513 instance=ExtResource("13")]
 layout_mode = 1
 anchor_left = 0.846
 anchor_top = 0.76600003
@@ -199,7 +218,7 @@ offset_right = 0.3199463
 Turbo_Visible = true
 Max_PSI = 32.0
 
-[node name="abs" type="Label" parent="tacho"]
+[node name="abs" type="Label" parent="tacho" unique_id=397331375]
 self_modulate = Color(1, 1, 0, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -216,7 +235,7 @@ theme_override_fonts/font = ExtResource("7_coiix")
 theme_override_font_sizes/font_size = 20
 text = "ABS"
 
-[node name="tcs" type="Label" parent="tacho"]
+[node name="tcs" type="Label" parent="tacho" unique_id=1773895456]
 self_modulate = Color(1, 1, 0, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -232,7 +251,7 @@ theme_override_fonts/font = ExtResource("7_coiix")
 theme_override_font_sizes/font_size = 20
 text = "TCS"
 
-[node name="esp" type="Label" parent="tacho"]
+[node name="esp" type="Label" parent="tacho" unique_id=1165742827]
 self_modulate = Color(1, 1, 0, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -248,7 +267,7 @@ theme_override_fonts/font = ExtResource("7_coiix")
 theme_override_font_sizes/font_size = 20
 text = "ESP"
 
-[node name="rpm" type="Label" parent="tacho"]
+[node name="rpm" type="Label" parent="tacho" unique_id=557928532]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.191406
@@ -259,7 +278,7 @@ theme_override_font_sizes/font_size = 36
 text = "0"
 horizontal_alignment = 1
 
-[node name="speedm" type="Label" parent="tacho"]
+[node name="speedm" type="Label" parent="tacho" unique_id=1451680263]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.617188
@@ -270,7 +289,7 @@ theme_override_font_sizes/font_size = 20
 text = "MPH: 888"
 horizontal_alignment = 1
 
-[node name="speedk" type="Label" parent="tacho"]
+[node name="speedk" type="Label" parent="tacho" unique_id=467799775]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.719
@@ -284,7 +303,7 @@ theme_override_font_sizes/font_size = 20
 text = "KM/PH: 888"
 horizontal_alignment = 1
 
-[node name="gear" type="Label" parent="tacho"]
+[node name="gear" type="Label" parent="tacho" unique_id=674858226]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.176
@@ -296,7 +315,7 @@ theme_override_font_sizes/font_size = 36
 text = "N"
 horizontal_alignment = 1
 
-[node name="tq" type="Label" parent="."]
+[node name="tq" type="Label" parent="." unique_id=1163669835]
 layout_mode = 0
 anchor_left = 0.0126953
 anchor_top = 0.375
@@ -305,7 +324,7 @@ anchor_bottom = 0.416666
 theme_override_colors/font_color = Color(0.501961, 0.501961, 1, 1)
 text = "Torque: 000.0 UNIT @ 00000 RPM"
 
-[node name="hp" type="Label" parent="."]
+[node name="hp" type="Label" parent="." unique_id=2142214283]
 layout_mode = 0
 anchor_left = 0.0126953
 anchor_top = 0.411666
@@ -314,7 +333,7 @@ anchor_bottom = 0.453333
 theme_override_colors/font_color = Color(1, 0.501961, 0.501961, 1)
 text = "Power: 000.0 UNIT @ 00000 RPM"
 
-[node name="g" type="Label" parent="."]
+[node name="g" type="Label" parent="." unique_id=896628712]
 layout_mode = 0
 anchor_left = 0.0126953
 anchor_top = 0.658333
@@ -325,7 +344,7 @@ text = "GS
 7
 7"
 
-[node name="vgs" parent="." instance=ExtResource("15")]
+[node name="vgs" parent="." unique_id=1871062386 instance=ExtResource("15")]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
 anchors_preset = -1
@@ -338,7 +357,7 @@ offset_top = -0.4800415
 offset_right = -0.9200134
 offset_bottom = 0.0799561
 
-[node name="controls manipulator" type="Control" parent="." node_paths=PackedStringArray("open_controls_button", "settings_container")]
+[node name="controls manipulator" type="Control" parent="." unique_id=1340200399 node_paths=PackedStringArray("open_controls_button", "settings_container")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -349,41 +368,41 @@ script = ExtResource("8")
 open_controls_button = NodePath("../menus/open controls")
 settings_container = NodePath("scroll/container")
 
-[node name="background" type="ColorRect" parent="controls manipulator"]
+[node name="background" type="ColorRect" parent="controls manipulator" unique_id=553333698]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="scroll" type="ScrollContainer" parent="controls manipulator"]
+[node name="scroll" type="ScrollContainer" parent="controls manipulator" unique_id=2094593980]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="container" type="VBoxContainer" parent="controls manipulator/scroll"]
+[node name="container" type="VBoxContainer" parent="controls manipulator/scroll" unique_id=889113772]
 layout_mode = 2
 
-[node name="HSlider7" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider7" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1579907129]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 2.0
 script = ExtResource("7")
 var_name = "shift_assist_level"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider7"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider7" unique_id=1994401169]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Shift Assist Level"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider7"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider7" unique_id=698030137]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider16" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider16" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1928763053]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 min_value = 0.5
@@ -393,58 +412,58 @@ value = 1.0
 script = ExtResource("7")
 var_name = "steering_sensitivity"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider16"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider16" unique_id=247286806]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Steering Sensitivity"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider16"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider16" unique_id=1476231094]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="CheckBox" type="CheckBox" parent="controls manipulator/scroll/container"]
+[node name="CheckBox" type="CheckBox" parent="controls manipulator/scroll/container" unique_id=1352148645]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "mouse_steering"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox" unique_id=420962794]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Use Mouse Steering"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/CheckBox"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/CheckBox" unique_id=780473295]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="CheckBox2" type="CheckBox" parent="controls manipulator/scroll/container"]
+[node name="CheckBox2" type="CheckBox" parent="controls manipulator/scroll/container" unique_id=512021838]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "accelerometer_steering"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox2"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/CheckBox2" unique_id=250995124]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Use Accelerometre Steering"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/CheckBox2"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/CheckBox2" unique_id=1667344809]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="HSlider4" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider4" type="HSlider" parent="controls manipulator/scroll/container" unique_id=878854786]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 0.2
@@ -452,20 +471,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "steer_amount_decay"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider4"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider4" unique_id=899096171]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Steer Amount Decay"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider4"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider4" unique_id=1173842338]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider5" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider5" type="HSlider" parent="controls manipulator/scroll/container" unique_id=997173118]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 2.0
@@ -473,20 +492,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "steering_assistance"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider5"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider5" unique_id=418887992]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Steering Assistance"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider5"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider5" unique_id=1378287035]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider6" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider6" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1594798574]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -494,20 +513,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "steering_assistance_angular"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider6"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider6" unique_id=1859815465]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Steering Assistance Angular"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider6"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider6" unique_id=524275616]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider8" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider8" type="HSlider" parent="controls manipulator/scroll/container" unique_id=381881773]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -515,20 +534,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "on_throttle_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider8"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider8" unique_id=417829276]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "On Throttle Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider8"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider8" unique_id=627920205]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider9" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider9" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1107083578]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -536,20 +555,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "off_throttle_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider9"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider9" unique_id=2011298629]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Off Throttle Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider9"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider9" unique_id=1652912112]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider10" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider10" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1874127919]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -557,20 +576,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "on_brake_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider10"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider10" unique_id=1630277921]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "On Brake Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider10"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider10" unique_id=617895258]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider11" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider11" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1506798765]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -578,20 +597,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "off_brake_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider11"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider11" unique_id=959472382]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Off Brake Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider11"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider11" unique_id=1783615708]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider12" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider12" type="HSlider" parent="controls manipulator/scroll/container" unique_id=943754106]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -599,20 +618,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "on_handbrake_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider12"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider12" unique_id=441223809]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "On Handbrake Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider12"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider12" unique_id=2077835790]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider13" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider13" type="HSlider" parent="controls manipulator/scroll/container" unique_id=136155711]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -620,20 +639,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "off_handbrake_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider13"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider13" unique_id=1624176468]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Off Handbrake Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider13"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider13" unique_id=1572328747]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider14" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider14" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1450488520]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -641,20 +660,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "on_clutch_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider14"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider14" unique_id=485836658]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "On Clutch Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider14"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider14" unique_id=473907408]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider15" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider15" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1731616911]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -662,20 +681,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "off_clutch_rate"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider15"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider15" unique_id=606510932]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Off Clutch Rate"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider15"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider15" unique_id=417669775]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider17" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider17" type="HSlider" parent="controls manipulator/scroll/container" unique_id=752717927]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -683,20 +702,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "max_throttle"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider17"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider17" unique_id=913888286]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Max Throttle"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider17"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider17" unique_id=1062393797]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider18" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider18" type="HSlider" parent="controls manipulator/scroll/container" unique_id=954048339]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -704,20 +723,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "max_brake"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider18"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider18" unique_id=316942454]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Max Brake"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider18"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider18" unique_id=616322127]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider19" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider19" type="HSlider" parent="controls manipulator/scroll/container" unique_id=90882767]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -725,20 +744,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "max_handbrake"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider19"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider19" unique_id=2075788072]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Max Handbrake"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider19"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider19" unique_id=316335141]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider20" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider20" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1992862371]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -746,20 +765,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "max_clutch"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider20"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider20" unique_id=1383659000]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Max Clutch"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider20"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider20" unique_id=515983832]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1812402814]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -767,20 +786,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "keyboard_steer_speed"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider" unique_id=1127402020]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Keyboard Steer Speed"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider" unique_id=1042838149]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider2" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider2" type="HSlider" parent="controls manipulator/scroll/container" unique_id=1373815832]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -788,20 +807,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "keyboard_return_speed"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider2"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider2" unique_id=534778488]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Keyboard Return Speed"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider2"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider2" unique_id=1931692786]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="HSlider3" type="HSlider" parent="controls manipulator/scroll/container"]
+[node name="HSlider3" type="HSlider" parent="controls manipulator/scroll/container" unique_id=673167293]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 max_value = 1.0
@@ -809,20 +828,20 @@ step = 0.001
 script = ExtResource("7")
 var_name = "keyboard_compensate_speed"
 
-[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider3"]
+[node name="text" type="Label" parent="controls manipulator/scroll/container/HSlider3" unique_id=1087887250]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Keyboard Compensate Speed"
 
-[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider3"]
+[node name="amount" type="Label" parent="controls manipulator/scroll/container/HSlider3" unique_id=165048775]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "0.0"
 vertical_alignment = 2
 
-[node name="inform" type="Control" parent="." node_paths=PackedStringArray("open_info_button")]
+[node name="inform" type="Control" parent="." unique_id=2058156043 node_paths=PackedStringArray("open_info_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.102539
@@ -832,24 +851,24 @@ anchor_bottom = 0.881667
 script = ExtResource("6")
 open_info_button = NodePath("../menus/info")
 
-[node name="background" type="ColorRect" parent="inform"]
+[node name="background" type="ColorRect" parent="inform" unique_id=1534295481]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="scroll" type="ScrollContainer" parent="inform"]
+[node name="scroll" type="ScrollContainer" parent="inform" unique_id=840999440]
 layout_mode = 0
 anchor_left = 0.41769
 anchor_top = 0.0525164
 anchor_right = 0.974202
 anchor_bottom = 0.947484
 
-[node name="container" type="VBoxContainer" parent="inform/scroll"]
+[node name="container" type="VBoxContainer" parent="inform/scroll" unique_id=1949914730]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="clabel" type="Label" parent="inform/scroll/container"]
+[node name="clabel" type="Label" parent="inform/scroll/container" unique_id=1368381325]
 layout_mode = 2
 mouse_filter = 1
 text = "--------------------------------------------------
@@ -858,7 +877,7 @@ text = "--------------------------------------------------
 horizontal_alignment = 1
 clip_text = true
 
-[node name="c" type="Label" parent="inform/scroll/container"]
+[node name="c" type="Label" parent="inform/scroll/container" unique_id=405560451]
 layout_mode = 2
 text = "Keyboard Steering:
 W/Up = Accelerator
@@ -889,7 +908,7 @@ Steering Wheel:
 UNSUPPORTED BY GODOT"
 clip_text = true
 
-[node name="clabel2" type="Label" parent="inform/scroll/container"]
+[node name="clabel2" type="Label" parent="inform/scroll/container" unique_id=2130134537]
 layout_mode = 2
 mouse_filter = 1
 text = "--------------------------------------------------
@@ -898,7 +917,7 @@ text = "--------------------------------------------------
 horizontal_alignment = 1
 clip_text = true
 
-[node name="c2" type="Label" parent="inform/scroll/container"]
+[node name="c2" type="Label" parent="inform/scroll/container" unique_id=1920505787]
 layout_mode = 2
 text = "F11 = Toggle Fullscreen
 Esc = Close All Panels
@@ -910,7 +929,7 @@ O = Zoom Out
 F = Toggle Forces Visualisation"
 clip_text = true
 
-[node name="credlabel" type="Label" parent="inform/scroll/container"]
+[node name="credlabel" type="Label" parent="inform/scroll/container" unique_id=1896665354]
 layout_mode = 2
 text = "--------------------------------------------------
 Credits/Sources:
@@ -918,7 +937,7 @@ Credits/Sources:
 horizontal_alignment = 1
 clip_text = true
 
-[node name="cred" type="Label" parent="inform/scroll/container"]
+[node name="cred" type="Label" parent="inform/scroll/container" unique_id=1684497751]
 custom_minimum_size = Vector2(55, 371)
 layout_mode = 2
 text = "Contributors:
@@ -932,7 +951,7 @@ All vehicles are fictional. Any resemblance to existing counterparts and names a
 autowrap_mode = 2
 clip_text = true
 
-[node name="watermark" type="TextureRect" parent="inform"]
+[node name="watermark" type="TextureRect" parent="inform" unique_id=1810171538]
 layout_mode = 0
 anchor_left = 0.02457
 anchor_top = 0.02407
@@ -942,7 +961,7 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="clabel" type="Label" parent="inform"]
+[node name="clabel" type="Label" parent="inform" unique_id=1150897054]
 layout_mode = 0
 anchor_left = 0.0651106
 anchor_top = 0.319475
@@ -952,7 +971,7 @@ mouse_filter = 1
 text = "Powered by Godot"
 horizontal_alignment = 1
 
-[node name="graphics config" type="Control" parent="." node_paths=PackedStringArray("open_graphics_button", "settings_container")]
+[node name="graphics config" type="Control" parent="." unique_id=1405892595 node_paths=PackedStringArray("open_graphics_button", "settings_container")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.334961
@@ -963,78 +982,78 @@ script = ExtResource("5")
 open_graphics_button = NodePath("../menus/open graphics")
 settings_container = NodePath("scroll/container")
 
-[node name="background" type="ColorRect" parent="graphics config"]
+[node name="background" type="ColorRect" parent="graphics config" unique_id=1914722555]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="scroll" type="ScrollContainer" parent="graphics config"]
+[node name="scroll" type="ScrollContainer" parent="graphics config" unique_id=1578480641]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="container" type="VBoxContainer" parent="graphics config/scroll"]
+[node name="container" type="VBoxContainer" parent="graphics config/scroll" unique_id=1153897786]
 layout_mode = 2
 
-[node name="Shadows" type="CheckBox" parent="graphics config/scroll/container"]
+[node name="Shadows" type="CheckBox" parent="graphics config/scroll/container" unique_id=591223418]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "shadows"
 
-[node name="text" type="Label" parent="graphics config/scroll/container/Shadows"]
+[node name="text" type="Label" parent="graphics config/scroll/container/Shadows" unique_id=1084684809]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Shadows"
 
-[node name="amount" type="Label" parent="graphics config/scroll/container/Shadows"]
+[node name="amount" type="Label" parent="graphics config/scroll/container/Shadows" unique_id=1964854536]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="Smoke" type="CheckBox" parent="graphics config/scroll/container"]
+[node name="Smoke" type="CheckBox" parent="graphics config/scroll/container" unique_id=167714349]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "tire_smoke"
 
-[node name="text" type="Label" parent="graphics config/scroll/container/Smoke"]
+[node name="text" type="Label" parent="graphics config/scroll/container/Smoke" unique_id=1694140395]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Tyre Smoke"
 
-[node name="amount" type="Label" parent="graphics config/scroll/container/Smoke"]
+[node name="amount" type="Label" parent="graphics config/scroll/container/Smoke" unique_id=520434328]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="_FULLSCREEN" type="CheckBox" parent="graphics config/scroll/container"]
+[node name="_FULLSCREEN" type="CheckBox" parent="graphics config/scroll/container" unique_id=215493019]
 custom_minimum_size = Vector2(240, 60)
 layout_mode = 2
 script = ExtResource("9")
 var_name = "full_screen"
 
-[node name="text" type="Label" parent="graphics config/scroll/container/_FULLSCREEN"]
+[node name="text" type="Label" parent="graphics config/scroll/container/_FULLSCREEN" unique_id=20864732]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Fullscreen"
 
-[node name="amount" type="Label" parent="graphics config/scroll/container/_FULLSCREEN"]
+[node name="amount" type="Label" parent="graphics config/scroll/container/_FULLSCREEN" unique_id=1817515479]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 text = "false"
 vertical_alignment = 2
 
-[node name="car swapper" type="Control" parent="." node_paths=PackedStringArray("swap_car_button")]
+[node name="car swapper" type="Control" parent="." unique_id=2095063422 node_paths=PackedStringArray("swap_car_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.183594
@@ -1045,28 +1064,28 @@ script = ExtResource("10")
 pathh = "res://misc/car swapper/cars"
 swap_car_button = NodePath("../menus/swap car")
 
-[node name="background" type="ColorRect" parent="car swapper"]
+[node name="background" type="ColorRect" parent="car swapper" unique_id=898049246]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="scroll" type="ScrollContainer" parent="car swapper"]
+[node name="scroll" type="ScrollContainer" parent="car swapper" unique_id=1845476142]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="container" type="GridContainer" parent="car swapper/scroll"]
+[node name="container" type="GridContainer" parent="car swapper/scroll" unique_id=1014629599]
 layout_mode = 2
 columns = 3
 
-[node name="_DEFAULT" type="Button" parent="car swapper/scroll/container"]
+[node name="_DEFAULT" type="Button" parent="car swapper/scroll/container" unique_id=587084180]
 visible = false
 custom_minimum_size = Vector2(213, 128)
 layout_mode = 2
 expand_icon = true
 
-[node name="carname" type="Label" parent="car swapper/scroll/container/_DEFAULT"]
+[node name="carname" type="Label" parent="car swapper/scroll/container/_DEFAULT" unique_id=148801310]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1074,7 +1093,7 @@ text = "base car"
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="icon" type="TextureRect" parent="car swapper/scroll/container/_DEFAULT"]
+[node name="icon" type="TextureRect" parent="car swapper/scroll/container/_DEFAULT" unique_id=211622161]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1083,7 +1102,7 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="scene swapper" type="Control" parent="." node_paths=PackedStringArray("swap_map_button")]
+[node name="scene swapper" type="Control" parent="." unique_id=735843678 node_paths=PackedStringArray("swap_map_button")]
 visible = false
 anchors_preset = 0
 anchor_left = 0.183594
@@ -1095,28 +1114,28 @@ pathh = "res://misc/scene swapper/scenes"
 swap_map_button = NodePath("../menus/swap map")
 current_map = NodePath("../../test scene")
 
-[node name="background" type="ColorRect" parent="scene swapper"]
+[node name="background" type="ColorRect" parent="scene swapper" unique_id=1762668725]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.5)
 
-[node name="scroll" type="ScrollContainer" parent="scene swapper"]
+[node name="scroll" type="ScrollContainer" parent="scene swapper" unique_id=2059703277]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="container" type="GridContainer" parent="scene swapper/scroll"]
+[node name="container" type="GridContainer" parent="scene swapper/scroll" unique_id=62105299]
 layout_mode = 2
 columns = 3
 
-[node name="_DEFAULT" type="Button" parent="scene swapper/scroll/container"]
+[node name="_DEFAULT" type="Button" parent="scene swapper/scroll/container" unique_id=2008222379]
 custom_minimum_size = Vector2(213, 128)
 layout_mode = 2
 icon_alignment = 1
 expand_icon = true
 
-[node name="mapname" type="Label" parent="scene swapper/scroll/container/_DEFAULT"]
+[node name="mapname" type="Label" parent="scene swapper/scroll/container/_DEFAULT" unique_id=2123639121]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -1124,7 +1143,7 @@ text = "mofn"
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="icon" type="TextureRect" parent="scene swapper/scroll/container/_DEFAULT"]
+[node name="icon" type="TextureRect" parent="scene swapper/scroll/container/_DEFAULT" unique_id=1928476407]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1136,7 +1155,7 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="menus" type="HBoxContainer" parent="."]
+[node name="menus" type="HBoxContainer" parent="." unique_id=970673411]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.578
@@ -1150,32 +1169,32 @@ offset_bottom = -0.5200043
 grow_horizontal = 0
 theme_override_constants/separation = 10
 
-[node name="swap car" type="Button" parent="menus"]
+[node name="swap car" type="Button" parent="menus" unique_id=1307536715]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "swap car"
 
-[node name="swap map" type="Button" parent="menus"]
+[node name="swap map" type="Button" parent="menus" unique_id=263029374]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "swap map"
 
-[node name="info" type="Button" parent="menus"]
+[node name="info" type="Button" parent="menus" unique_id=1619104098]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "info"
 
-[node name="open controls" type="Button" parent="menus"]
+[node name="open controls" type="Button" parent="menus" unique_id=510732672]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "controls"
 
-[node name="open graphics" type="Button" parent="menus"]
+[node name="open graphics" type="Button" parent="menus" unique_id=1487731399]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "graphics"
 
-[node name="start engine" type="Button" parent="."]
+[node name="start engine" type="Button" parent="." unique_id=2001574691]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.852539
@@ -1184,7 +1203,7 @@ anchor_right = 0.995117
 anchor_bottom = 0.19
 text = "start engine"
 
-[node name="debug_lamp" type="TextureRect" parent="." node_paths=PackedStringArray("debug")]
+[node name="debug_lamp" type="TextureRect" parent="." unique_id=290307735 node_paths=PackedStringArray("debug")]
 modulate = Color(1, 0.25490198, 0, 1)
 layout_mode = 1
 anchors_preset = -1
@@ -1205,3 +1224,4 @@ debug = NodePath("..")
 [editable path="brake"]
 [editable path="handbrake"]
 [editable path="clutch"]
+[editable path="fuel"]

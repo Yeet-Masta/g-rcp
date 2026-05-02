@@ -1,13 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://b1vo60v1pjs6w"]
+[gd_scene format=3 uid="uid://b1vo60v1pjs6w"]
 
-[ext_resource type="FontFile" uid="uid://btyvoi7jkhec0" path="res://assets/font/DroidSans.ttf" id="1"]
-[ext_resource type="Texture2D" uid="uid://bps2hhmk1v6t1" path="res://misc/tachometre/rpm_background.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://c27vyxa5uwwp6" path="res://misc/tachometre/rpm_needle.png" id="3"]
-[ext_resource type="Script" uid="uid://rbi2of0oprst" path="res://misc/tachometre/tacho.gd" id="4"]
-[ext_resource type="Texture2D" uid="uid://b3rshdyrluwnh" path="res://misc/tachometre/boost_needle.png" id="5"]
-[ext_resource type="Texture2D" uid="uid://c0dsd37tct6f4" path="res://misc/tachometre/boost_background.png" id="6"]
+[ext_resource type="FontFile" uid="uid://bbwusye2t6xja" path="res://assets/font/DroidSans.ttf" id="1"]
+[ext_resource type="Texture2D" uid="uid://bsr1yjn1asswl" path="res://misc/tachometre/rpm_background.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://djtxif0tscg56" path="res://misc/tachometre/rpm_needle.png" id="3"]
+[ext_resource type="Script" uid="uid://de4syptg7cir6" path="res://misc/tachometre/tacho.gd" id="4"]
+[ext_resource type="Texture2D" uid="uid://ddwlq7mnlkukc" path="res://misc/tachometre/boost_needle.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://b8slfi2xy0mxq" path="res://misc/tachometre/boost_background.png" id="6"]
 
-[node name="tacho" type="Control"]
+[node name="tacho" type="Control" unique_id=971556834]
 layout_mode = 3
 anchor_left = 0.375
 anchor_top = 0.286667
@@ -17,7 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4")
 
-[node name="turbo" type="TextureRect" parent="."]
+[node name="turbo" type="TextureRect" parent="." unique_id=1144267738]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -33,7 +33,7 @@ grow_vertical = 0
 texture = ExtResource("6")
 expand_mode = 1
 
-[node name="tetx" type="Label" parent="turbo"]
+[node name="tetx" type="Label" parent="turbo" unique_id=1505553044]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -47,7 +47,7 @@ theme_override_fonts/font = ExtResource("1")
 theme_override_font_sizes/font_size = 12
 text = "0"
 
-[node name="maxpsi" type="Label" parent="turbo"]
+[node name="maxpsi" type="Label" parent="turbo" unique_id=1609247727]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -61,7 +61,7 @@ theme_override_fonts/font = ExtResource("1")
 theme_override_font_sizes/font_size = 12
 text = "88"
 
-[node name="unit" type="Label" parent="turbo"]
+[node name="unit" type="Label" parent="turbo" unique_id=638615394]
 layout_mode = 0
 anchor_left = 0.49166
 anchor_top = 0.156626
@@ -76,7 +76,7 @@ theme_override_font_sizes/font_size = 12
 text = "psi"
 horizontal_alignment = 1
 
-[node name="needle" type="TextureRect" parent="turbo"]
+[node name="needle" type="TextureRect" parent="turbo" unique_id=35657123]
 layout_mode = 0
 anchor_left = 0.5
 anchor_top = 0.5
@@ -90,7 +90,7 @@ pivot_offset = Vector2(64, 64)
 texture = ExtResource("5")
 expand_mode = 1
 
-[node name="tacho" type="TextureRect" parent="."]
+[node name="tacho" type="TextureRect" parent="." unique_id=1581694260]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -105,7 +105,7 @@ grow_vertical = 0
 texture = ExtResource("2")
 expand_mode = 1
 
-[node name="needle" type="TextureRect" parent="tacho"]
+[node name="needle" type="TextureRect" parent="tacho" unique_id=858739074]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -122,7 +122,7 @@ pivot_offset = Vector2(128, 128)
 texture = ExtResource("3")
 expand_mode = 1
 
-[node name="major" type="ColorRect" parent="tacho"]
+[node name="major" type="ColorRect" parent="tacho" unique_id=1338421488]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
@@ -135,7 +135,7 @@ offset_right = 1.0
 offset_bottom = -106.0
 pivot_offset = Vector2(0, 117)
 
-[node name="tetx" type="Label" parent="tacho/major"]
+[node name="tetx" type="Label" parent="tacho/major" unique_id=2054906787]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -153,7 +153,7 @@ theme_override_fonts/font = ExtResource("1")
 text = "8"
 horizontal_alignment = 1
 
-[node name="minor" type="ColorRect" parent="tacho"]
+[node name="minor" type="ColorRect" parent="tacho" unique_id=662541726]
 visible = false
 layout_mode = 0
 anchor_left = 0.5
