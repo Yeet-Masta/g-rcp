@@ -1,26 +1,27 @@
-[gd_scene load_steps=24 format=4 uid="uid://crtwme8ggggra"]
+[gd_scene format=4 uid="uid://crtwme8ggggra"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://c1qved5286i2u" path="res://main/car.gd" id="2"]
-[ext_resource type="Resource" uid="uid://crv7ofv4a4csx" path="res://resources/abs/default.tres" id="2_ei6tv"]
-[ext_resource type="Script" uid="uid://6cnvipuwxkq5" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_p1d67"]
+[ext_resource type="Script" uid="uid://pg6cdk41w38x" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_p1d67"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
-[ext_resource type="Texture2D" uid="uid://del2h14nydk3g" path="res://main/misc/textures/rim.jpg" id="4"]
+[ext_resource type="Texture2D" uid="uid://dyiiofsu2pkjv" path="res://main/misc/textures/rim.jpg" id="4"]
+[ext_resource type="Script" uid="uid://bapw2neo8xtbo" path="res://main/definitions/profile/abs_profile.gd" id="4_p1d67"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://kb7hq7qvuul3" path="res://main/misc/backfire_particles/fire.tscn" id="7"]
-[ext_resource type="Texture2D" uid="uid://1a0k3s3amej8" path="res://main/misc/backfire_particles/backfire.png" id="8_tk2wk"]
-[ext_resource type="Script" uid="uid://dwrptaqqx767e" path="res://misc/misc scripts/interior_feedback_camera.gd" id="9_sellu"]
-[ext_resource type="Script" uid="uid://db8fdtwqu2cf6" path="res://misc/car swapper/cars/Base/change_cam.gd" id="10_jak2h"]
-[ext_resource type="Script" uid="uid://dqx6fx7pbs33c" path="res://main/fuel_system.gd" id="11_q0weh"]
+[ext_resource type="Texture2D" uid="uid://dywpwinrqs0va" path="res://main/misc/backfire_particles/backfire.png" id="8_tk2wk"]
+[ext_resource type="Script" uid="uid://bd4372rk3bnta" path="res://misc/misc scripts/interior_feedback_camera.gd" id="9_sellu"]
+[ext_resource type="Script" uid="uid://bssqc5aegsxxj" path="res://misc/car swapper/cars/Base/change_cam.gd" id="10_jak2h"]
+[ext_resource type="Script" uid="uid://dh6w6oim607sr" path="res://main/fuel_system.gd" id="11_q0weh"]
 
 [sub_resource type="Resource" id="Resource_p1d67"]
 script = ExtResource("11_q0weh")
-metadata/_custom_type_script = "uid://dqx6fx7pbs33c"
 
 [sub_resource type="Resource" id="Resource_k4r5v"]
 script = ExtResource("2_p1d67")
-metadata/_custom_type_script = "uid://6cnvipuwxkq5"
+
+[sub_resource type="Resource" id="Resource_egfih"]
+script = ExtResource("4_p1d67")
 
 [sub_resource type="ConvexPolygonShape3D" id="12"]
 points = PackedVector3Array(2.75605, 1.27715, 6.68259, 1.75444, 2.13382, 3.26614, -2.75659, 1.27715, 6.68259, 2.75605, -0.4, 6.68259, 2.75605, 0.921974, -4.96708, 1.75444, 2.13382, -0.149161, -1.75498, 2.13382, 3.26614, -2.75659, -0.4, 6.68259, -1.75498, 2.13382, -0.149161, -2.75659, 0.921974, -4.96708, 2.75605, -0.4, -4.96708, -2.75659, -0.4, -4.96708)
@@ -239,32 +240,32 @@ _surfaces = [{
 _data = [Vector2(0, 1), 0.0, -0.984877, 0, 0, Vector2(1, 0), -1.00597, 0.0, 0, 0]
 point_count = 2
 
-[node name="car" type="RigidBody3D" groups=["car"]]
+[node name="car" type="RigidBody3D" unique_id=1552931233 groups=["car"]]
 mass = 90.0
 can_sleep = false
 script = ExtResource("2")
 fuel = SubResource("Resource_p1d67")
 shift_assist = SubResource("Resource_k4r5v")
-abs = ExtResource("2_ei6tv")
+abs = SubResource("Resource_egfih")
 Debug_Mode = true
 
-[node name="DRAG_CENTRE" type="Marker3D" parent="."]
+[node name="DRAG_CENTRE" type="Marker3D" parent="." unique_id=72595868]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
 
-[node name="CollisionShape" type="CollisionShape3D" parent="."]
+[node name="CollisionShape" type="CollisionShape3D" parent="." unique_id=2015830396]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, -0.625, 0.725)
 shape = SubResource("12")
 
-[node name="tyre_sound" parent="." instance=ExtResource("5")]
+[node name="tyre_sound" parent="." unique_id=758488753 instance=ExtResource("5")]
 
-[node name="engine_sound" parent="." node_paths=PackedStringArray("car") instance=ExtResource("3")]
+[node name="engine_sound" parent="." unique_id=1805278459 node_paths=PackedStringArray("car") instance=ExtResource("3")]
 car = NodePath("..")
 
-[node name="carmesh" type="MeshInstance3D" parent="."]
+[node name="carmesh" type="MeshInstance3D" parent="." unique_id=1161619297]
 transform = Transform3D(-100, 1.50996e-05, 6.60024e-13, 0, -4.37114e-06, 100, 1.50996e-05, 100, 4.37114e-06, 0, -1.50209, 0)
 mesh = SubResource("10")
 
-[node name="fr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
+[node name="fr" parent="." unique_id=147231481 node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
 car = NodePath("..")
@@ -277,12 +278,12 @@ S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
 
-[node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0"]
+[node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0" unique_id=1190185378]
 transform = Transform3D(101.962, 0, 0, 0, 101.962, 0, 0, 0, 101.962, 0, 0, 0)
 mesh = SubResource("11")
 skeleton = NodePath("../../../../..")
 
-[node name="fl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
+[node name="fl" parent="." unique_id=1057603906 node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.2, 3.8)
 target_position = Vector3(0, -2.7, 0)
 car = NodePath("..")
@@ -295,12 +296,12 @@ S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
 
-[node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0"]
+[node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0" unique_id=1824200177]
 transform = Transform3D(-101.962, 0, -8.9138e-06, 0, 101.962, 0, 8.9138e-06, 0, -101.962, 0, 0, 0)
 mesh = SubResource("11")
 skeleton = NodePath("../../../../..")
 
-[node name="rr" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
+[node name="rr" parent="." unique_id=216473107 node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
 car = NodePath("..")
@@ -309,12 +310,12 @@ B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
 
-[node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0"]
+[node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0" unique_id=107162660]
 transform = Transform3D(101.962, 0, 0, 0, 101.962, 0, 0, 0, 101.962, 0, 0, 0)
 mesh = SubResource("11")
 skeleton = NodePath("../../../../..")
 
-[node name="rl" parent="." node_paths=PackedStringArray("car") instance=ExtResource("1")]
+[node name="rl" parent="." unique_id=542032827 node_paths=PackedStringArray("car") instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.2, -3.8)
 target_position = Vector3(0, -2.7, 0)
 car = NodePath("..")
@@ -323,24 +324,24 @@ B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
 
-[node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0"]
+[node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0" unique_id=318092101]
 transform = Transform3D(-101.962, 0, -8.9138e-06, 0, 101.962, 0, 8.9138e-06, 0, -101.962, 0, 0, 0)
 mesh = SubResource("11")
 skeleton = NodePath("../../../../..")
 
-[node name="other_sounds" parent="." instance=ExtResource("6")]
+[node name="other_sounds" parent="." unique_id=927137548 instance=ExtResource("6")]
 exhaust_particles = Array[NodePath]([NodePath("../fire")])
 
-[node name="fire" parent="." instance=ExtResource("7")]
+[node name="fire" parent="." unique_id=279605284 instance=ExtResource("7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.21278, -1.65592, -5.90752)
 mesh = SubResource("13")
 scale_amount_curve = SubResource("14")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2018310818]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 1, 2)
 script = ExtResource("9_sellu")
 
-[node name="change_cam" type="Node" parent="Camera3D" node_paths=PackedStringArray("this_camera")]
+[node name="change_cam" type="Node" parent="Camera3D" unique_id=1931458582 node_paths=PackedStringArray("this_camera")]
 script = ExtResource("10_jak2h")
 this_camera = NodePath("..")
 

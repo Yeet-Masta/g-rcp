@@ -23,11 +23,11 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @warning_ignore("shadowed_global_identifier")
 @export var abs: ABSProfile
 ## Electronic Stability Program.
-@export var esp := ESPProfile
+@export var esp: ESPProfile
 ## Brake-based Traction Control System.
-@export var btcs := BTCSProfile
+@export var btcs: BTCSProfile
 ## Throttle-based Traction Control System
-@export var ttcs := TTCSProfile
+@export var ttcs: TTCSProfile
 
 @export_group("Other")
 @export var Debug_Mode := false
@@ -175,6 +175,7 @@ var abs_delay := 0.0
 var tcsweight := 0.0
 var tcsflash := false
 var espflash := false
+var tcs_flash_timer: float = 0.0
 ## Current gear ratio (gear * final_drive).
 var ratio := 0.0
 var brake_allowed := 1.0
@@ -342,6 +343,9 @@ func _physics_process(delta):
 	
 	
 	if abs: apply_abs()
+	if btcs: apply_btcs(delta)
+	if ttcs: apply_ttcs(delta)
+	if esp: apply_esp()
 	
 	brakeline = brakepedal * brake_allowed
 	
@@ -481,6 +485,203 @@ func apply_abs():
 	brake_allowed = clamp(brake_allowed, 0.0, 1.0)
 	
 	abs_delay -= 1
+
+
+## Brake-based traction control. For each driven wheel that flags
+## [code]ContactBTCS[/code], measures forward wheel-spin against ground speed
+## and applies a per-wheel brake pulse to kill the spin. Acts like a brake-
+## locking diff: braking the spinning wheel forces torque across the diff to
+## the gripping one. Only meaningful while the engine is putting torque down
+## (throttle open, in gear, clutch engaged).
+func apply_btcs(delta: float): # Added delta for consistent timer countdown
+	if btcs == null:
+		return
+	
+	# Don't fight the driver while braking — let ABS handle that range.
+	if brakepedal > 0.05:
+		tcs_flash_timer = 0.0
+		tcsflash = false
+		return
+	
+	# Need the engine actually trying to drive the wheels.
+	if not is_in_gear() or clutchpedal < 0.1 or throttle <= 0.0:
+		tcs_flash_timer = 0.0
+		tcsflash = false
+		return
+	
+	var any_intervention := false
+	
+	for w in c_pws:
+		if not w.ContactBTCS:
+			continue
+		if not w.is_colliding():
+			continue
+		
+		# Forward speed under the wheel (m-ish/s in this codebase's units).
+		var ground_speed: float = absf(w.velocity2.z)
+		# Wheel rim speed at the contact patch.
+		var wheel_speed: float = absf(w.wv * w.w_size)
+		
+		# Slip ratio: how much the wheel is over-spinning the ground beneath
+		# it. Use a small floor on the denominator so a stationary launch
+		# doesn't divide by ~0 (we want it to trip during a burnout).
+		var slip_excess: float = wheel_speed - ground_speed
+		var threshold: float = btcs.slip_threshold
+		
+		if slip_excess > threshold:
+			# Scale brake pressure with how far past the threshold we are.
+			# btcs.sensitivity governs the slope.
+			var over: float = slip_excess - threshold
+			var brake_amount: float = over * btcs.sensitivity
+			brake_amount = clampf(brake_amount, 0.0, 1.0)
+			w.tc_brake = maxf(w.tc_brake, brake_amount)
+			any_intervention = true
+	
+	# PERSISTENCE FIX: Keep the flash on for at least 0.2 seconds.
+	if any_intervention:
+		tcs_flash_timer = 0.2
+		tcsflash = true
+	else:
+		tcs_flash_timer = maxf(0.0, tcs_flash_timer - delta)
+		tcsflash = tcs_flash_timer > 0.0
+
+
+## Throttle-based traction control. Inspects the same set of wheels (those
+## flagged [code]ContactTTCS[/code]) and feeds [member tcsweight], which the
+## existing throttle pipeline already uses to scale gas pedal -> throttle
+## (see _physics_process). Higher tcsweight = more throttle reduction.
+func apply_ttcs(delta: float): # Added delta for smooth decay
+	if ttcs == null:
+		return
+	
+	if not is_in_gear() or clutchpedal < 0.1:
+		# tcsweight is reset each frame by drivetrain(); nothing to do.
+		return
+	
+	var target_weight := 0.0
+	
+	for w in c_pws:
+		if not w.ContactTTCS:
+			continue
+		if not w.is_colliding():
+			continue
+		
+		var ground_speed: float = absf(w.velocity2.z)
+		var wheel_speed: float = absf(w.wv * w.w_size)
+		var slip_excess: float = wheel_speed - ground_speed
+		
+		if slip_excess > ttcs.slip_threshold:
+			var over: float = slip_excess - ttcs.slip_threshold
+			target_weight += over * ttcs.sensitivity
+	
+	# SMOOTHING FIX: Instant response when engaging, but decays smoothly.
+	# This stops the wild on/off oscillations.
+	if target_weight > tcsweight:
+		tcsweight = target_weight # Instant cut to save traction
+	else:
+		# Gradually ease off the throttle cut (decay rate of ~5.0 can be adjusted)
+		tcsweight = move_toward(tcsweight, target_weight, 5.0 * delta)
+	
+	# Visual flash persistence tied to TTCS intervention as well
+	if tcsweight > 0.01:
+		tcs_flash_timer = 0.2
+		tcsflash = true
+
+## Electronic stability program. Compares actual yaw rate to the yaw rate
+## the driver is asking for (steering input). Brakes a single wheel to
+## rotate the car back onto the requested arc:
+##   * Oversteer (car rotating more than requested): brake the OUTER FRONT
+##     wheel — pushes the nose outward, scrubs off rotation.
+##   * Understeer (car rotating less than requested): brake the INNER REAR
+##     wheel — pivots the rear, helps the car turn in.
+##
+## Wheels opt in via [member wheel.ESP_Role] set to one of
+## "front_left", "front_right", "rear_left", "rear_right".
+func apply_esp():
+	if esp == null:
+		return
+	
+	# ESP needs forward speed to be meaningful; below walking pace, skip.
+	var forward_speed: float = velocity.z
+	if absf(forward_speed) < 2.0:
+		espflash = false
+		return
+	
+	# Yaw rate the chassis is actually doing, in rad/s. rvelocity is the
+	# car's angular velocity in local space; .y is yaw.
+	var actual_yaw: float = rvelocity.y
+	
+	# Driver-requested yaw rate: a bicycle-model estimate using the car's
+	# steering radius. final_steer is normalized [-1,1]; full lock at unit
+	# input maps to a turn radius of Steer_Radius.
+	var desired_yaw := 0.0
+	if absf(final_steer) > 0.001 and Steer_Radius > 0.0:
+		var turn_radius: float = Steer_Radius / absf(final_steer)
+		desired_yaw = (forward_speed / turn_radius) * signf(final_steer)
+	
+	var yaw_error: float = actual_yaw - desired_yaw
+	
+	# Convention: positive yaw = turning one way, negative = the other.
+	# Whether that's "left" or "right" depends on Godot/your scene's basis,
+	# but the *relationship* is consistent — so we use the sign of
+	# final_steer to figure out which side is inner vs outer.
+	var steer_sign: float = signf(final_steer) if absf(final_steer) > 0.001 else signf(actual_yaw)
+	if steer_sign == 0.0:
+		espflash = false
+		return
+	
+	# Oversteer if the car is rotating MORE than requested in the same
+	# direction as the steering. Understeer is the inverse.
+	# yaw_error has the same sign as steer_sign => oversteer (overshooting).
+	# yaw_error has opposite sign to steer_sign => understeer (undershooting).
+	var oversteer_amount: float = yaw_error * steer_sign  # +ve = oversteer
+	
+	var intervened := false
+	
+	if oversteer_amount > esp.yaw_threshold:
+		# Brake the OUTER FRONT.
+		# steer_sign > 0 means turning one way; "outer" is the opposite side.
+		# We can't know absolute left/right without the car's basis, but we
+		# can pick the wheel whose local x has the OPPOSITE sign of steer_sign.
+		var brake_amount: float = (oversteer_amount - esp.yaw_threshold) * esp.yaw_correction_rate
+		brake_amount = clampf(brake_amount, 0.0, 1.0)
+		_esp_brake_role("front", -steer_sign, brake_amount)
+		intervened = true
+	elif -oversteer_amount > esp.stabilization_threshold:
+		# Understeer (yaw error opposes steer direction beyond threshold).
+		# Brake the INNER REAR — same side as steer_sign.
+		var slip: float = -oversteer_amount - esp.stabilization_threshold
+		var brake_amount: float = slip * esp.correction_rate
+		brake_amount = clampf(brake_amount, 0.0, 1.0)
+		_esp_brake_role("rear", steer_sign, brake_amount)
+		intervened = true
+	
+	espflash = intervened
+
+
+## Helper: applies tc_brake to the wheel whose ESP_Role matches the given
+## axle ("front"/"rear") and whose local-x sign matches the given side sign.
+## side_sign > 0 picks the +x side wheel; side_sign < 0 picks the -x side.
+func _esp_brake_role(axle: String, side_sign: float, amount: float) -> void:
+	if amount <= 0.0:
+		return
+	for child in get_children():
+		if not "ESP_Role" in child:
+			continue
+		var role: String = String(child.ESP_Role)
+		if role.is_empty():
+			continue
+		# Match by substring so users can label "front_left", "FrontLeft", etc.
+		var lower: String = role.to_lower()
+		if not lower.contains(axle):
+			continue
+		# Determine the wheel's side from its local x position. This avoids
+		# trusting a string like "left"/"right" being authored consistently.
+		var x: float = (child as Node3D).position.x if child is Node3D else 0.0
+		if signf(x) != signf(side_sign):
+			continue
+		if "tc_brake" in child:
+			child.tc_brake = maxf(child.tc_brake, amount)
 
 
 func apply_clutch_wear():

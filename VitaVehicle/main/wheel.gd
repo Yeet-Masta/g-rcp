@@ -122,6 +122,10 @@ var slip_percpre := 0.0
 var velocity_last := Vector3(0, 0, 0)
 var velocity2_last := Vector3(0, 0, 0)
 
+## Extra brake pressure (0..1) applied to this wheel only by stability
+## systems (BTCS, ESP). Cleared each physics frame after being consumed.
+var tc_brake := 0.0
+
 
 
 func power():
@@ -280,7 +284,13 @@ func _physics_process(delta):
 	
 	wheelpower = 0.0
 	
-	var braked := car.brakeline*B_Bias + car.handbrakepull*HB_Bias
+	# BTCS / ESP injection: per-wheel brake pressure that adds on top of the
+	# driver's brake. Clamped to keep ABS-style headroom so we never exceed
+	# the global brake_allowed window (which ABS modulates).
+	var stability_brake: float = clampf(tc_brake, 0.0, 1.0) * car.brake_allowed
+	tc_brake = 0.0  # consumed; stability systems must re-assert each frame
+	
+	var braked := car.brakeline*B_Bias + car.handbrakepull*HB_Bias + stability_brake
 	braked = min(braked, 1.0)
 	var bp := (B_Torque*braked)/w_weight_read
 	

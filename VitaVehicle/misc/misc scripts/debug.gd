@@ -68,7 +68,7 @@ func _physics_process(_delta):
 	$vgs.gforce -= ($vgs.gforce - Vector2(car.gforce.x, car.gforce.z)) * 0.5
 	
 	$tacho/abs.visible = car.abs_delay > 0 and car.brakepedal > 0.1
-	$tacho/tcs.visible = car.tcsflash
+	$tacho/tcs.visible = car.tcsflash or car.tcsweight > 0
 	$tacho/esp.visible = car.espflash
 
 
