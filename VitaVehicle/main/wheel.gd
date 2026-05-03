@@ -126,6 +126,23 @@ var velocity2_last := Vector3(0, 0, 0)
 ## systems (BTCS, ESP). Cleared each physics frame after being consumed.
 var tc_brake := 0.0
 
+## Per-wheel ABS brake modulation in 0..1. Driven by [code]Car.apply_abs[/code].
+## 1.0 = full brake passthrough, 0.0 = brake fully released. Multiplies the
+## driver brake AND any stability-system brake injection on this wheel, so
+## ABS can release pressure even while ESP/BTCS are trying to add it.
+## In legacy ABS mode this stays at 1.0 and the global [code]Car.brake_allowed[/code]
+## does the modulating; in advanced mode this is set per-wheel each frame.
+var abs_modulation := 1.0
+## Internal first-order valve state (-1..1). Smooths the bang-bang command
+## from the ABS controller via the configured hydraulic time constant.
+var abs_valve_state := 0.0
+## True while the advanced ABS is actively cycling brake pressure on this
+## wheel (modulation < ~0.95). Used to drive the dash light.
+var abs_active := false
+## Longitudinal slip ratio s = 1 − (ω·r)/v computed each frame for the
+## advanced ABS controller. Exposed for telemetry/debug.
+var abs_slip_ratio := 0.0
+
 
 
 func power():
@@ -285,12 +302,17 @@ func _physics_process(delta):
 	wheelpower = 0.0
 	
 	# BTCS / ESP injection: per-wheel brake pressure that adds on top of the
-	# driver's brake. Clamped to keep ABS-style headroom so we never exceed
-	# the global brake_allowed window (which ABS modulates).
-	var stability_brake: float = clampf(tc_brake, 0.0, 1.0) * car.brake_allowed
+	# driver's brake. Multiplied by both the global brake_allowed (legacy ABS
+	# pump) AND this wheel's abs_modulation (advanced ABS), so per-wheel ABS
+	# can release pressure even when ESP/BTCS are trying to add it. In legacy
+	# mode abs_modulation == 1.0; in advanced mode brake_allowed == 1.0.
+	var stability_brake: float = clampf(tc_brake, 0.0, 1.0) * car.brake_allowed * abs_modulation
 	tc_brake = 0.0  # consumed; stability systems must re-assert each frame
 	
-	var braked := car.brakeline*B_Bias + car.handbrakepull*HB_Bias + stability_brake
+	# Driver brake also gets the per-wheel ABS multiplier. car.brakeline is
+	# already brakepedal*brake_allowed (legacy global), so this composes:
+	# legacy → mod by brake_allowed only; advanced → mod by abs_modulation only.
+	var braked := (car.brakeline * abs_modulation) * B_Bias + car.handbrakepull*HB_Bias + stability_brake
 	braked = min(braked, 1.0)
 	var bp := (B_Torque*braked)/w_weight_read
 	
@@ -397,7 +419,11 @@ func _physics_process(delta):
 			var forcey := -disty/(slip +1.0)
 			var forcex := -distx/(slip +1.0)
 			
-			if car.abs and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
+			# Legacy ABS trigger: writes to car.abs_delay so the global
+			# pump in Car.apply_abs() drops brake_allowed for a few frames.
+			# The advanced controller does its own slip calc in Car.apply_abs
+			# directly, so this block is skipped for it.
+			if car.abs and not car.abs.use_advanced_controller and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
 				car.abs_delay = car.abs.pump_duration
 				if abs(distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
 					car.abs_delay = car.abs.lateral_pump_duration

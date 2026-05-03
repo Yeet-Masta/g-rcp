@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://c1qlms1ih0s2l"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://pg6cdk41w38x" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://dee2cldgxqm0v" path="res://main/car.gd" id="2"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_851hf"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Script" uid="uid://ch6g3siwv22tk" path="res://main/definitions/profile/esp_profile.gd" id="4_3wois"]
@@ -20,7 +20,7 @@
 [ext_resource type="AudioStream" uid="uid://cghqmwnfjyjoo" path="res://misc/car swapper/cars/Eclipse SRC/engine sounds/8.ogg" id="11_1v2r1"]
 [ext_resource type="Script" uid="uid://bd4372rk3bnta" path="res://misc/misc scripts/interior_feedback_camera.gd" id="14_o84in"]
 [ext_resource type="Script" uid="uid://bssqc5aegsxxj" path="res://misc/car swapper/cars/Base/change_cam.gd" id="15_xnd00"]
-[ext_resource type="Script" uid="uid://dh6w6oim607sr" path="res://main/fuel_system.gd" id="16_elpyq"]
+[ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="16_elpyq"]
 
 [sub_resource type="Resource" id="Resource_851hf"]
 script = ExtResource("16_elpyq")
@@ -300,28 +300,28 @@ crossfade_vvt = 3.0
 crossfade_throttle = 2.0
 crossfade_influence = 7.0
 
-[node name="450000" parent="engine_sound" index="0"]
+[node name="450000" parent="engine_sound" index="0" unique_id=766664071]
 stream = ExtResource("4_ppb00")
 
-[node name="300000" parent="engine_sound" index="1"]
+[node name="300000" parent="engine_sound" index="1" unique_id=780958350]
 stream = ExtResource("5_imbti")
 
-[node name="225000" parent="engine_sound" index="2"]
+[node name="225000" parent="engine_sound" index="2" unique_id=624549432]
 stream = ExtResource("6_bubjy")
 
-[node name="178750" parent="engine_sound" index="3"]
+[node name="178750" parent="engine_sound" index="3" unique_id=1142353926]
 stream = ExtResource("7_87coq")
 
-[node name="150500" parent="engine_sound" index="4"]
+[node name="150500" parent="engine_sound" index="4" unique_id=1054267454]
 stream = ExtResource("8_b4h4g")
 
-[node name="126500" parent="engine_sound" index="5"]
+[node name="126500" parent="engine_sound" index="5" unique_id=80165373]
 stream = ExtResource("9_5avts")
 
-[node name="112750" parent="engine_sound" index="6"]
+[node name="112750" parent="engine_sound" index="6" unique_id=1584539782]
 stream = ExtResource("10_v0gof")
 
-[node name="100500" parent="engine_sound" index="7"]
+[node name="100500" parent="engine_sound" index="7" unique_id=859144927]
 stream = ExtResource("11_1v2r1")
 
 [node name="fr" parent="." unique_id=1322232302 node_paths=PackedStringArray("car") instance=ExtResource("1")]

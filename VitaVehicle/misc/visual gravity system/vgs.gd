@@ -11,13 +11,24 @@ var glength := 0.0
 
 var appended := []
 
+# Group name used to track every wheel UI node we spawn, so clear()
+# can find and free them even if our `appended` array got out of sync
+# (e.g. wheels whose car tyre node was freed and got filtered out below).
+const WHEEL_GROUP := "vgs_wheel"
+
 func _ready():
 	$wheel.queue_free()
 	
 
 func clear():
-	for i in appended:
-		i.queue_free()
+	# Free every wheel UI node we ever added — not just the ones still
+	# tracked in `appended`. This catches orphans whose tyre node was
+	# freed (the _physics_process filter drops them from `appended` but
+	# was leaving the UI node parented to us, which caused stacked
+	# wheels after a car swap).
+	for i in get_tree().get_nodes_in_group(WHEEL_GROUP):
+		if i.get_parent() == self:
+			i.queue_free()
 	appended = []
 	
 
@@ -27,6 +38,7 @@ func append_wheel(pos, settings, node):
 	
 	var w := wheel.duplicate()
 	add_child(w)
+	w.add_to_group(WHEEL_GROUP)
 	w.pos = -Vector2(pos.x, pos.z)*2.0
 	w.setting = settings
 	w.node = node
@@ -37,7 +49,18 @@ func append_wheel(pos, settings, node):
 	appended.append(w)
 
 func _physics_process(_delta):
-	appended = appended.filter(func(w): return is_instance_valid(w) and is_instance_valid(w.node))
+	# Drop wheels whose car tyre node has been freed, AND queue_free the
+	# orphaned UI node so it doesn't linger as a stale child.
+	var still_alive := []
+	for w in appended:
+		if not is_instance_valid(w):
+			continue
+		if not is_instance_valid(w.node):
+			w.queue_free()
+			continue
+		still_alive.append(w)
+	appended = still_alive
+	
 	for i in appended:
 		i.position = size/2
 		i.position += ((i.pos*(64.0/vgs_scale))/9.806)
@@ -68,4 +91,3 @@ func _physics_process(_delta):
 	
 	$centre.position = size/2 +gforce*(64.0/vgs_scale)
 	$field.position = size/2
-	

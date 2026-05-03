@@ -41,6 +41,7 @@ func _ready():
 		i.max_db = 3.0
 
 func _physics_process(_delta):
+		
 	if !car.is_ignition_on:
 		for i in get_children():
 			i.volume_db = -60.0

@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://cl5riv3giscom"]
 
 [ext_resource type="PackedScene" uid="uid://crtwme8ggggra" path="res://misc/car swapper/cars/Base/scene.tscn" id="1"]
-[ext_resource type="Script" uid="uid://cdblumq2riqxy" path="res://main/misc/camera.gd" id="2"]
+[ext_resource type="Script" uid="uid://dub5eckjn8bft" path="res://main/misc/camera.gd" id="2"]
 [ext_resource type="PackedScene" uid="uid://b77dj0608nvq0" path="res://misc/debugger.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://diafjore21wn" path="res://misc/scene swapper/scenes/Test Scene/scene.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://bm2wwe6lx2b53" path="res://morning_env.scn" id="7_n8evn"]
 [ext_resource type="PackedScene" uid="uid://l32g0g53ug0g" path="res://misc/mobile controls/mobile.tscn" id="8"]
-[ext_resource type="Script" uid="uid://c01bavgk4s0nv" path="res://main/car_spawner.gd" id="8_gbfbk"]
+[ext_resource type="Script" uid="uid://ctugxg4k4f6bl" path="res://main/car_spawner.gd" id="8_gbfbk"]
 [ext_resource type="Texture2D" uid="uid://ciey7qc8c0n88" path="res://logo.png" id="13"]
 
 [node name="world" type="Node3D" unique_id=718258220]

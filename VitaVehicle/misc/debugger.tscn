@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://b77dj0608nvq0"]
 
 [ext_resource type="Texture2D" uid="uid://ciey7qc8c0n88" path="res://logo.png" id="2"]
-[ext_resource type="Script" uid="uid://busfe5xshhkwy" path="res://misc/misc scripts/debug.gd" id="3"]
+[ext_resource type="Script" uid="uid://dkanv7py15mgh" path="res://misc/misc scripts/debug.gd" id="3"]
 [ext_resource type="Script" uid="uid://cxos0evytwscq" path="res://misc/scene swapper/scene swapper.gd" id="4"]
 [ext_resource type="Script" uid="uid://2rbs3kla6u76" path="res://misc/graphics_config/graphics config.gd" id="5"]
 [ext_resource type="Script" uid="uid://c8eewi8g53da7" path="res://misc/misc scripts/show_info.gd" id="6"]
 [ext_resource type="Script" uid="uid://85abxwydrspy" path="res://misc/controls config/slider_variables.gd" id="7"]
 [ext_resource type="FontFile" uid="uid://bbwusye2t6xja" path="res://assets/font/DroidSans.ttf" id="7_coiix"]
-[ext_resource type="Script" uid="uid://bfwhlr648wcnr" path="res://misc/controls config/run.gd" id="8"]
+[ext_resource type="Script" uid="uid://km70xwyi76xw" path="res://misc/controls config/run.gd" id="8"]
 [ext_resource type="Script" uid="uid://deynnaacj5mue" path="res://misc/controls config/check_variables.gd" id="9"]
-[ext_resource type="Script" uid="uid://cnbpwyxj1ptaj" path="res://misc/car swapper/car swapper.gd" id="10"]
+[ext_resource type="Script" uid="uid://drd1ptaely6a0" path="res://misc/car swapper/car swapper.gd" id="10"]
 [ext_resource type="Texture2D" uid="uid://b336dbjpvlm1h" path="res://main/misc/textures/sw.png" id="11"]
 [ext_resource type="Texture2D" uid="uid://c041k6yh2ifxw" path="res://main/misc/textures/sw_desired.png" id="12"]
 [ext_resource type="PackedScene" uid="uid://b1vo60v1pjs6w" path="res://misc/tachometre/tacho.tscn" id="13"]
@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://cnjbclsh2lklc" path="res://misc/visual gravity system/vgs.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://2ojbutsqhnh4" path="res://misc/graph/display.tscn" id="16"]
 [ext_resource type="Texture2D" uid="uid://wgoed8dgkuc8" path="res://misc/visual gravity system/circle.png" id="17_pcvgg"]
-[ext_resource type="Script" uid="uid://csjbsmwfcx8di" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
+[ext_resource type="Script" uid="uid://droljbvlwcbbu" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
 
 [node name="debug" type="Control" unique_id=1409536949 node_paths=PackedStringArray("start_engine_button")]
 layout_mode = 3
@@ -143,15 +143,15 @@ text = "debug"
 [node name="sw" type="TextureRect" parent="." unique_id=1851850054]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.467
-anchor_top = 0.859
-anchor_right = 0.53300005
-anchor_bottom = 0.97800004
-offset_left = -0.64001465
-offset_top = 0.27996826
-offset_right = 0.6398926
-offset_bottom = -0.23999023
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -64.0
+offset_top = -152.0
+offset_right = 64.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 0
 pivot_offset = Vector2(64, 64)
@@ -161,15 +161,15 @@ expand_mode = 1
 [node name="sw_desired" type="TextureRect" parent="." unique_id=807164587]
 custom_minimum_size = Vector2(128, 128)
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.467
-anchor_top = 0.859
-anchor_right = 0.53300005
-anchor_bottom = 0.97800004
-offset_left = -0.64001465
-offset_top = 0.27996826
-offset_right = 0.6398926
-offset_bottom = -0.23999023
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -64.0
+offset_top = -152.0
+offset_right = 64.0
+offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 0
 pivot_offset = Vector2(64, 64)

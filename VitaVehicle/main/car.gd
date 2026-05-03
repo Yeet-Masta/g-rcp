@@ -342,7 +342,7 @@ func _physics_process(delta):
 		steering_geometry = [-Steer_Radius / steeroutput, AckermannPoint]
 	
 	
-	if abs: apply_abs()
+	if abs: apply_abs(delta)
 	if btcs: apply_btcs(delta)
 	if ttcs: apply_ttcs(delta)
 	if esp: apply_esp()
@@ -477,7 +477,25 @@ func simulate_engine():
 	engine_torque = torque
 
 
-func apply_abs():
+## Anti-lock braking system entry point. Dispatches to either the legacy
+## global pump-duration logic or the advanced per-wheel slip-target
+## controller depending on [member ABSProfile.use_advanced_controller].
+func apply_abs(delta: float) -> void:
+	if abs == null:
+		return
+	if abs.use_advanced_controller:
+		_apply_abs_advanced(delta)
+	else:
+		_apply_abs_legacy()
+
+
+## Legacy controller — kept for backward compatibility with vehicles tuned
+## against the original behaviour. The wheel's [code]_physics_process[/code]
+## sets [member abs_delay] when its longitudinal velocity-deviation crosses
+## [member ABSProfile.slip_threshold]; this function just ramps the global
+## [member brake_allowed] down while the delay is active and back up when
+## it expires. All wheels share a single modulation envelope.
+func _apply_abs_legacy() -> void:
 	if abs_delay > 0:
 		brake_allowed -= abs.pump_rate
 	else:
@@ -485,6 +503,130 @@ func apply_abs():
 	brake_allowed = clamp(brake_allowed, 0.0, 1.0)
 	
 	abs_delay -= 1
+	# Per-wheel modulation isn't used in legacy mode — wheels keep
+	# abs_modulation = 1.0 (their default) and the global brake_allowed in
+	# car.brakeline does all the work.
+
+
+## Advanced controller — a per-wheel slip-target ABS modelled on the
+## x-engineer.org Xcos reference. For each wheel flagged [code]ContactABS[/code]:
+## [br]   1. Compute the longitudinal slip ratio [code]s = 1 − (ω·r)/v[/code].
+## [br]   2. Form the slip error [code]e = target_slip − s[/code] and take its sign
+##         (bang-bang valve command, ±1).
+## [br]   3. Pass that command through a first-order hydraulic lag (time
+##         constant T = [member ABSProfile.hydraulic_time_constant]) to get a
+##         smooth valve state.
+## [br]   4. Integrate [code]K · valve_state[/code] (gain = [member ABSProfile.controller_gain])
+##         into the wheel's [member Wheel.abs_modulation], clamped to [0, 1].
+## [br][br]
+## When the wheel is below [member ABSProfile.min_speed] or the driver isn't
+## braking, modulation is relaxed back to 1.0 at [member ABSProfile.release_rate]
+## so the next braking event starts from a clean state.
+## [br][br]
+## The legacy globals ([member brake_allowed], [member abs_delay]) are kept
+## consistent so the dash light and any other code reading them still works:
+## [member brake_allowed] is set to 1.0 (advanced mode does its work
+## per-wheel — see [member Wheel.abs_modulation]) and [member abs_delay] is
+## bumped while any wheel is actively cycling.
+func _apply_abs_advanced(delta: float) -> void:
+	# In advanced mode the global modulator is unity — per-wheel modulation
+	# does the actual brake-pressure shaping, so brake_allowed must NOT also
+	# scale the brake or we'd double-modulate the wheel being released.
+	brake_allowed = 1.0
+	
+	var any_active := false
+	
+	# Iterate every wheel, not just driven ones — ABS protects all corners.
+	for child in get_children():
+		if not "TyreSettings" in child:
+			continue
+		
+		# Wheels with ContactABS = false are unprotected. Snap them open.
+		if not child.ContactABS:
+			child.abs_modulation = 1.0
+			child.abs_active = false
+			child.abs_slip_ratio = 0.0
+			continue
+		
+		# Need ground contact for the slip ratio to mean anything.
+		if not child.is_colliding():
+			child.abs_modulation = move_toward(child.abs_modulation, 1.0, abs.release_rate * delta)
+			child.abs_valve_state = move_toward(child.abs_valve_state, 0.0, delta / maxf(abs.hydraulic_time_constant, 0.001))
+			child.abs_active = false
+			child.abs_slip_ratio = 0.0
+			continue
+		
+		# Longitudinal velocity at the contact patch (in the wheel's local
+		# frame, so positive = forward). Used both for the cutoff check and
+		# the slip ratio denominator.
+		var v_long: float = absf(child.velocity2.z)
+		
+		# Below cutoff speed, or the driver isn't asking for any meaningful
+		# brake → no intervention. Relax modulation back to fully open.
+		if v_long < abs.min_speed or brakepedal < 0.05:
+			child.abs_modulation = move_toward(child.abs_modulation, 1.0, abs.release_rate * delta)
+			child.abs_valve_state = move_toward(child.abs_valve_state, 0.0, delta / maxf(abs.hydraulic_time_constant, 0.001))
+			child.abs_active = false
+			# Still publish the slip for telemetry, but it's noisy at low v.
+			var w_speed_lo: float = absf(child.wv * child.w_size)
+			child.abs_slip_ratio = clampf(1.0 - w_speed_lo / maxf(v_long, 0.001), 0.0, 1.0)
+			continue
+		
+		# --- Slip ratio (article eq. 10–11) -----------------------------
+		# wv*w_size and velocity2.z are the same units in this codebase
+		# (BTCS uses the same comparison). Sign-agnostic via abs() so the
+		# formula works for forward and reverse braking alike.
+		var wheel_speed: float = absf(child.wv * child.w_size)
+		var slip: float = clampf(1.0 - wheel_speed / v_long, 0.0, 1.0)
+		child.abs_slip_ratio = slip
+		
+		# --- Bang-bang command on the slip error ------------------------
+		# error > 0 → slip below target → open valve, build pressure (+1)
+		# error < 0 → slip above target → close valve, release pressure (-1)
+		var error: float = abs.target_slip - slip
+		var cmd: float = signf(error)
+		
+		# Lateral-slip override: if the wheel is sliding sideways hard, the
+		# tyre is saturated and any extra brake will just spin the car.
+		# Force a release regardless of the longitudinal error.
+		var v_lat: float = absf(child.velocity2.x)
+		if v_lat > abs.lateral_speed_threshold:
+			cmd = -1.0
+		
+		# --- First-order hydraulic lag ---------------------------------
+		# valve_state tracks cmd with time constant T:
+		#   T · d(valve)/dt + valve = cmd     →     valve += (cmd-valve)*dt/T
+		var alpha: float = clampf(delta / maxf(abs.hydraulic_time_constant, 0.001), 0.0, 1.0)
+		child.abs_valve_state += (cmd - child.abs_valve_state) * alpha
+		
+		# --- Integrate into modulation ---------------------------------
+		# K · valve_state is the commanded modulation rate (1/s). Integrate
+		# and clamp to [0, 1]. K=12 gives ≈12 modulation-units/sec when the
+		# valve is fully committed, so a full 1.0→0.0 release takes ~83 ms.
+		child.abs_modulation += child.abs_valve_state * abs.controller_gain * delta
+		child.abs_modulation = clampf(child.abs_modulation, 0.0, 1.0)
+		
+		# Active = noticeably below 1.0 (driver pedal is being modulated).
+		# 0.95 hysteresis avoids flicker when the controller idles near full.
+		if child.abs_modulation < 0.95:
+			child.abs_active = true
+			any_active = true
+		else:
+			child.abs_active = false
+	
+	# --- Legacy compatibility shims ------------------------------------
+	# Some external code (debug.gd dash light) checks abs_delay > 0. Bump
+	# it for one tick whenever any wheel is cycling so the indicator stays
+	# lit. Fade naturally otherwise.
+	if any_active:
+		abs_delay = maxf(abs_delay, 1.0)
+	abs_delay = maxf(abs_delay - 1.0, 0.0)
+	
+	# Note: brake_allowed stays at 1.0 here. Per-wheel abs_modulation in
+	# wheel.gd does all the actual brake shaping in advanced mode, and
+	# stacking both would double-modulate the wheel that's being released.
+	# Tools/debug code that read brake_allowed should now read
+	# wheel.abs_modulation (per-wheel) or any_active (per-car) instead.
 
 
 ## Brake-based traction control. For each driven wheel that flags

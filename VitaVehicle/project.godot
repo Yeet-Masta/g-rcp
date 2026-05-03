@@ -29,12 +29,13 @@ buses/default_bus_layout="uid://ma0qk1o42ndx"
 VitaVehicleSimulation="*res://main/vitavehicle.gd"
 misc_graphics_settings="*res://misc/autoload/graphics.gd"
 ConfigManager="*res://main/config_manager.gd"
-CarManager="*uid://boqfrci1pdot2"
+CarManager="*uid://gsryuygw5c5e"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
 window/vsync/use_vsync=false
 
 [editor_plugins]
