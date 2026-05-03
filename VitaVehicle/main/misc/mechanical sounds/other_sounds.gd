@@ -61,6 +61,11 @@ func stop():
 
 #region internal
 func _ready():
+	# Set the 3D ceiling ONCE for every child so per-frame volume_db updates
+	# don't also drag max_db with them and slowly bias the mixer hot.
+	#for i in get_children():
+	#	if i is AudioStreamPlayer3D:
+	#		i.max_db = 3.0
 	play()
 
 func _physics_process(_delta):
@@ -85,7 +90,7 @@ func _physics_process(_delta):
 			yed = max(yed, 1.0)
 			$backfire.pitch_scale = randf_range(yed*1.25,yed*1.5)
 			$backfire.volume_db = linear_to_db((ft*backfire_Volume)*0.1)
-			$backfire.max_db = $backfire.volume_db
+			# max_db is locked in _ready().
 			get_node(engine_sound).pitch_influence = 0.5
 			for i in exhaust_particles:
 				get_node(i).emitting = true
@@ -97,7 +102,6 @@ func _physics_process(_delta):
 	wh = max(wh, 0.0)
 	if wh>MinWhinePitch:
 		$scwhine.volume_db = linear_to_db(WhineVolume*volume)
-		$scwhine.max_db = $scwhine.volume_db
 		$scwhine.pitch_scale = wh
 	else:
 		$scwhine.volume_db = linear_to_db(0.0)
@@ -125,15 +129,11 @@ func _physics_process(_delta):
 	
 	$blow.volume_db = blow
 	$spool.volume_db = spool
-	
-	$blow.max_db = $blow.volume_db
-	$spool.max_db = $spool.volume_db
 	var yes = blowvol*BlowOffVolume
 	yes = clamp(yes, 0.0, 1.0)
 	var whistle = linear_to_db(yes)
 	whistle = max(whistle, -60.0)
 	$whistle.volume_db = whistle
-	$whistle.max_db = $whistle.volume_db
 	var wps = 1.0
 	if get_parent().turbopsi>0.0:
 		wps = blowvol*BlowOffPitch2 +get_parent().turbopsi*0.05 +BlowOffPitch1
@@ -150,13 +150,11 @@ func _physics_process(_delta):
 	var wlow = linear_to_db(((get_parent().gearstress*get_parent().GearGap)/160000.0)*((1.0-h)*0.5))
 	wlow = max(wlow, -60.0)
 	$wlow.volume_db = wlow
-	$wlow.max_db = $wlow.volume_db
 	if get_parent().whinepitch/50.0>0.0001:
 		$wlow.pitch_scale = get_parent().whinepitch/50.0
 	var whigh = linear_to_db(((get_parent().gearstress*get_parent().GearGap)/80000.0)*0.5)
 	whigh = max(whigh, -60.0)
 	$whigh.volume_db = whigh
-	$whigh.max_db = $whigh.volume_db
 	if get_parent().whinepitch/100.0>0.0001:
 		$whigh.pitch_scale = get_parent().whinepitch/100.0
 #endregion internal

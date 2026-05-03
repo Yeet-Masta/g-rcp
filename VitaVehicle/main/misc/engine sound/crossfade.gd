@@ -34,6 +34,11 @@ func _ready():
 	play()
 	childcount = get_child_count()
 	maxfades = float(childcount-1.0)
+	# Set the 3D-audio ceiling ONCE. Re-writing this every physics frame
+	# alongside volume_db is what was causing the engine sound to slowly
+	# drift to deafening levels until a car swap reset the nodes.
+	for i in get_children():
+		i.max_db = 3.0
 
 func _physics_process(_delta):
 	if !car.is_ignition_on:
@@ -58,6 +63,11 @@ func _physics_process(_delta):
 	
 	volume += (1.0-sfk)*vacuum_loudness
 	
+	# Clamp the additive volume term so vacuum_loudness can't drive the bus
+	# above unity gain. Without this, volume could reach ~5.0 (= +14 dB),
+	# which on top of crossfade overlaps causes cumulative loudness drift.
+	volume = clamp(volume, 0.0, 1.0)
+	
 	for i in get_children():
 		var maxvol := float(i.get_child(0).name)/100.0
 		var maxpitch := float(i.name)/100000.0 # TODO
@@ -65,13 +75,12 @@ func _physics_process(_delta):
 		var index := float(i.get_index())
 		var dist := pow(absf(index - fade), 2)
 		
-		var vol := 1.0-dist
+		var vol := 1.0 - dist
 		vol = clamp(vol, 0.0, 1.0)
 		var db := linear_to_db((vol*maxvol)*(volume*(overall_volume)))
 		db = max(db, -60.0)
 		
 		i.volume_db = db
-		i.max_db = i.volume_db
 		var pit := absf(pitch*maxpitch)
 		pit = clamp(pit, 0.01, 5.0)
 		i.pitch_scale = pit

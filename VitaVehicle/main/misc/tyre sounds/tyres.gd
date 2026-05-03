@@ -37,6 +37,10 @@ func _ready():
 	for i in get_parent().get_children(): # IMPORTANT: Bad pattern.
 		if "TyreSettings" in i:
 			wheels.append(i)
+	# Lock the 3D-audio ceiling ONCE so per-frame volume_db updates don't
+	# also drag max_db around (which caused cumulative loudness drift).
+	#for i in get_children():
+	#	i.max_db = 3.0
 	play()
 
 func _physics_process(_delta):
@@ -62,7 +66,7 @@ func _physics_process(_delta):
 	
 	total = min(total / 10.0, 1.0)
 	
-	#$roll0.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/500.0 +1.0)
+	$roll0.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/500.0 +1.0)
 	$roll1.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
 	$roll2.pitch_scale = 1.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
 	$peel0.pitch_scale = 0.95 +length/8.0    /(get_parent().linear_velocity.length()/5000.0 +1.0)
@@ -81,7 +85,6 @@ func _physics_process(_delta):
 	for i in get_children():
 		if i.name == "dirt":
 			i.volume_db = linear_to_db(drit*0.3)
-			i.max_db = i.volume_db
 			i.pitch_scale = 1.0 +length*0.05 +abs(roll/100.0)
 		else:
 			var dist = abs(i.length -length)
@@ -93,5 +96,4 @@ func _physics_process(_delta):
 			var vol = 1.0-(dist + dist2)
 			vol = clamp(vol, 0.0, 1.0)
 			i.volume_db = linear_to_db(((vol*(1.0-dirt))*i.volume)*0.35)
-			i.max_db = i.volume_db
 #endregion internal
