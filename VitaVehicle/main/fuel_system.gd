@@ -119,11 +119,6 @@ var last_bsfc := 0.0
 var dfco_active := false
 #endregion
 
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
-
 ## Returns instantaneous fuel consumption in [code]liters/sec[/code].
 ##
 ## [param car] is the [Car] sourcing telemetry: [code]rpm[/code],
@@ -154,17 +149,17 @@ func get_consumption(car) -> float:
 	var rpm: float = absf(car.rpm)
 	var throttle: float = clampf(car.throttle, 0.0, 1.0)
 	
-	# --- 1. Volumetric efficiency at this RPM. ---
+	#1. Volumetric efficiency at this RPM.
 	var ve := _ve_at(rpm)
 	
-	# --- 2. Boost ratio (forced induction). ---
+	#2. Boost ratio (forced induction).
 	# 1.0 atm = 14.7 PSI. Boost adds proportional air.
 	var boost_psi := 0.0
 	if "turbopsi" in car:
 		boost_psi = maxf(car.turbopsi, 0.0)
 	var boost_ratio := 1.0 + boost_psi / 14.7
 	
-	# --- 3. MAF estimate (g/s) from speed-density. ---
+	#3. MAF estimate (g/s) from speed-density.
 	# n_dot (revs/sec) * displacement_per_rev * VE * air_density * boost
 	# 4-stroke: each cylinder fires once per 2 revs => /2.
 	# air density at sea level ≈ 1.225 g/L
@@ -179,16 +174,16 @@ func get_consumption(car) -> float:
 	maf_gps = maxf(maf_gps, idle_bypass_gps)
 	last_maf_gps = maf_gps
 	
-	# --- 4. AFR target (commanded richness). ---
+	#4. AFR target (commanded richness).
 	var afr_factor := _afr_factor_at(throttle)
 	var commanded_afr: float = stoichiometric_afr * afr_factor
 	commanded_afr = maxf(commanded_afr, 1.0)  # safety
 	last_afr = commanded_afr
 	
-	# --- 5. Volumetric mass-flow consumption (g/s). ---
+	#5. Volumetric mass-flow consumption (g/s).
 	var fuel_gps_volumetric := maf_gps / commanded_afr
 	
-	# --- 6. BSFC-based consumption (g/s) when producing power. ---
+	#6. BSFC-based consumption (g/s) when producing power.
 	# Power in kW = torque_Nm * rpm / 9549.
 	# Mass flow = bsfc(g/kWh) * power(kW) / 3600.
 	var torque_nm: float = absf(car.engine_torque) if "engine_torque" in car else 0.0
@@ -199,17 +194,17 @@ func get_consumption(car) -> float:
 	last_bsfc = bsfc
 	var fuel_gps_bsfc := (bsfc * power_kw) / 3600.0
 	
-	# --- 7. Combine: take the larger of the two estimates. ---
+	#7. Combine: take the larger of the two estimates.
 	# At idle/very low load, BSFC * power -> 0 but the engine still drinks
 	# air/fuel to spin. The volumetric model captures that.
 	# Under load, the BSFC map captures pumping/combustion losses better.
 	var fuel_gps := maxf(fuel_gps_volumetric, fuel_gps_bsfc)
 	
-	# --- 8. Convert g/s -> L/s. ---
+	#8. Convert g/s -> L/s.
 	# liters = grams / (kg/L * 1000)
 	var fuel_lps := fuel_gps / (fuel_density * 1000.0)
 	
-	# --- 9. Floor with the legacy idle term so very small numbers don't vanish. ---
+	#9. Floor with the legacy idle term so very small numbers don't vanish.
 	fuel_lps = maxf(fuel_lps, idle_consumption)
 	
 	return fuel_lps
@@ -232,11 +227,6 @@ func get_consumption_legacy(engine_torque: float, rpm: float) -> float:
 ## diesels do above their auto-ignition RPM threshold.
 func should_compression_autostart(rpm: float) -> bool:
 	return ignition_type == IgnitionType.COMPRESSION and absf(rpm) >= compression_autoignite_rpm
-
-
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
 
 func _ve_at(rpm: float) -> float:
 	# Piecewise linear: low -> peak -> high. Cheap & adjustable.

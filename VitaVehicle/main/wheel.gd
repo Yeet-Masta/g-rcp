@@ -1,4 +1,11 @@
-extends RayCast3D
+## A single wheel: raycast suspension + tyre force model + per-wheel ABS state.
+##
+## [b]class_name[/b] is set so other scripts can do [code]if node is Wheel:[/code]
+## instead of duck-typing on [code]"TyreSettings" in node[/code]. The old
+## duck-type pattern accidentally matched anything that happened to expose
+## that property, and broke silently if the property was ever renamed.
+
+class_name Wheel extends RayCast3D
 
 @export var car: Car
 

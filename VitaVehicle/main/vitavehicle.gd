@@ -1,71 +1,70 @@
 @tool
 extends Node
 
+## Vehicle-physics math autoload.
+##
+## Historically [method multivariate] held its own copy of the engine torque
+## curve while [Car.simulate_engine] held an identical copy — guaranteed to
+## drift apart eventually. The implementation now delegates to [EngineModel]
+## so the dyno graph and the runtime simulation read from the same math.
+## The signature is preserved so [code]draw.gd[/code] doesn't change.
+
 
 
 func multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,RPM,DeclineRPM,DeclineRate,FloatRate,PSI,TurboAmount,EngineCompressionRatio,TEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SCEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness) -> float:
-	var value := 0.0
-	
-	var maxpsi := 0.0
-	var scrpm := 0.0
-	var f := 0.0
-	var j := 0.0
-	
-	if SCEnabled:
-		maxpsi = PSI
-		scrpm = RPM*SCRPMInfluence
-		PSI = (scrpm/10000.0)*BlowRate -SCThreshold
-		PSI = clamp(PSI, 0.0, maxpsi)
-	
-	if not SCEnabled and not TEnabled:
-		PSI = 0.0
-	
-	if RPM>VVTRPM:
-		value = (RPM*VVT_BuildUpTorque +VVT_OffsetTorque) + ( (PSI*TurboAmount) * (EngineCompressionRatio*0.609) )
-		f = RPM-VVT_RiseRPM
-		f = max(f, 0.0)
-		value += pow(f, 2)*(VVT_TorqueRise*Constants.RISE_FACTOR)
-		j = RPM-VVT_DeclineRPM
-		j = max(j, 0.0)
-		value /= (j*(j*VVT_DeclineSharpness +(1.0-VVT_DeclineSharpness)))*(VVT_DeclineRate*Constants.RISE_FACTOR) +1.0
-		value /= pow(RPM, 2)*(VVT_FloatRate*Constants.RISE_FACTOR) +1.0
-	else:
-		value = (RPM*BuildUpTorque +OffsetTorque) + ( (PSI*TurboAmount) * (EngineCompressionRatio*0.609) )
-		f = RPM-RiseRPM
-		f = max(f, 0.0)
-		value += pow(f, 2)*(TorqueRise*Constants.RISE_FACTOR)
-		j = RPM-DeclineRPM
-		j = max(j, 0.0)
-		value /= (j*(j*DeclineSharpness +(1.0-DeclineSharpness)))*(DeclineRate*Constants.RISE_FACTOR) +1.0
-		value /= pow(RPM, 2)*(FloatRate*Constants.RISE_FACTOR) +1.0
-	
-	value -= RPM/(abs(pow(RPM, 2))/EngineFriction +1.0)
-	value -= RPM*EngineDrag
-	
-	return value
+	# Pack the flat argument list into the shared CurveParams struct and
+	# delegate to the dyno path of EngineModel.
+	var p := EngineModel.CurveParams.new()
+	p.build_up_torque        = BuildUpTorque
+	p.torque_rise            = TorqueRise
+	p.rise_rpm               = RiseRPM
+	p.offset_torque          = OffsetTorque
+	p.float_rate             = FloatRate
+	p.decline_rate           = DeclineRate
+	p.decline_rpm            = DeclineRPM
+	p.decline_sharpness      = DeclineSharpness
+	p.vvt_rpm                = VVTRPM
+	p.vvt_build_up_torque    = VVT_BuildUpTorque
+	p.vvt_torque_rise        = VVT_TorqueRise
+	p.vvt_rise_rpm           = VVT_RiseRPM
+	p.vvt_offset_torque      = VVT_OffsetTorque
+	p.vvt_float_rate         = VVT_FloatRate
+	p.vvt_decline_rate       = VVT_DeclineRate
+	p.vvt_decline_rpm        = VVT_DeclineRPM
+	p.vvt_decline_sharpness  = VVT_DeclineSharpness
+	p.engine_friction        = EngineFriction
+	p.engine_drag            = EngineDrag
+	p.engine_compression_ratio = EngineCompressionRatio
+	p.psi                    = PSI
+	p.max_psi                = PSI
+	p.turbo_amount           = TurboAmount
+	p.turbo_enabled          = TEnabled
+	p.supercharger_enabled   = SCEnabled
+	p.sc_rpm_influence       = SCRPMInfluence
+	p.blow_rate              = BlowRate
+	p.sc_threshold           = SCThreshold
+	return EngineModel.torque_dyno(p, RPM)
 
 
 func fastest_wheel(array):
 	var val := -INF
 	var obj
-	
 	for i in array:
 		if abs(i.absolute_wv) > val:
 			val = abs(i.absolute_wv)
 			obj = i
-	
 	return obj
+
 
 func slowest_wheel(array):
 	var val := INF
 	var obj
-	
 	for i in array:
 		if abs(i.absolute_wv) < val:
 			val = abs(i.absolute_wv)
 			obj = i
-	
 	return obj
+
 
 func alignAxisToVector(xform, norm): # i named this literally out of blender
 	xform.basis.y = norm

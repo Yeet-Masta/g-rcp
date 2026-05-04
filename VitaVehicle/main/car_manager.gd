@@ -21,12 +21,6 @@ signal car_unregistered(car)
 var _active_car: Node = null
 var _cars: Array = []  # Untyped because Car class_name lives in car.gd; this autoload must not depend on it.
 
-
-
-# ---------------------------------------------------------------------------
-# Registration
-# ---------------------------------------------------------------------------
-
 ## Register a car with the manager. Called automatically in Car._ready when
 ## the helper is wired up. Safe to call multiple times.
 func register(car: Node) -> void:
@@ -58,11 +52,6 @@ func unregister(car: Node) -> void:
 			set_active(_cars[0])
 		else:
 			active_car_changed.emit(null)
-
-
-# ---------------------------------------------------------------------------
-# Active car
-# ---------------------------------------------------------------------------
 
 func get_active() -> Node:
 	# Self-heal if the active car was freed externally.
@@ -144,11 +133,6 @@ func cycle_active(direction: int = 1) -> void:
 		next += _cars.size()
 	set_active(_cars[next])
 
-
-# ---------------------------------------------------------------------------
-# Queries
-# ---------------------------------------------------------------------------
-
 func get_all_cars() -> Array:
 	_cars = _cars.filter(func(c): return is_instance_valid(c))
 	return _cars.duplicate()
@@ -161,11 +145,6 @@ func has_active() -> bool:
 func count() -> int:
 	_cars = _cars.filter(func(c): return is_instance_valid(c))
 	return _cars.size()
-
-
-# ---------------------------------------------------------------------------
-# Internal
-# ---------------------------------------------------------------------------
 
 func _on_car_exiting(car: Node) -> void:
 	# tree_exiting fires before queue_free completes, so the instance is still

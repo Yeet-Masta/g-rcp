@@ -1,5 +1,7 @@
-# NOTE:
-# Lives in a car scene, gets the parent (car) and gets all tires that are its children.
+## Tyre rolling-noise + dirt audio mixer.
+##
+## Lives as a child of the [Car] (alongside the wheel nodes). Walks the car's
+## children at _ready and grabs every [Wheel] for per-frame skid/dirt mixing.
 
 extends Node3D
 
@@ -8,7 +10,7 @@ var width := 0.0
 var weight := 0.0
 var dirt := 0.0
 
-var wheels := []
+var wheels: Array[Wheel] = []
 
 
 #region methods
@@ -21,9 +23,9 @@ func stop():
 	for i in get_children():
 		i.stop()
 
-func most_skidding(array):
+func most_skidding(array: Array[Wheel]) -> Wheel:
 	var val := -INF
-	var obj
+	var obj: Wheel
 	for i in array:
 		val = max(val, absf(i.skvol))
 		if val == absf(i.skvol):
@@ -34,13 +36,11 @@ func most_skidding(array):
 
 #region internal
 func _ready():
-	for i in get_parent().get_children(): # IMPORTANT: Bad pattern.
-		if "TyreSettings" in i:
+	# Was: `if "TyreSettings" in i:` — fragile duck-type that matched anything
+	# with that property. With `class_name Wheel` we can ask the type system.
+	for i in get_parent().get_children():
+		if i is Wheel:
 			wheels.append(i)
-	# Lock the 3D-audio ceiling ONCE so per-frame volume_db updates don't
-	# also drag max_db around (which caused cumulative loudness drift).
-	#for i in get_children():
-	#	i.max_db = 3.0
 	play()
 
 func _physics_process(_delta):

@@ -56,11 +56,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		despawn()
 		get_viewport().set_input_as_handled()
 
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
-
 ## Spawns the first car in [member car_scenes]. Returns the new car or null.
 func spawn_default() -> Node:
 	if car_scenes.is_empty():
@@ -107,11 +102,6 @@ func despawn(car: Node = null) -> void:
 		return
 	CarManager.unregister(target)
 	target.queue_free()
-
-
-# ---------------------------------------------------------------------------
-# Internal
-# ---------------------------------------------------------------------------
 
 func _default_spawn_position() -> Vector3:
 	var active := CarManager.get_active()

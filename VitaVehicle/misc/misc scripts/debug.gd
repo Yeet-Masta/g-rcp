@@ -31,7 +31,7 @@ func reload():
 	if !car: return
 	
 	for d in car.get_children():
-		if "TyreSettings" in d:
+		if d is Wheel:
 			$vgs.append_wheel(d.position, d.TyreSettings, d)
 	
 	for i in $power_graph.get_script().get_script_property_list():
@@ -79,7 +79,7 @@ func _is_abs_active() -> bool:
 	if car.abs_delay > 0:
 		return true
 	for child in car.get_children():
-		if "abs_active" in child and child.abs_active:
+		if child is Wheel and child.abs_active:
 			return true
 	return false
 
