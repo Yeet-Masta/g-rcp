@@ -45,12 +45,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	# The 'false' argument disables echo events
 	if InputMap.has_action(spawn_action) and event.is_action_pressed(spawn_action, false):
-		print("spawn_action is being pressed")
+		#print("spawn_action is being pressed")
 		spawn_default()
-		get_viewport().set_input_as_handled()
+		
 	elif InputMap.has_action(cycle_action) and event.is_action_pressed(cycle_action, false):
-		print("cycle_action is being pressed")
+		#print("cycle_action is being pressed")
 		CarManager.cycle_active(1)
+		get_viewport().set_input_as_handled()
+	elif InputMap.has_action("despawn_car") and event.is_action_pressed("despawn_car", false):
+		despawn()
 		get_viewport().set_input_as_handled()
 
 
@@ -138,16 +141,9 @@ func _default_spawn_rotation() -> float:
 	if active != null and active is Node3D:
 		var t := (active as Node3D).global_transform
 		
-		# Extract the active car's forward vector (-Z is forward)
-		var forward := -t.basis.z
-		
-		# Project it strictly onto the flat horizontal XZ plane
-		# In Godot 4, we use the X and Z coordinates to find the angle on the ground
-		var ground_dir := Vector2(forward.x, forward.z)
-		
-		# Vector2.angle_to() or Vector2.angle() cleanly handles the rotation for us
-		# Vector2.UP is (0, -1), which points along Godot's forward (-Z) axis
-		return Vector2.UP.angle_to(ground_dir)
+		# Extracts Euler angles (X, Y, Z rotation) in radians.
+		# .y returns the exact rotation around the Y axis.
+		return t.basis.get_euler().y
 		
 	return 0.0
 

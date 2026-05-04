@@ -1,18 +1,18 @@
 [gd_scene format=4 uid="uid://crtwme8ggggra"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://pg6cdk41w38x" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="2"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_p1d67"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Texture2D" uid="uid://dyiiofsu2pkjv" path="res://main/misc/textures/rim.jpg" id="4"]
-[ext_resource type="Script" uid="uid://bapw2neo8xtbo" path="res://main/definitions/profile/abs_profile.gd" id="4_p1d67"]
+[ext_resource type="Script" uid="uid://d240oi5kp2pnr" path="res://main/definitions/profile/abs_profile.gd" id="4_p1d67"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://kb7hq7qvuul3" path="res://main/misc/backfire_particles/fire.tscn" id="7"]
 [ext_resource type="Texture2D" uid="uid://dywpwinrqs0va" path="res://main/misc/backfire_particles/backfire.png" id="8_tk2wk"]
 [ext_resource type="Script" uid="uid://bd4372rk3bnta" path="res://misc/misc scripts/interior_feedback_camera.gd" id="9_sellu"]
 [ext_resource type="Script" uid="uid://bssqc5aegsxxj" path="res://misc/car swapper/cars/Base/change_cam.gd" id="10_jak2h"]
-[ext_resource type="Script" uid="uid://dh6w6oim607sr" path="res://main/fuel_system.gd" id="11_q0weh"]
+[ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="11_q0weh"]
 
 [sub_resource type="Resource" id="Resource_p1d67"]
 script = ExtResource("11_q0weh")
@@ -247,7 +247,6 @@ script = ExtResource("2")
 fuel = SubResource("Resource_p1d67")
 shift_assist = SubResource("Resource_k4r5v")
 abs = SubResource("Resource_egfih")
-Debug_Mode = true
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="." unique_id=72595868]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)

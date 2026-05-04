@@ -1,13 +1,14 @@
 [gd_scene format=4 uid="uid://2q0qcmdoeftc"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://dee2cldgxqm0v" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="2"]
 [ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="2_1oq57"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="3_wi0nu"]
 [ext_resource type="AudioStream" uid="uid://c7tvikawj8vyr" path="res://misc/car swapper/cars/Miranda Proto/assets/1.ogg" id="4"]
-[ext_resource type="Script" uid="uid://bapw2neo8xtbo" path="res://main/definitions/profile/abs_profile.gd" id="4_pa3s5"]
+[ext_resource type="Script" uid="uid://d240oi5kp2pnr" path="res://main/definitions/profile/abs_profile.gd" id="4_pa3s5"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
+[ext_resource type="Script" uid="uid://ch6g3siwv22tk" path="res://main/definitions/profile/esp_profile.gd" id="5_q8j7i"]
 [ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
 [ext_resource type="AudioStream" uid="uid://dsumllr8wd5hm" path="res://misc/car swapper/cars/Miranda Proto/assets/2.ogg" id="7"]
 [ext_resource type="AudioStream" uid="uid://bf7ll1nelbhbn" path="res://misc/car swapper/cars/Miranda Proto/assets/3.ogg" id="8"]
@@ -27,7 +28,10 @@ metadata/_custom_type_script = "uid://wneib3hyo2ko"
 
 [sub_resource type="Resource" id="Resource_tylyn"]
 script = ExtResource("4_pa3s5")
-metadata/_custom_type_script = "uid://bapw2neo8xtbo"
+
+[sub_resource type="Resource" id="Resource_6lxnu"]
+script = ExtResource("5_q8j7i")
+metadata/_custom_type_script = "uid://ch6g3siwv22tk"
 
 [sub_resource type="StandardMaterial3D" id="17"]
 albedo_color = Color(0.01, 0.01, 0.01, 1)
@@ -252,6 +256,7 @@ script = ExtResource("2")
 fuel = SubResource("Resource_q8j7i")
 shift_assist = SubResource("Resource_nq7fi")
 abs = SubResource("Resource_tylyn")
+esp = SubResource("Resource_6lxnu")
 Weight = 1350.0
 LiftAngle = 0.4
 DragCoefficient = 0.372

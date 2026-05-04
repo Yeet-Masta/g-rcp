@@ -639,16 +639,14 @@ func apply_btcs(delta: float): # Added delta for consistent timer countdown
 	if btcs == null:
 		return
 	
-	# Don't fight the driver while braking — let ABS handle that range.
-	if brakepedal > 0.05:
-		tcs_flash_timer = 0.0
-		tcsflash = false
-		return
+	var skip := brakepedal > 0.05 \
+		or not is_in_gear() \
+		or clutchpedal < 0.1 \
+		or throttle <= 0.0
 	
-	# Need the engine actually trying to drive the wheels.
-	if not is_in_gear() or clutchpedal < 0.1 or throttle <= 0.0:
-		tcs_flash_timer = 0.0
-		tcsflash = false
+	if skip:
+		tcs_flash_timer = maxf(0.0, tcs_flash_timer - delta)
+		tcsflash = tcs_flash_timer > 0.0
 		return
 	
 	var any_intervention := false

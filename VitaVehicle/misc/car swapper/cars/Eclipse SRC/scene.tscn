@@ -1,11 +1,11 @@
 [gd_scene format=4 uid="uid://c1qlms1ih0s2l"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://dee2cldgxqm0v" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="2"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_851hf"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Script" uid="uid://ch6g3siwv22tk" path="res://main/definitions/profile/esp_profile.gd" id="4_3wois"]
-[ext_resource type="Script" uid="uid://bapw2neo8xtbo" path="res://main/definitions/profile/abs_profile.gd" id="4_ic7ar"]
+[ext_resource type="Script" uid="uid://d240oi5kp2pnr" path="res://main/definitions/profile/abs_profile.gd" id="4_ic7ar"]
 [ext_resource type="AudioStream" uid="uid://1jns1akc304k" path="res://misc/car swapper/cars/Eclipse SRC/engine sounds/1.ogg" id="4_ppb00"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="Script" uid="uid://6dokimxfg1lv" path="res://main/definitions/profile/btcs_profile.gd" id="5_ic7ar"]
@@ -30,7 +30,6 @@ script = ExtResource("2_851hf")
 
 [sub_resource type="Resource" id="Resource_jvmxu"]
 script = ExtResource("4_ic7ar")
-metadata/_custom_type_script = "uid://bapw2neo8xtbo"
 
 [sub_resource type="Resource" id="Resource_ic7ar"]
 script = ExtResource("4_3wois")
@@ -40,7 +39,7 @@ metadata/_custom_type_script = "uid://ch6g3siwv22tk"
 script = ExtResource("5_ic7ar")
 metadata/_custom_type_script = "uid://6dokimxfg1lv"
 
-[sub_resource type="Resource" id="Resource_y4aob"]
+[sub_resource type="Resource" id="Resource_3wois"]
 script = ExtResource("6_jvmxu")
 metadata/_custom_type_script = "uid://yknnxtcfyfea"
 
@@ -282,7 +281,7 @@ shift_assist = SubResource("Resource_pm6v3")
 abs = SubResource("Resource_jvmxu")
 esp = SubResource("Resource_ic7ar")
 btcs = SubResource("Resource_0w4nb")
-ttcs = SubResource("Resource_y4aob")
+ttcs = SubResource("Resource_3wois")
 
 [node name="DRAG_CENTRE" type="Marker3D" parent="." unique_id=1694674444]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.624618, 0.725289)
@@ -335,6 +334,7 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
+ContactBTCS = true
 ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0" unique_id=84671852]
@@ -353,6 +353,7 @@ S_Damping = 4.0
 S_ReboundDamping = 4.0
 B_Torque = 30.0
 B_Bias = 0.8
+ContactBTCS = true
 ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0" unique_id=1957289131]
@@ -367,6 +368,7 @@ SwayBarConnection = "rl"
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
+ContactBTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0" unique_id=1170924827]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -381,6 +383,7 @@ SwayBarConnection = "rr"
 B_Torque = 30.0
 B_Bias = 0.2
 HB_Bias = 1.0
+ContactBTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0" unique_id=1484411333]
 mesh = SubResource("19")
