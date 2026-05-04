@@ -103,15 +103,14 @@ func _process(_delta):
 		current_trail_node.global_transform.basis = get_tree().get_current_scene().global_transform.basis
 		current_trail.clear_surfaces()
 		
-		if vertices.size() > 0 : # check if we actually got stuff to make
+		if vertices.size() >= 2: # Changed from > 0 to >= 2
 			current_trail.surface_begin(Mesh.PRIMITIVE_TRIANGLE_STRIP)
 			for i in vertices:
-				if len(i)>0:
-					# with the vulkan renderer (forward+ and mobile) you will get the following error
-					## "draw_list_draw: Too few vertices (2) for the render primitive set in the render pipeline (3)."
-					
-					current_trail.surface_add_vertex(i[0] -global_transform.origin)
-					current_trail.surface_add_vertex(i[1] -global_transform.origin)
+				if len(i) > 0:
+					# Each segment adds 2 vertices. With >= 2 segments, 
+					# pass at least 4 vertices, preventing the Too few vertices error.
+					current_trail.surface_add_vertex(i[0] - global_transform.origin)
+					current_trail.surface_add_vertex(i[1] - global_transform.origin)
 			
 			current_trail.surface_end()
 #endregion internal
