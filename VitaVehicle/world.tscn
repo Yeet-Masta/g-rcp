@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://diafjore21wn" path="res://misc/scene swapper/scenes/Test Scene/scene.tscn" id="6"]
 [ext_resource type="PackedScene" uid="uid://bm2wwe6lx2b53" path="res://morning_env.scn" id="7_n8evn"]
 [ext_resource type="PackedScene" uid="uid://l32g0g53ug0g" path="res://misc/mobile controls/mobile.tscn" id="8"]
-[ext_resource type="Script" uid="uid://ctugxg4k4f6bl" path="res://main/car_spawner.gd" id="8_gbfbk"]
+[ext_resource type="Script" uid="uid://dgqjbkhe26b3t" path="res://main/car_spawner.gd" id="8_gbfbk"]
 [ext_resource type="Texture2D" uid="uid://ciey7qc8c0n88" path="res://logo.png" id="13"]
 
 [node name="world" type="Node3D" unique_id=718258220]

@@ -53,14 +53,49 @@ var peakhp := [0.0,0.0]
 var peaktq := [0.0,0.0]
 
 func _ready():
-
+	# Reset all per-graph state so nothing from the previous car can leak in.
 	peakhp = [0.0,0.0]
 	peaktq = [0.0,0.0]
 	$torque.clear_points()
 	$power.clear_points()
+	
+	# --- Pass 1: find the peaks so we can pick a draw_scale that fits this
+	# car's curves into the graph regardless of what the previous car's
+	# scale was. We DON'T add points or move the peak markers yet, because
+	# the y-coordinates depend on draw_scale, which we don't know yet.
+	for i in range(Generation_Range):
+		if i > Draw_RPM:
+			var tq = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,i,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
+			var hp = (i/5252.0)*tq
+			
+			if Torque_Unit == 1:
+				tq *= 1.3558179483
+			elif Torque_Unit == 2:
+				tq *= 0.138255
+			
+			if Power_Unit == 1:
+				hp *= 0.986
+			elif Power_Unit == 2:
+				hp *= 1.01387
+			elif Power_Unit == 3:
+				hp *= 0.7457
+			
+			if hp > peakhp[0]:
+				peakhp = [hp, i]
+			if tq > peaktq[0]:
+				peaktq = [tq, i]
+	
+	# Auto-fit draw_scale to the peak so the curves always fill the graph.
+	# Leaves a small headroom (0.95) so the peak isn't drawn at y = 0.
+	var peak: float = max(peaktq[0], peakhp[0])
+	if peak > 0.0:
+		draw_scale = 0.95 / peak
+	
+	# --- Pass 2: now that draw_scale is correct, draw the lines and place
+	# the peak markers using the same scale.
 	var skip = 0
 	for i in range(Generation_Range):
-		if i>Draw_RPM:
+		if i > Draw_RPM:
 			var tq = VitaVehicleSimulation.multivariate(RiseRPM,TorqueRise,BuildUpTorque,EngineFriction,EngineDrag,OffsetTorque,i,DeclineRPM,DeclineRate,FloatRate,MaxPSI,TurboAmount,EngineCompressionRatio,TurboEnabled,VVTRPM,VVT_BuildUpTorque,VVT_TorqueRise,VVT_RiseRPM,VVT_OffsetTorque,VVT_FloatRate,VVT_DeclineRPM,VVT_DeclineRate,SuperchargerEnabled,SCRPMInfluence,BlowRate,SCThreshold,DeclineSharpness,VVT_DeclineSharpness)
 			var hp = (i/5252.0)*tq
 			
@@ -79,12 +114,10 @@ func _ready():
 			var tq_p = Vector2((i/Generation_Range)*size.x,size.y -(tq*size.y)*draw_scale)
 			var hp_p = Vector2((i/Generation_Range)*size.x,size.y -(hp*size.y)*draw_scale)
 			
-			if hp > peakhp[0]:
-				peakhp = [hp, i]
+			# Place peak markers when we hit the (already-known) peak rpm.
+			if i == int(peakhp[1]):
 				$power/peak.position = hp_p
-				
-			if tq > peaktq[0]:
-				peaktq = [tq, i]
+			if i == int(peaktq[1]):
 				$torque/peak.position = tq_p
 			
 			skip -= 1

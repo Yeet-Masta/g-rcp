@@ -85,10 +85,8 @@ func swapcar(path: String):
 		power_graph.car = car
 	power_graph.Generation_Range = float(int(float(car.RPMLimit / 1000.0)) * 1000 + 1000)
 	power_graph.Draw_RPM = car.IdleRPM
-	power_graph._ready()
-	
-	var peak = max(power_graph.peaktq[0], power_graph.peakhp[0])
-	power_graph.draw_scale = 1.0 / peak
+	# draw.gd._ready() now auto-fits draw_scale to the new car's peaks,
+	# so we no longer need a second call to re-draw with a corrected scale.
 	power_graph._ready()
 	
 	# Tacho

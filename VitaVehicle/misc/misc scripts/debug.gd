@@ -31,13 +31,20 @@ func reload():
 	if !car: return
 	
 	for d in car.get_children():
-		if d is Wheel:
+		if "TyreSettings" in d:
 			$vgs.append_wheel(d.position, d.TyreSettings, d)
 	
 	for i in $power_graph.get_script().get_script_property_list():
 		if i["name"] != "peakhp" and i["name"] != "tr" and i["name"] != "hp" and i["name"] != "skip" and i["name"] != "scale":
 			if i["name"] in car:
 				$power_graph.set(i["name"], car.get(i["name"]))
+	
+	# These exports don't exist by name on Car (it has RPMLimit / IdleRPM),
+	# so the loop above can't copy them. Without these explicit assignments,
+	# cycling cars leaves the previous car's RPM range on the graph and the
+	# curves come out distorted.
+	$power_graph.Generation_Range = float(int(float(car.RPMLimit / 1000.0)) * 1000 + 1000)
+	$power_graph.Draw_RPM = car.IdleRPM
 	
 	$power_graph._ready()
 	
@@ -68,8 +75,7 @@ func _physics_process(_delta):
 	$vgs.gforce -= ($vgs.gforce - Vector2(car.gforce.x, car.gforce.z)) * 0.5
 	
 	$tacho/abs.visible = _is_abs_active() and car.brakepedal > 0.1
-	#print(car.tcsflash)
-	$tacho/tcs.visible = car.tcsflash
+	$tacho/tcs.visible = car.tcsflash or car.tcsweight > 0
 	$tacho/esp.visible = car.espflash
 
 
@@ -79,7 +85,7 @@ func _is_abs_active() -> bool:
 	if car.abs_delay > 0:
 		return true
 	for child in car.get_children():
-		if child is Wheel and child.abs_active:
+		if "abs_active" in child and child.abs_active:
 			return true
 	return false
 
