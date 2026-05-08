@@ -30,6 +30,9 @@ func _on_open_controls_pressed():
 #region internal
 func _ready():
 	setcar()
+	# Refresh `car` whenever a different car becomes active (cycle, swap, first spawn).
+	CarManager.active_car_changed.connect(_on_active_car_changed)
+	
 	for setting in settings_container.get_children():
 		if setting.var_name == "shift_assist_level":
 			setting.value = ConfigManager.data.controls.shift_assist_level
@@ -42,6 +45,9 @@ func _ready():
 				setting.value = ConfigManager.data.controls.get(setting.var_name)
 				setting.get_node("amount").text = str(setting.value)
 		else:
+			# Guard: a car-backed slider can't initialize without a car.
+			if car == null:
+				continue
 			if setting.get_class() == "HSlider":
 				setting.value = car.get(setting.var_name)
 				setting.get_node("amount").text = str(setting.value)
@@ -52,10 +58,13 @@ func _ready():
 	open_controls_button.pressed.connect(_on_open_controls_pressed)
 
 
+func _on_active_car_changed(_new_car: Node) -> void:
+	setcar()
+
+
 func _process(_delta):
-	# TODO: Fix writing to data each frame. Only when you change a value. Read from it though.
-	if !car: return
-	
+	# NOTE: removed the top-level `if !car: return`. ConfigManager-backed
+	# sliders don't need a car; only the third branch does.
 	for setting in settings_container.get_children():
 		if setting.var_name == "shift_assist_level":
 			ConfigManager.data.controls.shift_assist_level = setting.value
@@ -68,13 +77,14 @@ func _process(_delta):
 				ConfigManager.data.controls.set(setting.var_name, setting.value)
 				setting.get_node("amount").text = str(setting.value)
 		else:
+			if car == null:
+				continue
 			if setting.get_class() == "HSlider":
 				car.set(setting.var_name, setting.value)
 				setting.get_node("amount").text = str(setting.value)
 			else:
-				car.set(setting.var_name,setting.button_pressed)
+				car.set(setting.var_name, setting.button_pressed)
 				setting.get_node("amount").text = str(setting.button_pressed)
-
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
