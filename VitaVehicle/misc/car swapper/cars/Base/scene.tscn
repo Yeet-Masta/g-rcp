@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://crtwme8ggggra"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://bq2b257mo5m8u" path="res://main/car.gd" id="2"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="2_p1d67"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Texture2D" uid="uid://dyiiofsu2pkjv" path="res://main/misc/textures/rim.jpg" id="4"]
@@ -12,7 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://dywpwinrqs0va" path="res://main/misc/backfire_particles/backfire.png" id="8_tk2wk"]
 [ext_resource type="Script" uid="uid://bd4372rk3bnta" path="res://misc/misc scripts/interior_feedback_camera.gd" id="9_sellu"]
 [ext_resource type="Script" uid="uid://bssqc5aegsxxj" path="res://misc/car swapper/cars/Base/change_cam.gd" id="10_jak2h"]
-[ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="11_q0weh"]
+[ext_resource type="Script" uid="uid://b4nm031vq41vr" path="res://main/fuel_system.gd" id="11_q0weh"]
 
 [sub_resource type="Resource" id="Resource_p1d67"]
 script = ExtResource("11_q0weh")

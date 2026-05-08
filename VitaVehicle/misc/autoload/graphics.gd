@@ -1,7 +1,6 @@
 extends Node
 
 var reflections :bool = false
-var fxaa :bool = false
 var fs :bool = false
 
 var skytype :int = 0
@@ -11,8 +10,7 @@ var fs2 :bool = false
 
 func _process(_delta):
 #	get_viewport().fxaa = fxaa
-	
-	if fxaa:
+	if ConfigManager.data.graphics.fxaa:
 		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
 	else:
 		get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_DISABLED
@@ -23,7 +21,7 @@ func _process(_delta):
 
 
 func fs_toggle():
-	if not fs:
+	if not ConfigManager.data.graphics.full_screen:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		DisplayServer.window_set_size(Vector2i(ProjectSettings.get("display/window/size/viewport_width"),ProjectSettings.get("display/window/size/viewport_height")))
 		

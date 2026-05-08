@@ -1,8 +1,8 @@
 [gd_scene format=4 uid="uid://2q0qcmdoeftc"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="2"]
-[ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="2_1oq57"]
+[ext_resource type="Script" uid="uid://bq2b257mo5m8u" path="res://main/car.gd" id="2"]
+[ext_resource type="Script" uid="uid://b4nm031vq41vr" path="res://main/fuel_system.gd" id="2_1oq57"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="3_wi0nu"]
 [ext_resource type="AudioStream" uid="uid://c7tvikawj8vyr" path="res://misc/car swapper/cars/Miranda Proto/assets/1.ogg" id="4"]
@@ -10,7 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="Script" uid="uid://ch6g3siwv22tk" path="res://main/definitions/profile/esp_profile.gd" id="5_q8j7i"]
 [ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
+[ext_resource type="Script" uid="uid://6dokimxfg1lv" path="res://main/definitions/profile/btcs_profile.gd" id="6_q8j7i"]
 [ext_resource type="AudioStream" uid="uid://dsumllr8wd5hm" path="res://misc/car swapper/cars/Miranda Proto/assets/2.ogg" id="7"]
+[ext_resource type="Script" uid="uid://yknnxtcfyfea" path="res://main/definitions/profile/ttcs_profile.gd" id="7_nq7fi"]
 [ext_resource type="AudioStream" uid="uid://bf7ll1nelbhbn" path="res://misc/car swapper/cars/Miranda Proto/assets/3.ogg" id="8"]
 [ext_resource type="AudioStream" uid="uid://n1p08p1t8xll" path="res://misc/car swapper/cars/Miranda Proto/assets/4.ogg" id="9"]
 [ext_resource type="AudioStream" uid="uid://csg8djeofxur8" path="res://misc/car swapper/cars/Miranda Proto/assets/5.ogg" id="10"]
@@ -20,7 +22,6 @@
 
 [sub_resource type="Resource" id="Resource_q8j7i"]
 script = ExtResource("2_1oq57")
-metadata/_custom_type_script = "uid://brxxtuawatcrb"
 
 [sub_resource type="Resource" id="Resource_nq7fi"]
 script = ExtResource("3_wi0nu")
@@ -32,6 +33,14 @@ script = ExtResource("4_pa3s5")
 [sub_resource type="Resource" id="Resource_6lxnu"]
 script = ExtResource("5_q8j7i")
 metadata/_custom_type_script = "uid://ch6g3siwv22tk"
+
+[sub_resource type="Resource" id="Resource_g1nvm"]
+script = ExtResource("6_q8j7i")
+metadata/_custom_type_script = "uid://6dokimxfg1lv"
+
+[sub_resource type="Resource" id="Resource_ohh0l"]
+script = ExtResource("7_nq7fi")
+metadata/_custom_type_script = "uid://yknnxtcfyfea"
 
 [sub_resource type="StandardMaterial3D" id="17"]
 albedo_color = Color(0.01, 0.01, 0.01, 1)
@@ -257,6 +266,8 @@ fuel = SubResource("Resource_q8j7i")
 shift_assist = SubResource("Resource_nq7fi")
 abs = SubResource("Resource_tylyn")
 esp = SubResource("Resource_6lxnu")
+btcs = SubResource("Resource_g1nvm")
+ttcs = SubResource("Resource_ohh0l")
 Weight = 1350.0
 LiftAngle = 0.4
 DragCoefficient = 0.372
@@ -340,6 +351,8 @@ S_ReboundDamping = 5.0
 B_Torque = 70.0
 B_Bias = 0.45
 A_Geometry1 = 1.1
+ContactBTCS = true
+ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fr/animation/camber/wheel" index="0" unique_id=791763619]
 transform = Transform3D(-1.09347, 0, 0, 0, -1.09347, 0, 0, 0, -1.09347, 0, 0, 0)
@@ -365,6 +378,8 @@ S_ReboundDamping = 5.0
 B_Torque = 70.0
 B_Bias = 0.45
 A_Geometry1 = 1.1
+ContactBTCS = true
+ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="fl/animation/camber/wheel" index="0" unique_id=1517376233]
 transform = Transform3D(1.09347, 0, 0, 0, 1.09347, 0, 0, 0, 1.09347, 0, 0, 0)
@@ -391,6 +406,8 @@ B_Torque = 70.0
 B_Bias = 0.55
 HB_Bias = 1.0
 A_Geometry1 = 1.25
+ContactBTCS = true
+ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rr/animation/camber/wheel" index="0" unique_id=16450940]
 transform = Transform3D(-1.18469, 0, 0, 0, -1.18469, 0, 0, 0, -1.18469, 0, 0, 0)
@@ -417,6 +434,8 @@ B_Torque = 70.0
 B_Bias = 0.55
 HB_Bias = 1.0
 A_Geometry1 = 1.25
+ContactBTCS = true
+ContactTTCS = true
 
 [node name="Cylinder2" type="MeshInstance3D" parent="rl/animation/camber/wheel" index="0" unique_id=1391800940]
 transform = Transform3D(1.18469, 0, 0, 0, 1.18469, 0, 0, 0, 1.18469, 0, 0, 0)

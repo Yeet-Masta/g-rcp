@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://b77dj0608nvq0"]
 
 [ext_resource type="Texture2D" uid="uid://ciey7qc8c0n88" path="res://logo.png" id="2"]
-[ext_resource type="Script" uid="uid://dkanv7py15mgh" path="res://misc/misc scripts/debug.gd" id="3"]
-[ext_resource type="Script" uid="uid://cxos0evytwscq" path="res://misc/scene swapper/scene swapper.gd" id="4"]
-[ext_resource type="Script" uid="uid://2rbs3kla6u76" path="res://misc/graphics_config/graphics config.gd" id="5"]
-[ext_resource type="Script" uid="uid://c8eewi8g53da7" path="res://misc/misc scripts/show_info.gd" id="6"]
-[ext_resource type="Script" uid="uid://85abxwydrspy" path="res://misc/controls config/slider_variables.gd" id="7"]
+[ext_resource type="Script" uid="uid://6b1id24yndsc" path="res://misc/misc scripts/debug.gd" id="3"]
+[ext_resource type="Script" uid="uid://vwfkr1iebjos" path="res://misc/scene swapper/scene swapper.gd" id="4"]
+[ext_resource type="Script" uid="uid://bl4shkypf2wi2" path="res://misc/graphics_config/graphics config.gd" id="5"]
+[ext_resource type="Script" uid="uid://45s0aa3wg6cj" path="res://misc/misc scripts/show_info.gd" id="6"]
+[ext_resource type="Script" uid="uid://cobq7pvyi6ujq" path="res://misc/controls config/slider_variables.gd" id="7"]
 [ext_resource type="FontFile" uid="uid://bbwusye2t6xja" path="res://assets/font/DroidSans.ttf" id="7_coiix"]
-[ext_resource type="Script" uid="uid://km70xwyi76xw" path="res://misc/controls config/run.gd" id="8"]
-[ext_resource type="Script" uid="uid://deynnaacj5mue" path="res://misc/controls config/check_variables.gd" id="9"]
-[ext_resource type="Script" uid="uid://drd1ptaely6a0" path="res://misc/car swapper/car swapper.gd" id="10"]
+[ext_resource type="Script" uid="uid://bm4m5apdg88p" path="res://misc/controls config/run.gd" id="8"]
+[ext_resource type="Script" uid="uid://tfbb2etffqjx" path="res://misc/controls config/check_variables.gd" id="9"]
+[ext_resource type="Script" uid="uid://cgpd70stxocam" path="res://misc/car swapper/car swapper.gd" id="10"]
 [ext_resource type="Texture2D" uid="uid://b336dbjpvlm1h" path="res://main/misc/textures/sw.png" id="11"]
 [ext_resource type="Texture2D" uid="uid://c041k6yh2ifxw" path="res://main/misc/textures/sw_desired.png" id="12"]
 [ext_resource type="PackedScene" uid="uid://b1vo60v1pjs6w" path="res://misc/tachometre/tacho.tscn" id="13"]
@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://cnjbclsh2lklc" path="res://misc/visual gravity system/vgs.tscn" id="15"]
 [ext_resource type="PackedScene" uid="uid://2ojbutsqhnh4" path="res://misc/graph/display.tscn" id="16"]
 [ext_resource type="Texture2D" uid="uid://wgoed8dgkuc8" path="res://misc/visual gravity system/circle.png" id="17_pcvgg"]
-[ext_resource type="Script" uid="uid://droljbvlwcbbu" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
+[ext_resource type="Script" uid="uid://daxeidgnnnc00" path="res://misc/misc scripts/debug_lamp.gd" id="18_ujnq4"]
 
 [node name="debug" type="Control" unique_id=1409536949 node_paths=PackedStringArray("start_engine_button")]
 layout_mode = 3
@@ -1050,6 +1050,50 @@ text = "Fullscreen"
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
+text = "false"
+vertical_alignment = 2
+
+[node name="fxaa" type="CheckBox" parent="graphics config/scroll/container" unique_id=332750]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+script = ExtResource("9")
+var_name = "fxaa"
+
+[node name="text" type="Label" parent="graphics config/scroll/container/fxaa" unique_id=33621006]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "fxaa"
+
+[node name="amount" type="Label" parent="graphics config/scroll/container/fxaa" unique_id=1843356462]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "false"
+vertical_alignment = 2
+
+[node name="Reflections" type="CheckBox" parent="graphics config/scroll/container" unique_id=1851078766]
+custom_minimum_size = Vector2(240, 60)
+layout_mode = 2
+script = ExtResource("9")
+var_name = "reflections"
+
+[node name="text" type="Label" parent="graphics config/scroll/container/Reflections" unique_id=1442749553]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Reflections"
+
+[node name="amount" type="Label" parent="graphics config/scroll/container/Reflections" unique_id=115049013]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "false"
 vertical_alignment = 2
 

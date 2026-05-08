@@ -20,7 +20,11 @@ func _on_open_controls_pressed():
 		visible = false
 		ConfigManager.save_config()
 	else:
-		Input.action_press("ui_cancel")
+		var cancel_event = InputEventAction.new()
+		cancel_event.action = "ui_cancel"
+		cancel_event.pressed = true
+		Input.parse_input_event(cancel_event)
+		#Input.action_press("ui_cancel")
 		await get_tree().create_timer(0.1).timeout # TODO: swap this for different logic
 		
 		Input.action_release("ui_cancel")

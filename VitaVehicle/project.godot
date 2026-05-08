@@ -44,7 +44,7 @@ project/assembly_name="VitaVehicle tomster"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/short/plugin.cfg", "res://addons/vitavehicle_ui/plugin.cfg")
+enabled=PackedStringArray("res://addons/deformablemesh/plugin.cfg", "res://addons/short/plugin.cfg", "res://addons/vitavehicle_ui/plugin.cfg")
 
 [file_customization]
 
