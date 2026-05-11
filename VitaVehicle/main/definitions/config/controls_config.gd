@@ -22,6 +22,19 @@ enum ShiftAssistLevel {
 @export var mouse_steering := false
 ## Steer with the accelerometer, if your device has one.
 @export var accelerometer_steering := false
+## Steer with an analog stick (gamepad / controller).
+## When true, the existing "left" and "right" input actions are read as a
+## continuous axis via [code]Input.get_axis[/code] rather than as discrete
+## key presses. Bind those actions to a joypad axis in the project Input Map
+## (e.g. Joypad Axis 0 negative for "left", positive for "right").
+@export var analog_steering := false
+## Deadzone applied to analog steering (0.0–1.0). Inputs with magnitude
+## below this are treated as zero; above it the remaining range is rescaled
+## back to 0..1 so the wheel still reaches full lock.
+@export var analog_steering_deadzone := 0.08
+## Sensitivity curve exponent for analog steering. 1.0 = linear,
+## values >1 give finer control near center, values <1 are more aggressive.
+@export var analog_steering_curve := 1.0
 @export var steer_amount_decay := 0.015
 @export var steering_assistance := 0.0
 @export var steering_assistance_angular := 0.0
@@ -29,6 +42,17 @@ enum ShiftAssistLevel {
 @export var keyboard_steer_speed := 0.025
 @export var keyboard_return_speed := 0.05
 @export var keyboard_compensate_speed := 0.1
+
+@export_subgroup("Pedals")
+## Read throttle / brake / handbrake / clutch as analog.
+## When true, each pedal value is set directly each frame from the
+## corresponding action's strength (0.0–1.0), bypassing on_*_rate /
+## off_*_rate ramping. Bind your gamepad triggers (or USB pedal axes) to
+## the "gas", "brake", "handbrake", and "clutch" actions in the Input Map.
+@export var analog_pedals := false
+## Deadzone for analog pedal inputs (0.0–1.0). Trigger / pedal values below
+## this are clamped to 0; above it the remaining range is rescaled to 0..1.
+@export var analog_pedal_deadzone := 0.0
 
 @export_subgroup("Pedals/Throttle")
 @export var max_throttle := 1.0
@@ -49,3 +73,38 @@ enum ShiftAssistLevel {
 @export var max_clutch := 1.0
 @export var on_clutch_rate := 0.2
 @export var off_clutch_rate := 0.2
+
+
+# ===========================================================================
+# FUTURE: Steering wheel device support
+# ===========================================================================
+# The flags below are reserved for direct steering-wheel device integration
+# (Logitech G29, Thrustmaster T300, Fanatec, etc.). Godot 4 does not yet
+# expose a native FFB API, so wiring these up requires either:
+#   - a GDExtension that talks to SDL2's haptics layer, or
+#   - a platform-specific plugin (Windows DirectInput / Linux evdev).
+#
+# When you add a wheel plugin, populate Car._read_steering_wheel_axis() and
+# Car._apply_force_feedback() — those are the two integration points the
+# rest of the codebase already calls.
+# ---------------------------------------------------------------------------
+@export_subgroup("Steering Wheel (future)")
+## Use a dedicated steering-wheel device for steering input.
+@export var wheel_steering := false
+## Total physical rotation lock-to-lock of the wheel device, in degrees.
+## Used to map raw wheel angle to the -1..1 steer_target range.
+@export var wheel_rotation_degrees := 900.0
+## Joypad device id of the wheel (Godot Input maps wheels as joypads).
+@export var wheel_device_id := 0
+
+@export_subgroup("Force Feedback (future)")
+## Master FFB on/off.
+@export var ffb_enabled := false
+## Master FFB strength multiplier (0.0–1.0).
+@export var ffb_strength := 1.0
+## Self-aligning torque scale — derived from front-wheel lateral force.
+@export var ffb_self_aligning := 1.0
+## Bump / road-feel scale — derived from suspension compression deltas.
+@export var ffb_road_feel := 0.5
+## Curb / surface-effect scale — fired on ground_surface_variables changes.
+@export var ffb_surface_effects := 0.5
