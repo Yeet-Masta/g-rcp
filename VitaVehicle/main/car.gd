@@ -41,7 +41,14 @@ enum TransmissionType {FULLY_MANUAL, AUTOMATIC, CONTINUOUSLY_VARIABLE, SEMI_AUTO
 @export var Controlled := true
 
 @export_group("Chassis")
-@export_custom(PROPERTY_HINT_NONE, "suffix:kg") var Weight := 900.0
+@export_custom(PROPERTY_HINT_NONE, "suffix:kg") var Weight := 900.0:
+	set(value):
+		Weight = value
+		# Body mass is derived from Weight at a 1:10 scale (the game's unit
+		# system is one-tenth of metric, see Constants.UNIT_TO_METER). Update
+		# the RigidBody mass eagerly so _physics_process doesn't have to do it
+		# every tick.
+		mass = value / 10.0
 
 @export_group("Body")
 @export var LiftAngle := 0.1
@@ -237,8 +244,8 @@ var velocity := Vector3(0, 0, 0)
 var rvelocity := Vector3(0, 0, 0)
 
 # Debug draw
-var front_wheels := []
-var rear_wheels := []
+var front_wheels: Array[Wheel] = []
+var rear_wheels: Array[Wheel] = []
 var front_load := 0.0
 var total := 0.0
 var weight_dist := [0.0, 0.0]
@@ -250,24 +257,70 @@ var debug_lamp := false:
 @onready var current_fuel := fuel.max_fuel
 
 
+# Cached references / scratch space
 
-# ===========================================================================
+## Reusable engine torque-curve params. Filled in [method simulate_engine]
+## via [code]EngineModel.params_from_car_into[/code] so the runtime never
+## allocates a new struct per physics tick.
+var _engine_params: EngineModel.CurveParams = EngineModel.CurveParams.new()
+
+## Optional drag-centre node. Cached on _ready; null when the scene doesn't
+## include a [code]DRAG_CENTRE[/code] child.
+var _drag_centre: Node3D = null
+
+## Cached autoload lookup so we don't crawl the scene root every time a
+## script asks who's driving.
+var _car_manager: Node = null
+
+## All [Wheel] children — populated once in [method _ready]. Used by stability
+## controllers and debug draw to avoid iterating [code]get_children()[/code]
+## and type-checking each entry every frame. The powered-wheel subset stays in
+## [code]c_pws[/code].
+var _all_wheels: Array[Wheel] = []
+
+# Cached front/rear wheel splits for debug draw. Built once in _ready against
+# the wheel placement convention (+z is front).
+var _front_wheels_cache: Array[Wheel] = []
+var _rear_wheels_cache: Array[Wheel] = []
+
+# Latched shift inputs — populated in _input() so a key press that lands
+# between physics ticks isn't lost. Cleared by the gearbox controller when
+# consumed.
+var _pending_upshift := false
+var _pending_downshift := false
+
 # Lifecycle
-# ===========================================================================
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_debug_mode"):
 		Debug_Mode = !Debug_Mode
 	if event.is_action_pressed("ignition"):
 		toggle_ignition()
+	# Latch shift requests here rather than polling Input.is_action_just_pressed
+	# from _physics_process. The physics tick may fall outside the engine frame
+	# where the press was first detected, in which case is_action_just_pressed
+	# returns false and the shift is silently dropped. Latching guarantees the
+	# request survives until the gearbox consumes it.
+	if Controlled:
+		var mouse: bool = ConfigManager.data.controls.mouse_steering
+		var suffix := "_mouse" if mouse else ""
+		if event.is_action_pressed("shiftup" + suffix):
+			_pending_upshift = true
+		if event.is_action_pressed("shiftdown" + suffix):
+			_pending_downshift = true
 
 
 func _ready():
+	# Make sure mass reflects Weight even when Weight was assigned in the
+	# editor before our setter existed (setters don't run on default value
+	# assignment from saved scenes in all Godot versions).
+	mass = Weight / 10.0
+
 	# Multi-car: register with the manager (if the autoload is configured).
 	# Resolved by-name to avoid a compile dependency on the autoload.
-	var car_manager := _find_car_manager()
-	if car_manager != null:
-		car_manager.call("register", self)
+	_car_manager = _find_car_manager()
+	if _car_manager != null:
+		_car_manager.call("register", self)
 	# Auto-start spark engines (you turn the key); diesels auto-start only
 	# if already cranking above their auto-ignition threshold.
 	var should_start := true
@@ -280,6 +333,20 @@ func _ready():
 		start_engine()
 	for i in Powered_Wheels:
 		c_pws.append(get_node(i))
+
+	# Cache the wheel set and the front/rear split. The convention is
+	# "+z is front" — same as draw_debug used to compute live every frame.
+	for child in get_children():
+		if child is Wheel:
+			_all_wheels.append(child)
+			if child.position.z > 0:
+				_front_wheels_cache.append(child)
+			else:
+				_rear_wheels_cache.append(child)
+
+	# Cache the optional aero centre node.
+	if has_node("DRAG_CENTRE"):
+		_drag_centre = $DRAG_CENTRE
 
 
 func _find_car_manager() -> Node:
@@ -311,7 +378,7 @@ func _physics_process(delta):
 	velocity = basis_t * linear_velocity
 	rvelocity = basis_t * angular_velocity
 
-	mass = Weight / 10.0
+	# mass is now maintained by the Weight setter; no per-frame recompute.
 	_apply_aero()
 
 	# G-force telemetry.
@@ -356,9 +423,7 @@ func _physics_process(delta):
 	_apply_force_feedback()
 
 
-# ===========================================================================
 # Public API (kept for external callers — debug.gd, car_manager.gd, etc.)
-# ===========================================================================
 
 func toggle_ignition():
 	if is_ignition_on: stop_engine()
@@ -383,16 +448,13 @@ func is_throttle_open() -> bool:  return throttle > 0.0
 
 ## Asks [code]CarManager[/code] (if present) to hand control to this car.
 func make_active() -> void:
-	var cm := _find_car_manager()
-	if cm != null:
-		cm.call("set_active", self)
+	if _car_manager != null:
+		_car_manager.call("set_active", self)
 	else:
 		Controlled = true
 
 
-# ===========================================================================
 # Engine
-# ===========================================================================
 
 func apply_redline_limiter():
 	if rpm > RPMLimit and throttle > ThrottleLimit:
@@ -439,7 +501,9 @@ func simulate_engine():
 	else:
 		# Combustion torque from the shared engine model. Note: the dyno
 		# graph in draw.gd computes the same curve via the same model.
-		torque = EngineModel.torque_runtime(EngineModel.params_from_car(self), rpm, turbopsi, throttle)
+		# Reuses our pre-allocated CurveParams to avoid per-frame heap churn.
+		EngineModel.params_from_car_into(self, _engine_params)
+		torque = EngineModel.torque_runtime(_engine_params, rpm, turbopsi, throttle)
 
 	rpmforce = rpm / (absf(rpm * rpm) / (EngineFriction / clock_mult) + 1.0)
 	if rpm < DeadRPM:
@@ -456,9 +520,7 @@ func simulate_engine():
 	engine_torque = torque
 
 
-# ===========================================================================
 # Drivetrain & clutch
-# ===========================================================================
 
 func drivetrain():
 	# Clutch elasticity / wobble model.
@@ -534,9 +596,7 @@ func drivetrain():
 	stress = 0.0
 
 
-# ===========================================================================
 # Transmission — dispatched to TransmissionController
-# ===========================================================================
 
 func transmission():
 	if Controlled:
@@ -549,9 +609,7 @@ func transmission():
 	TransmissionController.tick(self)
 
 
-# ===========================================================================
 # Fuel
-# ===========================================================================
 
 func simulate_fuel():
 	if not fuel: return
@@ -561,9 +619,7 @@ func simulate_fuel():
 		stop_engine()
 
 
-# ===========================================================================
 # Aero
-# ===========================================================================
 
 func _apply_aero():
 	var basis_n := global_transform.basis.orthonormalized()
@@ -572,23 +628,32 @@ func _apply_aero():
 	# Pitch torque from forward speed × LiftAngle.
 	apply_torque_impulse(basis_n * Vector3((-veloc.length() * 0.3) * LiftAngle, 0, 0))
 
-	# TODO: Extract magic 0.15.
-	var k := 0.15
-	var vx := veloc.x * k
-	var vy := veloc.z * k
-	var vz := veloc.y * k
-	var vl := veloc.length() * k
+	# Aero coefficient. TODO: promote to an @export so cars can tune it.
+	const AERO_COEFF := 0.15
+	# Velocity components, scaled. Names reflect what they actually hold —
+	# the previous code aliased them (vx/vy/vz) in a way that didn't match
+	# the components they referenced.
+	var v_lat: float = veloc.x * AERO_COEFF
+	var v_long: float = veloc.z * AERO_COEFF
+	var v_vert: float = veloc.y * AERO_COEFF
+	var v_mag: float = veloc.length() * AERO_COEFF
 
-	var force := basis_n * Vector3(-vx * DragCoefficient, -vl * Downforce - vz * DragCoefficient, -vy * DragCoefficient)
-	if has_node("DRAG_CENTRE"):
-		apply_impulse(force, basis_n * $DRAG_CENTRE.position)
+	# Force composition:
+	#   • X: lateral drag (sideslip)
+	#   • Y: downforce (proportional to total speed) + vertical drag
+	#   • Z: longitudinal drag from forward motion
+	var force := basis_n * Vector3(
+		-v_lat * DragCoefficient,
+		-v_mag * Downforce - v_vert * DragCoefficient,
+		-v_long * DragCoefficient
+	)
+	if _drag_centre != null:
+		apply_impulse(force, basis_n * _drag_centre.position)
 	else:
 		apply_central_impulse(force)
 
 
-# ===========================================================================
 # Controls (input → pedals/steering)
-# ===========================================================================
 
 func controls():
 	# Read raw inputs first, then dispatch to physical-vs-virtual steering
@@ -597,8 +662,12 @@ func controls():
 	var suffix := "_mouse" if mouse else ""
 	gas            = Input.is_action_pressed("gas" + suffix)
 	brake          = Input.is_action_pressed("brake" + suffix)
-	input_upshift  = Input.is_action_just_pressed("shiftup" + suffix)
-	input_downshift = Input.is_action_just_pressed("shiftdown" + suffix)
+	# Shift requests are latched from _input() so a press between physics
+	# ticks isn't lost. Consume them once and clear.
+	input_upshift  = _pending_upshift
+	input_downshift = _pending_downshift
+	_pending_upshift = false
+	_pending_downshift = false
 	handbrake      = Input.is_action_pressed("handbrake" + suffix)
 
 	steer_velocity += 0.01 * Input.get_axis("left", "right")
@@ -631,7 +700,7 @@ func control_car():
 	var left := Input.is_action_pressed("left")
 	var right := Input.is_action_pressed("right")
 
-	# ---- Pedals -----------------------------------------------------------
+	# Pedals
 	if c.analog_pedals:
 		# Analog branch: trigger / USB pedal strength IS the pedal position.
 		# We still honor full shift-assist's gas↔brake swap when in reverse,
@@ -676,7 +745,7 @@ func control_car():
 
 		handbrakepull += (c.on_handbrake_rate / clock_mult) if handbrake else -(c.off_handbrake_rate / clock_mult)
 
-	# ---- Steering ---------------------------------------------------------
+	# Steering
 	# Sideways slip influences how much the assist eases off.
 	var siding := absf(velocity.x)
 	if (velocity.x > 0 and steer_target > 0) or (velocity.x < 0 and steer_target < 0):
@@ -757,9 +826,8 @@ func _analog_pedal_strength(action: String, deadzone: float) -> float:
 	return (v - deadzone) / (1.0 - deadzone)
 
 
-# ===========================================================================
 # Steering wheel & FFB hooks (future)
-# ===========================================================================
+
 # These two methods are the integration points for a future steering-wheel /
 # force-feedback plugin. They are intentionally no-ops by default so the
 # game runs identically without any plugin installed. Replace the bodies
@@ -817,18 +885,7 @@ func _apply_force_feedback() -> void:
 	pass
 
 
-# ===========================================================================
 # Misc
-# ===========================================================================
-
-## Future mechanic: clutch wears over time and reduces effective grip.
-func apply_clutch_wear():
-	pass
-
-
-func shift_up(): pass
-func shift_down(): pass
-
 
 func bullet_fix():
 	# Moves all children so the [code]DRAG_CENTRE[/code] sits at the origin.
@@ -841,28 +898,21 @@ func bullet_fix():
 
 
 func draw_debug():
-	# BUG: The wheel split could be cached. Rebuilds once per frame while
-	# debug is on, which is fine in practice but wasteful.
-	front_wheels = []
-	rear_wheels = []
-	for i in get_children():
-		if i is Wheel:
-			# Wheel placement convention: +z is front. If you ever shift the
-			# car origin, this assumption needs revisiting.
-			if i.position.z > 0:
-				front_wheels.append(i)
-			else:
-				rear_wheels.append(i)
-
+	# Uses the cached front/rear splits built in _ready instead of re-scanning
+	# children every frame.
 	front_load = 0.0
 	total = 0.0
-	for f in front_wheels:
+	for f in _front_wheels_cache:
 		front_load += f.directional_force.y
 		total += f.directional_force.y
-	for r in rear_wheels:
+	for r in _rear_wheels_cache:
 		front_load -= r.directional_force.y
 		total += r.directional_force.y
 
 	if total > 0:
 		weight_dist[0] = remap(front_load / total, -1.0, 1.0, 0.0, 1.0)
 		weight_dist[1] = 1.0 - weight_dist[0]
+
+	# Keep the public arrays in sync for any external code that reads them.
+	front_wheels = _front_wheels_cache
+	rear_wheels = _rear_wheels_cache

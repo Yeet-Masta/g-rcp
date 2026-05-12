@@ -1,9 +1,9 @@
 ## Shared engine torque-curve math.
 ##
 ## Lives in a single place so the runtime simulation in [Car.simulate_engine]
-## and the dyno graph in [code]draw.gd[/code] (via [code]VitaVehicleSimulation.multivariate[/code])
-## can never drift out of sync with each other. Both call [method torque] with
-## the same set of curve parameters.
+## and the dyno graph in [code]draw.gd[/code] can never drift out of sync with
+## each other. Both build the same [CurveParams] and feed it to
+## [method torque_dyno] / [method torque_runtime].
 ##
 ## Pure static math — no nodes, no state. Inputs are explicit parameters so
 ## a caller can supply either a runtime [Car]'s @exports or a graph script's
@@ -58,8 +58,20 @@ class CurveParams:
 
 ## Convenience: build a CurveParams from a Car instance. Reads only @export
 ## properties so it's safe to call from anywhere.
+##
+## Allocates a new [CurveParams]. The runtime path lives in
+## [Car._physics_process] and would allocate once per car per physics tick,
+## so use [method params_from_car_into] there with a pre-allocated instance.
 static func params_from_car(car: Car) -> CurveParams:
 	var p := CurveParams.new()
+	params_from_car_into(car, p)
+	return p
+
+
+## Fill an existing [CurveParams] from a [Car]'s @exports. Lets the runtime
+## path keep one reusable struct on the car and pay zero allocations per
+## physics tick.
+static func params_from_car_into(car: Car, p: CurveParams) -> void:
 	p.build_up_torque        = car.BuildUpTorque
 	p.torque_rise            = car.TorqueRise
 	p.rise_rpm               = car.RiseRPM
@@ -88,7 +100,6 @@ static func params_from_car(car: Car) -> CurveParams:
 	p.sc_rpm_influence       = car.SCRPMInfluence
 	p.blow_rate              = car.BlowRate
 	p.sc_threshold           = car.SCThreshold
-	return p
 
 ## Torque produced by the engine at [param rpm] under the given curve.
 ## Computes its own boost from the parameters (used by the dyno where boost

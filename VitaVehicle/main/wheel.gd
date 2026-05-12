@@ -4,6 +4,16 @@
 ## instead of duck-typing on [code]"TyreSettings" in node[/code]. The old
 ## duck-type pattern accidentally matched anything that happened to expose
 ## that property, and broke silently if the property was ever renamed.
+##
+## NOTES on the recent refactor:
+##   • Child nodes ([code]geometry[/code], [code]velocity[/code], etc.) are now
+##     cached as [code]@onready[/code] refs and reused. Each
+##     [method _physics_process] used to do ~10 [code]get_node[/code] string
+##     lookups per wheel per tick.
+##   • The longitudinal-and-lateral tyre force math (previously duplicated
+##     between the "wv update" block and the "directional_force output" block)
+##     lives in [method _slip_to_force]. Bookkeeping unique to each block
+##     (slip_perc / slip_sk / skvol / etc.) stays inline.
 
 class_name Wheel extends RayCast3D
 
@@ -151,6 +161,18 @@ var abs_active := false
 var abs_slip_ratio := 0.0
 
 
+# Cached child node references. Looked up once in _ready / @onready instead
+# of resolved via NodePath strings every physics tick. [VitaVehicleSimulation]
+# and [Car] read these directly, so they're public.
+@onready var geom_node: Node3D = $geometry
+@onready var velocity_node: Node3D = $velocity
+@onready var velocity2_node: Node3D = $velocity2
+@onready var _vel_step: Node3D = $velocity/step
+@onready var _vel2_step: Node3D = $velocity2/step
+@onready var _animation_node: Node3D = $animation
+@onready var _camber_node: Node3D = $animation/camber
+@onready var _wheel_mesh: Node3D = $animation/camber/wheel
+
 
 func power():
 	if not c_p == 0:
@@ -193,6 +215,55 @@ func sway():
 		rolldist = rd - linkedwheel.rd
 
 
+## Core tyre-force math, shared between the longitudinal-update block and the
+## directional-force-output block in [method _physics_process].
+##
+## Caller supplies pre-stiffness [param distx]/[param disty] slips and the
+## current [param grip] budget. Returns a [Vector3] of
+## [code](forcex, forcey, slip_after_traction)[/code].
+##
+## Both call sites also need the post-stiffness [code]distx[/code] (with the
+## angle/wv adjustment) for various bookkeeping, so we hand it back via the
+## [member _post_stiffness_distx] / [member _post_stiffness_disty] scratch
+## fields instead of allocating a struct.
+##
+## NOTE: a [code]grip <= 0[/code] input zeroes the returned forces but still
+## populates the post-stiffness scratch values so callers that read them
+## (e.g. block 1's [code]slip_perc[/code]) see consistent state.
+var _post_stiffness_distx := 0.0
+var _post_stiffness_disty := 0.0
+
+func _slip_to_force(distx: float, disty: float, grip: float, tyre_stiffness: float, rigidity: float) -> Vector3:
+	disty *= tyre_stiffness
+	distx *= tyre_stiffness
+	distx -= atan2(absf(wv), 1.0) * ((angle * 10.0) * w_size)
+	_post_stiffness_distx = distx
+	_post_stiffness_disty = disty
+
+	if grip <= 0.0:
+		return Vector3.ZERO
+
+	var slip := Vector2(distx, disty).length() / grip
+	slip /= slip * ground_builduprate + 1.0
+	slip -= CompoundSettings["TractionFactor"]
+	slip = maxf(slip, 0.0)
+
+	var forcey := -disty / (slip + 1.0)
+	var forcex := -distx / (slip + 1.0)
+
+	# Smoothing: clamp the per-axis force magnitudes to 1.0, square the x
+	# component, then divide by a rigidity-weighted blend so very small forces
+	# pass through linearly and large ones saturate.
+	var yesx := minf(absf(forcex), 1.0)
+	var smoothx := minf(yesx * yesx, 1.0)
+	var yesy := minf(absf(forcey), 1.0)
+	var smoothy := minf(yesy, 1.0)
+	forcex /= smoothx * rigidity + (1.0 - rigidity)
+	forcey /= smoothy * rigidity + (1.0 - rigidity)
+
+	return Vector3(forcex, forcey, slip)
+
+
 #region internal
 func _ready():
 	c_tp = TyrePressure
@@ -203,111 +274,111 @@ func _physics_process(delta):
 	var cast_to := target_position
 	var global_translation := global_position
 	var last_translation := position
-	
+
 	if Steer and absf(car.final_steer) > 0:
 		var lasttransform := global_transform
-		
+
 		look_at_from_position(translation, Vector3(car.steering_geometry[0], 0.0, car.steering_geometry[1]))
-		
+
 		# just making this use origin fixed it. lol
 		global_transform.origin = lasttransform.origin
-		
+
 		if car.final_steer > 0.0:
 			rotate_object_local(Vector3(0,1,0), -deg_to_rad(90.0))
 		else:
 			rotate_object_local(Vector3(0,1,0), deg_to_rad(90.0))
-		
+
 		var roter := global_rotation.y
-		
+
 		look_at_from_position(translation, Vector3(car.Steer_Radius, 0, car.steering_geometry[1]), Vector3(0, 1, 0))
 		# this one too
 		global_transform.origin = lasttransform.origin
 		rotate_object_local(Vector3(0,1,0), deg_to_rad(90.0))
 		var roter_estimateed := rad_to_deg(global_rotation.y)
-		
+
 		get_parent().steering_angles.append(roter_estimateed)
-		
+
 		rotation_degrees = Vector3(0, 0, 0)
 		rotation = Vector3(0, 0, 0)
-		
+
 		rotation.y = roter
-		
+
 		rotation_degrees += Vector3(0, -Toe * sign(translation.x), 0)
 	else:
 		rotation_degrees = Vector3(0, -Toe * sign(translation.x), 0)
-	
+
 	translation = last_translation
-	
+
 	c_camber = Camber + Caster * rotation.y * sign(translation.x)
-	
+
 	directional_force = Vector3(0, 0, 0)
-	
-	$velocity.position = Vector3(0, 0, 0)
-	
-	
+
+	velocity_node.position = Vector3(0, 0, 0)
+
+
 	w_size = ((abs(int(TyreSettings["Width (mm)"])) * ((abs(int(TyreSettings["Aspect Ratio"])) * 2.0) / 100.0) + abs(int(TyreSettings["Rim Size (in)"])) * 25.4) * 0.003269) / 2.0 # TODO: Use the constant and adjust for the fact this is in mm.
 	w_weight = pow(w_size, 2.0)
-	
+
 	w_size_read = w_size
 	w_size_read = max(w_size_read, 1.0)
 	w_weight_read = max(w_weight_read, 1.0)
-	
-	$velocity2.global_position = $geometry.global_position
-	
-	$velocity/step.global_position = velocity_last
-	$velocity2/step.global_position = velocity2_last
-	velocity_last = $velocity.global_position
-	velocity2_last = $velocity2.global_position
-	
-	velocity = -$velocity/step.position / delta
-	velocity2 = -$velocity2/step.position / delta
-	
-	$velocity.rotation = Vector3(0, 0, 0)
-	$velocity2.rotation = Vector3(0, 0, 0)
-	
+
+	velocity2_node.global_position = geom_node.global_position
+
+	_vel_step.global_position = velocity_last
+	_vel2_step.global_position = velocity2_last
+	velocity_last = velocity_node.global_position
+	velocity2_last = velocity2_node.global_position
+
+	velocity = -_vel_step.position / delta
+	velocity2 = -_vel2_step.position / delta
+
+	velocity_node.rotation = Vector3(0, 0, 0)
+	velocity2_node.rotation = Vector3(0, 0, 0)
+
 	# VARS
 	var elasticity := S_Stiffness
 	var damping := S_Damping
 	var damping_rebound := S_ReboundDamping
-	
+
 	var swaystiff := AR_Stiff
 	var swayelast := AR_Elast
-	
+
 	var s := rolldist
 	s = clamp(s, -1.0, 1.0)
-	
+
 	elasticity *= swayelast * s + 1.0
 	damping *= swaystiff * s + 1.0
 	damping_rebound *= swaystiff * s + 1.0
-	
+
 	elasticity = max(elasticity, 0.0)
 	damping = max(damping, 0.0)
 	damping_rebound = max(damping_rebound, 0.0)
-	
+
 	sway()
-	
+
 	var tyre_maxgrip := TyreSettings["GripInfluence"] / CompoundSettings["TractionFactor"]
-	
+
 	var tyre_stiffness2 := absf(int(TyreSettings["Width (mm)"])) / (absf(int(TyreSettings["Aspect Ratio"])) / 1.5)
-	
+
 	var deviding := (Vector2(velocity.x,velocity.z).length() / 50.0 +0.5) * CompoundSettings["DeformFactor"]
-	
+
 	deviding /= ground_stiffness +fore_stiffness * CompoundSettings["ForeStiffness"]
 	deviding = max(deviding, 1.0)
 	tyre_stiffness2 /= deviding
-	
-	
+
+
 	var tyre_stiffness := (tyre_stiffness2 * ((c_tp / 30.0) * 0.1 +0.9) ) * CompoundSettings["Stiffness"] +effectiveness
 	tyre_stiffness = max(tyre_stiffness, 1.0)
-	
+
 	cache_tyrestiffness = tyre_stiffness
-		
+
 	absolute_wv = output_wv+(offset * snap) -compensate * 1.15296
 	absolute_wv_brake = output_wv+((offset / w_size_read) * snap) -compensate * 1.15296
 	absolute_wv_diff = output_wv
-	
+
 	wheelpower = 0.0
-	
+
 	# BTCS / ESP injection: per-wheel brake pressure that adds on top of the
 	# driver's brake. Multiplied by both the global brake_allowed (legacy ABS
 	# pump) AND this wheel's abs_modulation (advanced ABS), so per-wheel ABS
@@ -315,14 +386,14 @@ func _physics_process(delta):
 	# mode abs_modulation == 1.0; in advanced mode brake_allowed == 1.0.
 	var stability_brake: float = clampf(tc_brake, 0.0, 1.0) * car.brake_allowed * abs_modulation
 	tc_brake = 0.0  # consumed; stability systems must re-assert each frame
-	
+
 	# Driver brake also gets the per-wheel ABS multiplier. car.brakeline is
 	# already brakepedal*brake_allowed (legacy global), so this composes:
 	# legacy → mod by brake_allowed only; advanced → mod by abs_modulation only.
 	var braked := (car.brakeline * abs_modulation) * B_Bias + car.handbrakepull*HB_Bias + stability_brake
 	braked = min(braked, 1.0)
 	var bp := (B_Torque*braked)/w_weight_read
-	
+
 	if car.actualgear != 0 and car.dsweightrun > 0.0:
 		bp += ((car.stall_resistance*(c_p/car.ds_weight))*car.clutchpedal)*(((500.0/(car.RevSpeed*100.0))/(car.dsweightrun/2.5))/w_weight_read)
 	if bp>0.0:
@@ -332,16 +403,17 @@ func _physics_process(delta):
 			wheelpower += -absolute_wv/distanced
 		else:
 			wheelpower += -absolute_wv
-	
+
 	wheelpower_global = wheelpower
-	
+
 	power()
 	diffs()
-	
+
 	snap = 1.0
 	offset = 0.0
-	
-	# WHEEL
+
+	# WHEEL — first physics pass: compute the longitudinal force, update wv,
+	# and gather skidding telemetry.
 	if is_colliding():
 		var collider := get_collider()
 		if "drag" in collider:
@@ -373,103 +445,92 @@ func _physics_process(delta):
 			if ground_bump<0.0:
 				ground_bump = 0.0
 				ground_bump_up = false
-		else:         
+		else:
 			ground_bump += randf_range(ground_bump_frequency/ground_bump_frequency_random,ground_bump_frequency*ground_bump_frequency_random)*(velocity.length()/1000.0)
 			if ground_bump>1.0:
 				ground_bump = 1.0
 				ground_bump_up = true
-		
+
 		var suspforce := VitaVehicleSimulation.suspension(self,S_MaxCompression,A_InclineArea,A_ImpactForce,S_RestLength, elasticity,damping,damping_rebound, velocity.y,abs(cast_to.y),global_translation,get_collision_point(),car.mass,ground_bump,ground_bump_height)
 		compress = suspforce
-		
+
 		# FRICTION
 		var grip := (suspforce*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
 		stress = grip
 		var rigidity := 0.67
-		
+
 		wv += (wheelpower*(1.0-(1.0/tyre_stiffness)))
 		var disty := velocity2.z - wv*w_size
-		
+
 		offset = disty/w_size
 		offset = clamp(offset, -grip, grip)
-		
+
 		var distx := velocity2.x
-		
+
 		var compensate2 := suspforce
-		var grav_incline = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).x
-		var grav_incline2 = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).z
+		var basis_up_local := geom_node.global_transform.basis.orthonormalized().transposed() * Vector3(0, 1, 0)
+		var grav_incline := basis_up_local.x
+		var grav_incline2 := basis_up_local.z
 		compensate = grav_incline2*(compensate2/tyre_stiffness)
-		
-		distx -= (grav_incline * (compensate2 / tyre_stiffness) ) * 1.1
-		
-		disty *= tyre_stiffness
-		distx *= tyre_stiffness
-		
-		distx -= atan2(abs(wv),1.0)*((angle*10.0)*w_size)
-		
+
+		distx -= (grav_incline * (compensate2 / tyre_stiffness)) * 1.1
+
+		# Run the shared force calc. Returns Vector3(forcex, forcey, slip).
+		var force_result := _slip_to_force(distx, disty, grip, tyre_stiffness, rigidity)
+
 		if grip > 0:
-			var slip := Vector2(distx, disty).length()/grip
-			
-			slip_percpre = slip/tyre_stiffness
-			
-			slip /= slip*ground_builduprate +1
-			slip -= CompoundSettings["TractionFactor"]
-			slip = max(slip, 0.0)
-			
-			var slip_sk := Vector2(distx*2.0, disty).length()/grip
+			# slip_percpre uses the RAW (pre-builduprate, pre-traction) slip,
+			# divided by tyre_stiffness. Recompute that here cheaply.
+			var raw_slip := Vector2(_post_stiffness_distx, _post_stiffness_disty).length() / grip
+			slip_percpre = raw_slip / tyre_stiffness
+
+			var slip: float = force_result.z
+			var forcey: float = force_result.y
+
+			# Extra slip-volume telemetry for skid sounds. slip_sk uses double
+			# the lateral component to bias the sound trigger to skids over
+			# wheelspin; slip_sk's divisor uses `slip` (the post-traction
+			# scalar) — original behaviour preserved verbatim.
+			var slip_sk := Vector2(_post_stiffness_distx*2.0, _post_stiffness_disty).length()/grip
 			slip_sk /= slip*ground_builduprate +1
 			slip_sk -= CompoundSettings["TractionFactor"]
 			slip_sk = max(slip_sk, 0.0)
-			
-			var slipw := Vector2(distx, 0.0).length()/grip
-			slipw /= slipw*ground_builduprate +1.0
-			var forcey := -disty/(slip +1.0)
-			var forcex := -distx/(slip +1.0)
-			
+
 			# Legacy ABS trigger: writes to car.abs_delay so the global
 			# pump in Car.apply_abs() drops brake_allowed for a few frames.
 			# The advanced controller does its own slip calc in Car.apply_abs
 			# directly, so this block is skipped for it.
-			if car.abs and not car.abs.use_advanced_controller and abs(disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
+			if car.abs and not car.abs.use_advanced_controller and abs(_post_stiffness_disty) /(tyre_stiffness/3.0)>(car.abs.slip_threshold/grip)*(ground_friction*ground_friction) and abs(velocity.z)>car.abs.min_speed and ContactABS:
 				car.abs_delay = car.abs.pump_duration
-				if abs(distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
+				if abs(_post_stiffness_distx) /(tyre_stiffness/3.0)>(car.abs.lateral_slip_threshold/grip)*(ground_friction*ground_friction):
 					car.abs_delay = car.abs.lateral_pump_duration
-			
-			var yesx := absf(forcex)
-			yesx = min(yesx, 1.0)
-			var smoothx := pow(yesx, 2)
-			smoothx = min(smoothx, 1.0)
-			var yesy := absf(forcey)
-			yesy = min(yesy, 1.0)
-			var smoothy := yesy * 1.0
-			smoothy = min(smoothy, 1.0)
-			forcex /= (smoothx*(rigidity) +(1.0-rigidity))
-			forcey /= (smoothy*(rigidity) +(1.0-rigidity))
-			
-			var distyw := Vector2(distx, disty).length()
+
+			# `ok` is a normalized lateral-force factor used to scale the
+			# wv subtraction and the friction-action telemetry.
+			var distyw := Vector2(_post_stiffness_distx, _post_stiffness_disty).length()
 			var tr2 := (grip/tyre_stiffness)
 			var afg := tyre_stiffness*tr2
 			distyw /= CompoundSettings["TractionFactor"]
 			distyw = max(distyw, afg)
-			
+
 			var ok := ((distyw/tyre_stiffness)/grip)/w_size
 			ok = min(ok, 1.0)
-			
+
 			snap = ok*w_weight_read
 			snap = min(snap, 1.0)
-			
+
 			wv -= forcey*ok
-			
+
 			cache_friction_action = forcey*ok
-			
+
 			wv += (wheelpower*(1.0/tyre_stiffness))
-			
+
 			rollvol = velocity.length()*grip
-			
+
 			sl = slip_sk-tyre_stiffness
 			sl = max(sl, 0.0)
 			skvol = sl / 4.0
-			
+
 			skvol_d = slip * 25.0
 	else:
 		wv += wheelpower
@@ -480,102 +541,80 @@ func _physics_process(delta):
 		skvol_d = 0.0
 		compress = 0.0
 		compensate = 0.0
-	
+
 	slip_perc = Vector2(0, 0)
 	slip_perc2 = 0.0
-	
+
 	wv_diff = wv
-	# FORCE
+	# FORCE — second physics pass: compute the directional force the wheel
+	# applies to the car body. Uses the same _slip_to_force helper as the
+	# wv-update block above; the only difference is how disty is computed
+	# (rolling drag + Differed_Wheel blending) and that we don't write back
+	# into wv.
 	if is_colliding():
 		hitposition = get_collision_point()
 		directional_force.y = VitaVehicleSimulation.suspension(self,S_MaxCompression,A_InclineArea,A_ImpactForce,S_RestLength, elasticity,damping,damping_rebound, velocity.y,abs(cast_to.y),global_translation,get_collision_point(),car.mass,ground_bump,ground_bump_height)
-		
+
 		# FRICTION
 		var grip := (directional_force.y*tyre_maxgrip)*(ground_friction +fore_friction*CompoundSettings["ForeFriction"])
 		var rigidity := 0.67
-		#var r := 1.0-rigidity
-		
-		#var patch_hardness := 1.0
-		
+
 		var disty := velocity2.z - (wv*w_size)/(drag +1.0)
 		if not Differed_Wheel == "":
 			var d_w := car.get_node(Differed_Wheel)
 			disty = velocity2.z - ((wv*(1.0-get_parent().locked) +d_w.wv_diff*get_parent().locked)*w_size)/(drag +1)
-		
+
 		var distx := velocity2.x
-		
+
 		var compensate2 := directional_force.y
-		var grav_incline = ($geometry.global_transform.basis.orthonormalized().transposed() * (Vector3(0,1,0))).x
-		
+		var grav_incline := (geom_node.global_transform.basis.orthonormalized().transposed() * Vector3(0,1,0)).x
+
 		distx -= (grav_incline*(compensate2/tyre_stiffness))*1.1
-		
-		slip_perc = Vector2(distx,disty)
-		
-		disty *= tyre_stiffness
-		distx *= tyre_stiffness
-	
-		distx -= atan2(abs(wv),1.0)*((angle*10.0)*w_size)
-		
-		if grip>0:
-			var slipraw := Vector2(distx, disty).length()
-			slipraw = min(slipraw, grip)
-			
-			var slip := Vector2(distx, disty).length()/grip
-			slip /= slip*ground_builduprate +1.0
-			slip -= CompoundSettings["TractionFactor"]
-			slip = max(slip, 0.0)
-			slip_perc2 = slip
-			
-			var forcey := -disty/(slip +1.0)
-			var forcex := -distx/(slip +1.0)
-			
-			var yesx := absf(forcex)
-			yesx = min(yesx, 1.0)
-			var smoothx := yesx*yesx
-			smoothx = min(smoothx, 1.0)
-			var yesy := absf(forcey)
-			yesy = min(yesy, 1.0)
-			var smoothy := yesy*1.0
-			smoothy = min(smoothy, 1.0)
-			forcex /= (smoothx*(rigidity) +(1.0-rigidity))
-			forcey /= (smoothy*(rigidity) +(1.0-rigidity))
-			
-			directional_force.x = forcex
-			directional_force.z = forcey
+
+		# Stored BEFORE the stiffness multiply — preserves original semantics.
+		slip_perc = Vector2(distx, disty)
+
+		# Shared core force math.
+		var force_result := _slip_to_force(distx, disty, grip, tyre_stiffness, rigidity)
+
+		if grip > 0:
+			slip_perc2 = force_result.z
+			directional_force.x = force_result.x
+			directional_force.z = force_result.y
 	else:
-		$geometry.position = cast_to
-	
+		geom_node.position = cast_to
+
 	output_wv = wv
-	$animation/camber/wheel.rotate_x(deg_to_rad(wv))
-	
-	$geometry.position.y += w_size
-	
+	_wheel_mesh.rotate_x(deg_to_rad(wv))
+
+	geom_node.position.y += w_size
+
 	var inned := (absf(cambered)+A_Geometry4)/90.0
 	inned *= inned -A_Geometry4/90.0
-	
-	$geometry.position.x = -inned*translation.x
-	
-	$animation/camber.rotation.z = -(deg_to_rad(c_camber*sign(translation.x)) -deg_to_rad(cambered*sign(translation.x))*A_Geometry2)
-	
+
+	geom_node.position.x = -inned*translation.x
+
+	_camber_node.rotation.z = -(deg_to_rad(c_camber*sign(translation.x)) -deg_to_rad(cambered*sign(translation.x))*A_Geometry2)
+
 	var g: float
-	axle_position = $geometry.position.y
-	
+	axle_position = geom_node.position.y
+
 	if str(Solidify_Axles) == "":
-		g = ($geometry.position.y+(abs(cast_to.y) -A_Geometry1))/(abs(translation.x)+A_Geometry3 +1.0)
+		g = (geom_node.position.y+(abs(cast_to.y) -A_Geometry1))/(abs(translation.x)+A_Geometry3 +1.0)
 		g /= abs(g) +1.0
 		cambered = (g*90.0) -A_Geometry4
 	else:
-		g = ($geometry.position.y - get_node(Solidify_Axles).axle_position)/(abs(translation.x) +1.0)
+		g = (geom_node.position.y - get_node(Solidify_Axles).axle_position)/(abs(translation.x) +1.0)
 		g /= abs(g) +1.0
 		cambered = (g*90.0)
-	
-	$animation.position = $geometry.position
-	
-	var forces = $velocity2.global_transform.basis.orthonormalized() * directional_force
-	
-	
+
+	_animation_node.position = geom_node.position
+
+	var forces = velocity2_node.global_transform.basis.orthonormalized() * directional_force
+
+
 	car.apply_impulse(forces, hitposition-car.global_transform.origin)
-	
+
 	# torque
 	#var torqed := (wheelpower*w_weight)/4.0
 	wv_ds = wv

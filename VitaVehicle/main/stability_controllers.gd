@@ -61,11 +61,7 @@ static func _abs_advanced(car: Car, delta: float) -> void:
 	var any_active := false
 	var profile: ABSProfile = car.abs
 
-	for child in car.get_children():
-		if not (child is Wheel):
-			continue
-		var wheel: Wheel = child
-
+	for wheel in car._all_wheels:
 		# Wheels with ContactABS = false are unprotected. Snap them open.
 		if not wheel.ContactABS:
 			wheel.abs_modulation = 1.0
@@ -267,10 +263,7 @@ static func apply_esp(car: Car) -> void:
 static func _esp_brake_role(car: Car, axle: String, side_sign: float, amount: float) -> void:
 	if amount <= 0.0:
 		return
-	for child in car.get_children():
-		if not (child is Wheel):
-			continue
-		var wheel: Wheel = child
+	for wheel in car._all_wheels:
 		var role: String = String(wheel.ESP_Role)
 		if role.is_empty():
 			continue

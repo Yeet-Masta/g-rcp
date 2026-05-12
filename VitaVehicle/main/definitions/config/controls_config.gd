@@ -75,9 +75,8 @@ enum ShiftAssistLevel {
 @export var off_clutch_rate := 0.2
 
 
-# ===========================================================================
 # FUTURE: Steering wheel device support
-# ===========================================================================
+
 # The flags below are reserved for direct steering-wheel device integration
 # (Logitech G29, Thrustmaster T300, Fanatec, etc.). Godot 4 does not yet
 # expose a native FFB API, so wiring these up requires either:
@@ -87,7 +86,7 @@ enum ShiftAssistLevel {
 # When you add a wheel plugin, populate Car._read_steering_wheel_axis() and
 # Car._apply_force_feedback() — those are the two integration points the
 # rest of the codebase already calls.
-# ---------------------------------------------------------------------------
+
 @export_subgroup("Steering Wheel (future)")
 ## Use a dedicated steering-wheel device for steering input.
 @export var wheel_steering := false
