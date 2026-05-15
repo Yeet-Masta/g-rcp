@@ -289,6 +289,26 @@ var _rear_wheels_cache: Array[Wheel] = []
 var _pending_upshift := false
 var _pending_downshift := false
 
+# Cached sibling Fanatec input nodes. The wheel / pedals / shifter live as
+# siblings of the car (not children), so they survive when the car is freed
+# and they don't move with the rigid body. Resolved once in _ready by name —
+# null when no such node exists, which is the common case for keyboard play.
+# The cached refs are typed loosely (Node) so this script doesn't take a hard
+# class_name dependency on the addon — drop the addon in and it works, leave
+# it out and the car script still compiles.
+var _wheel_node: Node = null
+var _pedals_node: Node = null
+var _shifter_node: Node = null
+
+# Edge detection for paddle / shifter upshifts and downshifts. The wheel
+# script also exposes pressed/released signals, but polling here keeps the
+# control logic in one place — we just need to remember last frame's state
+# so we only latch on the rising edge.
+var _last_wheel_upshift := false
+var _last_wheel_downshift := false
+var _last_shifter_upshift := false
+var _last_shifter_downshift := false
+
 # Lifecycle
 
 func _input(event: InputEvent) -> void:
@@ -347,6 +367,40 @@ func _ready():
 	# Cache the optional aero centre node.
 	if has_node("DRAG_CENTRE"):
 		_drag_centre = $DRAG_CENTRE
+
+	# Cache optional sibling Fanatec input nodes. The convention is that
+	# the wheel / pedals / shifter are siblings of the car under the same
+	# parent (e.g. a scene-level "Input" container). We resolve them by the
+	# script's global class name so the lookup keeps working if the user
+	# renames the nodes in their scene.
+	_resolve_fanatec_siblings()
+
+
+## Walk our siblings once and cache references to any Fanatec input nodes we
+## find. Each ref stays null when the addon isn't installed / no such node
+## exists, which is the keyboard-only case. Re-resolution is cheap if you
+## ever need to call this again after hot-swapping input nodes.
+func _resolve_fanatec_siblings() -> void:
+	_wheel_node = null
+	_pedals_node = null
+	_shifter_node = null
+	var parent := get_parent()
+	if parent == null: return
+	for sibling in parent.get_children():
+		if sibling == self: continue
+		var cls := _script_class_name(sibling)
+		match cls:
+			"FanatecWheel":   _wheel_node = sibling
+			"FanatecPedals":  _pedals_node = sibling
+			"FanatecShifter": _shifter_node = sibling
+
+
+## Returns the [code]class_name[/code] declared in a node's script, or
+## [code]""[/code] if the node has no script / the script has no class_name.
+func _script_class_name(n: Node) -> String:
+	var s: Script = n.get_script()
+	if s == null: return ""
+	return s.get_global_name()
 
 
 func _find_car_manager() -> Node:
@@ -700,8 +754,56 @@ func control_car():
 	var left := Input.is_action_pressed("left")
 	var right := Input.is_action_pressed("right")
 
+	# Latch any paddle / sequential-shifter requests so they survive the
+	# same physics-tick race the keyboard latches in _input handle.
+	_latch_wheel_shifts()
+
+	# Wheel-pedal overrides. When a connected pedal device returns a
+	# finite value, we use that and skip the analog / keyboard branches
+	# entirely for that axis. is_nan() is the "no device" sentinel.
+	var wheel_throttle := _read_wheel_throttle()
+	var wheel_brake := _read_wheel_brake()
+	var wheel_clutch := _read_wheel_clutch()
+	var have_wheel_throttle := not is_nan(wheel_throttle)
+	var have_wheel_brake := not is_nan(wheel_brake)
+	var have_wheel_clutch := not is_nan(wheel_clutch)
+
 	# Pedals
-	if c.analog_pedals:
+	if c.pedal_input == true:
+		# Wheel-pedal branch: the device IS the pedal position. We still
+		# honor full shift-assist's gas↔brake swap when in reverse, and
+		# the gasrestricted / revmatch flags from the shift state machine.
+		# Any axis the wheel doesn't provide falls back to analog Input
+		# (so e.g. a USB load-cell brake + keyboard throttle works).
+		var t_in: float = wheel_throttle if have_wheel_throttle else _analog_pedal_strength("gas", c.analog_pedal_deadzone)
+		var b_in: float = wheel_brake if have_wheel_brake else _analog_pedal_strength("brake", c.analog_pedal_deadzone)
+		var hb_in := _analog_pedal_strength("handbrake", c.analog_pedal_deadzone)
+
+		if c.shift_assist_level == ControlsConfig.ShiftAssistLevel.FULL:
+			var go_throttle: float = b_in if gear == -1 else t_in
+			var press_brake: float = t_in if gear == -1 else b_in
+			if gasrestricted: go_throttle = 0.0
+			if revmatch:      go_throttle = max(go_throttle, 0.5)
+			gaspedal = go_throttle * c.max_throttle
+			brakepedal = press_brake * c.max_brake
+		else:
+			if c.shift_assist_level == ControlsConfig.ShiftAssistLevel.NONE:
+				gasrestricted = false
+				clutchin = false
+				revmatch = false
+			var t: float = 0.0 if (gasrestricted and not revmatch) else t_in
+			gaspedal = t * c.max_throttle
+			brakepedal = b_in * c.max_brake
+
+		handbrakepull = hb_in * c.max_handbrake
+
+		# Clutch from the wheel rig overrides whatever the rest of the
+		# pipeline computes. The existing clutchpedal value (driven by
+		# shift-assist) is left alone if the rig has no clutch axis.
+		if c.using_clutch:
+			clutchpedal = wheel_clutch
+			clutchpedalreal = wheel_clutch * c.max_clutch
+	elif c.analog_pedals:
 		# Analog branch: trigger / USB pedal strength IS the pedal position.
 		# We still honor full shift-assist's gas↔brake swap when in reverse,
 		# and the gasrestricted / revmatch flags from the shift state machine.
@@ -764,7 +866,7 @@ func control_car():
 	# Each branch sets steer_target; the assist block below is shared.
 	var wheel_axis := _read_steering_wheel_axis()
 	if c.wheel_steering and not is_nan(wheel_axis):
-		_steer_to_target(wheel_axis * c.steering_sensitivity)
+		steer_target = Input.get_joy_axis(0, JOY_AXIS_LEFT_X)
 	elif c.mouse_steering:
 		var mouseposx := 0.0
 		if get_viewport().size.x > 0.0:
@@ -809,13 +911,14 @@ func control_car():
 	else:
 		final_steer = steer_target
 
-
 ## Mouse and accelerometer share an "amplify-near-extremes" curve.
 func _steer_to_target(raw: float) -> void:
 	steer_target = raw
 	var s: float = min(absf(steer_target) * 1.0 + 0.5, 1.0)
 	steer_target *= s
-
+	
+func _steer_to_target_raw(raw: float) -> void:
+	steer_target = raw
 
 ## Read an analog action's strength, apply a deadzone, and rescale the
 ## remaining range back to 0..1 so the pedal can still hit max travel.
@@ -826,30 +929,110 @@ func _analog_pedal_strength(action: String, deadzone: float) -> float:
 	return (v - deadzone) / (1.0 - deadzone)
 
 
-# Steering wheel & FFB hooks (future)
+# Steering wheel, pedal, & shifter hooks
+#
+# These methods are the integration points for an attached steering-wheel
+# rig. The default bodies poll the optional sibling Fanatec input nodes
+# cached in _ready — when those nodes aren't present (keyboard-only play,
+# or a different addon), each method returns NAN, which control_car()
+# treats as "no device, fall through to the normal input path".
+#
+# To support a different wheel / pedal device, override these methods in a
+# subclass (or just edit the bodies below). Anything returning a finite
+# value in [-1, 1] for steering, or [0, 1] for the pedals, will be used.
 
-# These two methods are the integration points for a future steering-wheel /
-# force-feedback plugin. They are intentionally no-ops by default so the
-# game runs identically without any plugin installed. Replace the bodies
-# (or override in a subclass) when wiring up an SDL2-FFB GDExtension or a
-# platform-specific haptics plugin.
-
-## Read the raw axis (-1..1) of an attached steering wheel device.
-##
-## Default: returns NAN, meaning "no wheel connected — fall back to other
-## input methods". When a plugin is in place, return a value in [-1, 1] mapped
-## from the wheel's physical angle:
-## [codeblock]
-## var c := ConfigManager.data.controls
-## if not c.wheel_steering: return NAN
-## # Option A — wheel exposed as a normal joypad (Godot's built-in path):
-## return Input.get_joy_axis(c.wheel_device_id, JOY_AXIS_LEFT_X)
-## # Option B — direct SDL2 / DirectInput plugin:
-## #   var deg := SDL2FFB.get_wheel_position_degrees(c.wheel_device_id)
-## #   return clamp(deg / (c.wheel_rotation_degrees * 0.5), -1.0, 1.0)
-## [/codeblock]
+## Read the raw axis (-1..1) of an attached steering wheel device. Returns
+## NAN when no wheel is connected, in which case [method control_car] falls
+## back to mouse / accelerometer / analog stick / keyboard in that priority.
 func _read_steering_wheel_axis() -> float:
+	if _wheel_node != null and _wheel_node.has_method("is_device_connected") and _wheel_node.is_device_connected():
+		return _wheel_node.get_steering_normalized()
 	return NAN
+
+## Read the throttle pedal position (0..1) of an attached pedal device.
+## Returns NAN when no pedals are connected, in which case [method control_car]
+## falls back to the existing analog / discrete input path.
+func _read_wheel_throttle() -> float:
+	if _pedals_node != null and _pedals_node.has_method("is_device_connected") and _pedals_node.is_device_connected():
+		return _pedals_node.get_throttle()
+	return NAN
+
+## Read the brake pedal position (0..1) of an attached pedal device.
+func _read_wheel_brake() -> float:
+	if _pedals_node != null and _pedals_node.has_method("is_device_connected") and _pedals_node.is_device_connected():
+		return _pedals_node.get_brake()
+	return NAN
+
+## Read the clutch pedal position (0..1) of an attached pedal device.
+func _read_wheel_clutch() -> float:
+	if _pedals_node != null and _pedals_node.has_method("is_device_connected") and _pedals_node.is_device_connected():
+		return _pedals_node.get_clutch()
+	return NAN
+
+## Returns true if the wheel's upshift paddle is currently held. Returns
+## false when no wheel is connected.
+func _read_wheel_upshift_pressed() -> bool:
+	if _wheel_node != null and _wheel_node.has_method("is_button_pressed"):
+		return _wheel_node.is_button_pressed("up_shift")
+	return false
+
+## Returns true if the wheel's downshift paddle is currently held.
+func _read_wheel_downshift_pressed() -> bool:
+	if _wheel_node != null and _wheel_node.has_method("is_button_pressed"):
+		return _wheel_node.is_button_pressed("down_shift")
+	return false
+
+## Returns true if the H-pattern / sequential shifter is currently requesting
+## an upshift. For sequential mode this is the "seq_up" pulse; for H-pattern
+## mode this stays false (the gear is read directly via
+## [method _read_shifter_gear]).
+func _read_shifter_upshift_pressed() -> bool:
+	if _shifter_node != null and _shifter_node.has_method("is_gear_engaged"):
+		return _shifter_node.is_gear_engaged("seq_up")
+	return false
+
+## Returns true if the shifter is currently requesting a downshift (sequential
+## mode only).
+func _read_shifter_downshift_pressed() -> bool:
+	if _shifter_node != null and _shifter_node.has_method("is_gear_engaged"):
+		return _shifter_node.is_gear_engaged("seq_down")
+	return false
+
+## Returns the H-pattern gear currently engaged on the shifter (1..7, -1 for
+## reverse, 0 for neutral / no shifter / sequential mode). Useful for fully-
+## manual transmissions where the driver picks gears directly.
+func _read_shifter_gear() -> int:
+	if _shifter_node != null and _shifter_node.has_method("get_current_gear"):
+		return _shifter_node.get_current_gear()
+	return 0
+
+
+## Poll wheel paddles + shifter once per frame and latch upshift / downshift
+## requests onto the same _pending_* flags the keyboard path uses. Called
+## from control_car so paddle presses survive the same physics-tick race as
+## keyboard shift requests.
+func _latch_wheel_shifts() -> void:
+	# Wheel paddles (rising edge → latch)
+	var w_up := _read_wheel_upshift_pressed()
+	if w_up and not _last_wheel_upshift:
+		_pending_upshift = true
+	_last_wheel_upshift = w_up
+
+	var w_dn := _read_wheel_downshift_pressed()
+	if w_dn and not _last_wheel_downshift:
+		_pending_downshift = true
+	_last_wheel_downshift = w_dn
+
+	# Sequential shifter (rising edge → latch)
+	var s_up := _read_shifter_upshift_pressed()
+	if s_up and not _last_shifter_upshift:
+		_pending_upshift = true
+	_last_shifter_upshift = s_up
+
+	var s_dn := _read_shifter_downshift_pressed()
+	if s_dn and not _last_shifter_downshift:
+		_pending_downshift = true
+	_last_shifter_downshift = s_dn
 
 
 ## Compute and dispatch force-feedback effects to the wheel device.

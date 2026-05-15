@@ -96,6 +96,9 @@ func _process(delta):
 		if car:
 			$sw.rotation_degrees = car.final_steer * 380.0
 			$sw_desired.rotation_degrees = car.steer_target * 380.0
+			if car._wheel_node != null and car._wheel_node.is_device_connected():
+				$sw.rotation_degrees = car.final_steer * (car._wheel_node.wheel_range_degrees/2)
+				$sw_desired.rotation_degrees = car.steer_target * (car._wheel_node.wheel_range_degrees/2)
 			if car.Debug_Mode:
 				get_node("container/weight_dist").text = "weight distribution: F%f/R%f" % [car.weight_dist[0] * 100,car.weight_dist[1] * 100]
 			else:

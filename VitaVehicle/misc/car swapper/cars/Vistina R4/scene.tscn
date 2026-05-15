@@ -1,18 +1,15 @@
 [gd_scene format=4 uid="uid://bvkp2e058y0t7"]
 
 [ext_resource type="PackedScene" uid="uid://df2i30irlljkl" path="res://main/wheel.tscn" id="1"]
-[ext_resource type="Script" uid="uid://bkmcotr43huu7" path="res://main/car.gd" id="1_1vlej"]
-[ext_resource type="Script" uid="uid://brxxtuawatcrb" path="res://main/fuel_system.gd" id="2_r12yg"]
+[ext_resource type="Script" uid="uid://bu15o62p33mk3" path="res://main/car.gd" id="1_1vlej"]
+[ext_resource type="Script" uid="uid://b4nm031vq41vr" path="res://main/fuel_system.gd" id="2_r12yg"]
 [ext_resource type="PackedScene" uid="uid://c7m04qiimdydw" path="res://main/misc/engine sound/engine.tscn" id="3"]
 [ext_resource type="Script" uid="uid://wneib3hyo2ko" path="res://main/definitions/profile/shift_assist_profile.gd" id="3_kja3u"]
-[ext_resource type="Script" uid="uid://d240oi5kp2pnr" path="res://main/definitions/profile/abs_profile.gd" id="3_x6gga"]
 [ext_resource type="AudioStream" uid="uid://brmx21woqn06l" path="res://misc/car swapper/cars/Vistina R4/assets/1.ogg" id="4"]
 [ext_resource type="PackedScene" uid="uid://d1vmrvs3aj84o" path="res://main/misc/tyre sounds/tyres.tscn" id="5"]
 [ext_resource type="Script" uid="uid://ch6g3siwv22tk" path="res://main/definitions/profile/esp_profile.gd" id="5_wl61r"]
 [ext_resource type="PackedScene" uid="uid://c43p6bbeeuq4f" path="res://main/misc/mechanical sounds/other_sounds.tscn" id="6"]
-[ext_resource type="Script" uid="uid://6dokimxfg1lv" path="res://main/definitions/profile/btcs_profile.gd" id="6_qin8d"]
 [ext_resource type="AudioStream" uid="uid://b62tnj3vn6cn0" path="res://misc/car swapper/cars/Vistina R4/assets/2.ogg" id="7"]
-[ext_resource type="Script" uid="uid://yknnxtcfyfea" path="res://main/definitions/profile/ttcs_profile.gd" id="7_onau2"]
 [ext_resource type="AudioStream" uid="uid://tu0ejrx27gxe" path="res://misc/car swapper/cars/Vistina R4/assets/3.ogg" id="8"]
 [ext_resource type="AudioStream" uid="uid://kao2f1rnaivr" path="res://misc/car swapper/cars/Vistina R4/assets/4.ogg" id="9"]
 [ext_resource type="AudioStream" uid="uid://bktia2dhs51g5" path="res://misc/car swapper/cars/Vistina R4/assets/5.ogg" id="10"]
@@ -22,26 +19,14 @@
 
 [sub_resource type="Resource" id="Resource_x6gga"]
 script = ExtResource("2_r12yg")
-metadata/_custom_type_script = "uid://brxxtuawatcrb"
 
 [sub_resource type="Resource" id="Resource_wl61r"]
 script = ExtResource("3_kja3u")
 metadata/_custom_type_script = "uid://wneib3hyo2ko"
 
-[sub_resource type="Resource" id="Resource_10ks7"]
-script = ExtResource("3_x6gga")
-
 [sub_resource type="Resource" id="Resource_thrn4"]
 script = ExtResource("5_wl61r")
 metadata/_custom_type_script = "uid://ch6g3siwv22tk"
-
-[sub_resource type="Resource" id="Resource_i0w0h"]
-script = ExtResource("6_qin8d")
-metadata/_custom_type_script = "uid://6dokimxfg1lv"
-
-[sub_resource type="Resource" id="Resource_jxspl"]
-script = ExtResource("7_onau2")
-metadata/_custom_type_script = "uid://yknnxtcfyfea"
 
 [sub_resource type="StandardMaterial3D" id="17"]
 albedo_color = Color(0.01, 0.01, 0.01, 1)
@@ -319,10 +304,7 @@ can_sleep = false
 script = ExtResource("1_1vlej")
 fuel = SubResource("Resource_x6gga")
 shift_assist = SubResource("Resource_wl61r")
-abs = SubResource("Resource_10ks7")
 esp = SubResource("Resource_thrn4")
-btcs = SubResource("Resource_i0w0h")
-ttcs = SubResource("Resource_jxspl")
 Weight = 1200.0
 DragCoefficient = 0.29
 Downforce = 0.05
@@ -348,11 +330,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.16941, 0.092056)
 
 [node name="engine_sound" parent="." unique_id=1428010219 node_paths=PackedStringArray("car") instance=ExtResource("3")]
 car = NodePath("..")
-pitch_calibrate = 7700.0
-crossfade_vvt = 0.0
-crossfade_throttle = -4.0
-crossfade_influence = 11.0
 overall_volume = 0.9
+pitch_calibrate = 7700.0
+crossfade_influence = 11.0
+crossfade_throttle = -4.0
+crossfade_vvt = 0.0
 
 [node name="450000" parent="engine_sound" index="0" unique_id=766664071]
 stream = ExtResource("4")

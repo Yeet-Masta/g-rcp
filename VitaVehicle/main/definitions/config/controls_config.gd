@@ -54,6 +54,12 @@ enum ShiftAssistLevel {
 ## this are clamped to 0; above it the remaining range is rescaled to 0..1.
 @export var analog_pedal_deadzone := 0.0
 
+# if you want to use racing pedals or not because "var have_wheel_throttle := not is_nan(wheel_throttle)" in car.gs doesn't work!?!
+@export var pedal_input := true
+
+# smae stupid thing with the clutch!
+@export var using_clutch := false
+
 @export_subgroup("Pedals/Throttle")
 @export var max_throttle := 1.0
 @export var on_throttle_rate := 0.2
@@ -87,14 +93,9 @@ enum ShiftAssistLevel {
 # Car._apply_force_feedback() — those are the two integration points the
 # rest of the codebase already calls.
 
-@export_subgroup("Steering Wheel (future)")
+@export_subgroup("Steering Wheel")
 ## Use a dedicated steering-wheel device for steering input.
-@export var wheel_steering := false
-## Total physical rotation lock-to-lock of the wheel device, in degrees.
-## Used to map raw wheel angle to the -1..1 steer_target range.
-@export var wheel_rotation_degrees := 900.0
-## Joypad device id of the wheel (Godot Input maps wheels as joypads).
-@export var wheel_device_id := 0
+@export var wheel_steering := true
 
 @export_subgroup("Force Feedback (future)")
 ## Master FFB on/off.
