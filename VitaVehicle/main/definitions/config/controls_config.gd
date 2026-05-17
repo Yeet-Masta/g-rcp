@@ -97,14 +97,18 @@ enum ShiftAssistLevel {
 ## Use a dedicated steering-wheel device for steering input.
 @export var wheel_steering := true
 
-@export_subgroup("Force Feedback (future)")
+@export_subgroup("Force Feedback")
 ## Master FFB on/off.
-@export var ffb_enabled := false
+@export var ffb_enabled := true
 ## Master FFB strength multiplier (0.0–1.0).
 @export var ffb_strength := 1.0
 ## Self-aligning torque scale — derived from front-wheel lateral force.
 @export var ffb_self_aligning := 1.0
-## Bump / road-feel scale — derived from suspension compression deltas.
+## Bump / road-feel scale — derived from suspension load deltas frame-to-frame.
 @export var ffb_road_feel := 0.5
-## Curb / surface-effect scale — fired on ground_surface_variables changes.
+## Curb / surface-effect scale — fires a bump pulse on large load spikes.
 @export var ffb_surface_effects := 0.5
+## Exponential smoothing factor for the constant force (0..1). Lower values
+## feel heavier and dampen high-frequency noise; higher values feel snappier
+## but can chatter. 0.3–0.5 is a good starting range.
+@export_range(0.0, 1.0, 0.05) var ffb_smoothing := 0.4

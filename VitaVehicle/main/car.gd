@@ -309,6 +309,11 @@ var _last_wheel_downshift := false
 var _last_shifter_upshift := false
 var _last_shifter_downshift := false
 
+# FFB scratch state. Frame-to-frame deltas drive the road-feel signal; we
+# cache last frame's totals here. These are zeroed naturally between scene
+# loads because the car is freed and rebuilt.
+var _ffb_prev_front_load := 0.0
+
 # Lifecycle
 
 func _input(event: InputEvent) -> void:
@@ -866,7 +871,7 @@ func control_car():
 	# Each branch sets steer_target; the assist block below is shared.
 	var wheel_axis := _read_steering_wheel_axis()
 	if c.wheel_steering and not is_nan(wheel_axis):
-		steer_target = Input.get_joy_axis(0, JOY_AXIS_LEFT_X)
+		steer_target = wheel_axis
 	elif c.mouse_steering:
 		var mouseposx := 0.0
 		if get_viewport().size.x > 0.0:
@@ -1034,38 +1039,54 @@ func _latch_wheel_shifts() -> void:
 		_pending_downshift = true
 	_last_shifter_downshift = s_dn
 
+## Sim-space front-wheel torque (lateral force × caster) runs in the low
+## hundreds; this divides it down into the [-1, 1] range the wheel wants, so
+## ControlsConfig.ffb_self_aligning can sit near 1.0. Raise it if the wheel
+## slams the stops too easily; lower it if it feels dead.
+const _FFB_TORQUE_NORMALIZE := 500.0
 
-## Compute and dispatch force-feedback effects to the wheel device.
-##
-## Called once per physics tick at the end of [code]_physics_process[/code],
-## after the wheels have updated their forces. The four signals you typically
-## sum into a single FFB constant-force torque are:
-##
-##   1. Self-aligning torque ← front wheels' lateral force,
-##                             [code]$fl/$fr.directional_force.x[/code], scaled
-##                             by Caster. This is the dominant feel.
-##   2. Tyre load            ← front wheels' [code].directional_force.y[/code];
-##                             multiply SAT by load so unweighted wheels go
-##                             light (kerb-hop, jumps).
-##   3. Bump / road feel     ← per-wheel suspension compression delta
-##                             frame-to-frame (see [Wheel]).
-##   4. Curb / surface FX    ← transient buzz on
-##                             [GroundSurfaceVariables] type changes.
-##
-## Reference implementation:
-## [codeblock]
-## var c := ConfigManager.data.controls
-## if not c.ffb_enabled: return
-## var sat := 0.0
-## for w in [$fl, $fr]:
-##     sat += w.directional_force.x * w.Caster
-## var torque := sat * c.ffb_self_aligning \
-##             + bump_signal * c.ffb_road_feel \
-##             + curb_signal * c.ffb_surface_effects
-## SDL2FFB.set_constant_force(c.wheel_device_id, torque * c.ffb_strength)
-## [/codeblock]
 func _apply_force_feedback() -> void:
-	pass
+	# Only the player-controlled car drives the wheel. Without this gate,
+	# every AI car would also call apply_steering_torque every tick and
+	# they'd all fight over the device.
+	if not Controlled:
+		return
+	var c: ControlsConfig = ConfigManager.data.controls
+	if not c.ffb_enabled:
+		return
+
+	# Soft dependency on the autoload — keyboard-only builds (no FFBManager
+	# registered) still run because we resolve by path and bail on null.
+	var ffb := get_node_or_null("/root/FFBManager")
+	if ffb == null or not ffb.is_open():
+		return
+
+	# Self-aligning torque: front-wheel lateral force × caster, summed.
+	# directional_force.y is the suspension load — weighting by it makes a
+	# lifted wheel (kerb / jump) go light, which is the correct behaviour.
+	var sat := 0.0
+	var front_load_total := 0.0
+	for w in _front_wheels_cache:
+		var load_weight: float = clampf(w.directional_force.y / 200.0, 0.0, 1.0)
+		sat += w.directional_force.x * w.Caster * load_weight
+		front_load_total += w.directional_force.y
+
+	# Road feel: tick-over-tick change in total front load. Bumps, curbs and
+	# camber transitions show up here as oscillations.
+	var load_delta := front_load_total - _ffb_prev_front_load
+	_ffb_prev_front_load = front_load_total
+
+	# Curb / surface FX: a large delta is a curb-strike or hard landing. Fire
+	# a short pulse on top of the constant force — apply_steering_torque's
+	# smoothing eats high frequencies, so without this impacts feel muted.
+	if absf(load_delta) > 60.0:
+		ffb.pulse_bump(clampf(absf(load_delta) * c.ffb_surface_effects * 0.005, 0.0, 1.0))
+
+	# Combine and normalise into [-1, 1]; the user-facing ffb_* multipliers
+	# layer on top.
+	var torque: float = sat * c.ffb_self_aligning + load_delta * c.ffb_road_feel
+	torque = (torque / _FFB_TORQUE_NORMALIZE) * c.ffb_strength
+	ffb.apply_steering_torque(torque, c.ffb_smoothing)
 
 
 # Misc

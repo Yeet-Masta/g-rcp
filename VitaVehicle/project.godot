@@ -30,6 +30,7 @@ VitaVehicleSimulation="*res://main/vitavehicle.gd"
 misc_graphics_settings="*res://misc/autoload/graphics.gd"
 ConfigManager="*res://main/config_manager.gd"
 CarManager="*uid://dt201ykdigkvw"
+FfbManager="*uid://61tcr2ovgjou"
 
 [display]
 
